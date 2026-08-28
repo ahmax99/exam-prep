@@ -1,0 +1,66 @@
+name: 'Deploy Lambda with ECR Image'
+description: 'Deploy Lambda function using ECR container image with CodeDeploy'
+
+inputs:
+  function-name:
+    description: 'Lambda function name'
+    required: true
+  image-uri:
+    description: 'ECR image URI with tag'
+    required: true
+  alias-name:
+    description: 'Lambda alias name (e.g., dev, stg, prod)'
+    required: true
+  codedeploy-app:
+    description: 'CodeDeploy application name'
+    required: true
+  codedeploy-group:
+    description: 'CodeDeploy deployment group name'
+    required: true
+  aws-region:
+    description: 'AWS region'
+    required: true
+  git-sha:
+    description: 'Git commit SHA'
+    required: true
+  release-tag:
+    description: 'Release tag'
+    required: true
+
+outputs:
+  deployment-id:
+    description: 'CodeDeploy deployment ID'
+    value: ${{ steps.deploy.outputs.deployment_id }}
+  new-version:
+    description: 'New Lambda version number'
+    value: ${{ steps.deploy.outputs.new_version }}
+  current-version:
+    description: 'Current Lambda version number'
+    value: ${{ steps.deploy.outputs.current_version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploy Lambda function with ECR image
+      id: deploy
+      shell: bash
+      env:
+        FUNCTION_NAME: ${{ inputs.function-name }}
+        IMAGE_URI: ${{ inputs.image-uri }}
+        ALIAS_NAME: ${{ inputs.alias-name }}
+        CODEDEPLOY_APP: ${{ inputs.codedeploy-app }}
+        CODEDEPLOY_GROUP: ${{ inputs.codedeploy-group }}
+        AWS_REGION: ${{ inputs.aws-region }}
+        GIT_SHA: ${{ inputs.git-sha }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+      run: |
+        chmod +x .github/scripts/deploy-lambda.sh
+        .github/scripts/deploy-lambda.sh \
+          "$FUNCTION_NAME" \
+          "$IMAGE_URI" \
+          "$ALIAS_NAME" \
+          "$CODEDEPLOY_APP" \
+          "$CODEDEPLOY_GROUP" \
+          "$AWS_REGION" \
+          "$GIT_SHA" \
+          "$RELEASE_TAG"

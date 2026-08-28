@@ -1,0 +1,14 @@
+:root {
+  --radius-base: 0.5rem;
+}
+
+.dark {
+  --radius-base: 0.5rem;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius-base) - 4px);
+  --radius-md: calc(var(--radius-base) - 2px);
+  --radius-lg: var(--radius-base);
+  --radius-xl: calc(var(--radius-base) + 4px);
+}

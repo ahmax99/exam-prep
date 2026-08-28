@@ -1,0 +1,8 @@
+# hadolint config — https://github.com/hadolint/hadolint#configure
+
+ignored:
+  # DL3041: "Specify version with `dnf install -y <package>-<version>`." Both
+  # Dockerfiles install `unzip`/`nodejs` via dnf on top of the AWS Lambda
+  # base image (public.ecr.aws/lambda/nodejs), which tracks Amazon Linux
+  # 2023's rolling package set.
+  - DL3041

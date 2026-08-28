@@ -1,0 +1,66 @@
+name: 'Terraform Bootstrap'
+description: 'Seeds central ECR images if absent (via the shared ecr-push role), then runs a full apply and publishes Lambda versions'
+
+inputs:
+  aws-region:
+    description: 'AWS region'
+    required: true
+  project-name:
+    description: 'Project name used to construct the central ECR repository names'
+    required: true
+  central-ecr-account-id:
+    description: 'Account ID of the shared-services account hosting the central ECR registry'
+    required: true
+  images:
+    description: 'present/absent — whether the central repos already have :latest (from terraform-ecr-check)'
+    required: true
+  ecr-push-role-arn:
+    description: 'Role in shared-services to assume for pushing seed images (only used when images are absent)'
+    required: true
+  apply-role-arn:
+    description: "This environment's terraform-apply role, re-assumed after the cross-account push"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    # ── Seed images (only when the central repos are empty) ──────────────────
+    - name: Assume ECR push role (shared-services)
+      if: inputs.images == 'absent'
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ inputs.ecr-push-role-arn }}
+        aws-region: ${{ inputs.aws-region }}
+        role-session-name: TerraformBootstrapEcrPush
+
+    - name: Login to central ECR
+      if: inputs.images == 'absent'
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push seed images
+      if: inputs.images == 'absent'
+      shell: bash
+      env:
+        AWS_REGION: ${{ inputs.aws-region }}
+        ECR_BACKEND_URL: ${{ inputs.central-ecr-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.project-name }}-backend
+        ECR_FRONTEND_URL: ${{ inputs.central-ecr-account-id }}.dkr.ecr.${{ inputs.aws-region }}.amazonaws.com/${{ inputs.project-name }}-frontend
+      run: |
+        chmod +x .github/scripts/build-and-push.sh
+        .github/scripts/build-and-push.sh
+
+    - name: Re-assume terraform apply role
+      if: inputs.images == 'absent'
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ inputs.apply-role-arn }}
+        aws-region: ${{ inputs.aws-region }}
+        role-session-name: TerraformBootstrapApply
+
+    # ── Full apply + publish versions ─────────────────────────────────────────
+    - name: Bootstrap infrastructure
+      shell: bash
+      env:
+        AWS_REGION: ${{ inputs.aws-region }}
+      run: |
+        chmod +x .github/scripts/terraform-bootstrap.sh
+        .github/scripts/terraform-bootstrap.sh

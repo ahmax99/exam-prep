@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-03T00:00:00Z",
+  "title": "Design System: Boilerplate Baseline",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#000000",
+          "#1d1d1d",
+          "#333333",
+          "#525252",
+          "#747474",
+          "#a4a4a4",
+          "#e4e4e4",
+          "#fcfcfc"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#fcfcfc",
+        "tonalRamp": [
+          "#090909",
+          "#242424",
+          "#525252",
+          "#a4a4a4",
+          "#e4e4e4",
+          "#ebebeb",
+          "#f5f5f5",
+          "#fcfcfc"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Slate Text",
+        "canonical": "#525252",
+        "tonalRamp": [
+          "#1d1d1d",
+          "#333333",
+          "#525252",
+          "#747474",
+          "#a4a4a4",
+          "#c4c4c4",
+          "#e4e4e4",
+          "#f5f5f5"
+        ]
+      },
+      "destructive": {
+        "role": "tertiary",
+        "displayName": "Signal Red",
+        "canonical": "#e54b4f",
+        "tonalRamp": [
+          "#4a1213",
+          "#7a1e20",
+          "#a92c2f",
+          "#e54b4f",
+          "#ec7376",
+          "#f29b9d",
+          "#f8c3c4",
+          "#fdeaea"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page heroes and marketing headlines only."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text; cap measure at 65-75ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, form labels, table headers."
+      },
+      "mono": { "displayName": "Mono", "purpose": "Code, IDs, tabular data." }
+    },
+    "shadows": [
+      {
+        "name": "resting",
+        "value": "0px 1px 2px 0px hsl(0 0% 0% / 0.09)",
+        "purpose": "Cards and inputs at rest."
+      },
+      {
+        "name": "raised",
+        "value": "0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18)",
+        "purpose": "Dropdowns and popovers."
+      },
+      {
+        "name": "floating",
+        "value": "0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18)",
+        "purpose": "Dialogs and sheets."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for state transitions; reduced-motion gets crossfade or instant."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single high-emphasis action per view.",
+      "html": "<button class=\"ds-btn-primary\">Create post</button>",
+      "css": ".ds-btn-primary { background: var(--primary, #000); color: var(--primary-foreground, #fff); padding: 8px 16px; height: 36px; font-family: 'Geist Sans', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.01em; border: none; border-radius: 6px; cursor: pointer; transition: opacity 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring, #000); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting actions beside a primary.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { background: var(--secondary, #ebebeb); color: var(--secondary-foreground, #000); padding: 8px 16px; height: 36px; font-family: 'Geist Sans', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.01em; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-btn-secondary:hover { background: var(--muted, #f5f5f5); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--ring, #000); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Default form control inside Field/FieldGroup layout.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Email address\" />",
+      "css": ".ds-input { background: var(--card, #fff); color: var(--foreground, #000); border: 1px solid var(--input, #ebebeb); border-radius: 6px; padding: 8px 12px; height: 36px; font-family: 'Geist Sans', sans-serif; font-size: 16px; letter-spacing: 0.01em; width: 100%; transition: border-color 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-input::placeholder { color: var(--muted-foreground, #525252); } .ds-input:focus-visible { outline: 2px solid var(--ring, #000); outline-offset: 1px; border-color: var(--ring, #000); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Elevated content container with full Card composition.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Weekly summary</div><div class=\"ds-card-body\">Seven posts published, three drafts pending review.</div></div>",
+      "css": ".ds-card { background: var(--card, #fff); color: var(--card-foreground, #000); border: 1px solid var(--border, #e4e4e4); border-radius: 12px; padding: 24px; box-shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.09); } .ds-card-title { font-family: 'Geist Sans', sans-serif; font-size: 20px; font-weight: 500; line-height: 1.375; margin-bottom: 8px; } .ds-card-body { font-family: 'Geist Sans', sans-serif; font-size: 16px; line-height: 1.5; letter-spacing: 0.01em; color: var(--muted-foreground, #525252); }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Status and category markers; never decorative.",
+      "html": "<span class=\"ds-badge\">Draft</span>",
+      "css": ".ds-badge { background: var(--muted, #f5f5f5); color: var(--muted-foreground, #525252); border-radius: 4px; padding: 2px 8px; font-family: 'Geist Sans', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.01em; display: inline-block; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Neutral Instrument",
+    "overview": "This system is a precision tool, not a personality. It is strict monochrome by intent: black ink on near-white paper (light) and white ink on true black (dark), with a single red reserved for destruction. The design's job is to make hierarchy, state, and affordance unmistakable using only type weight, size, spacing, and hairline borders — so that when a derived app grafts its brand color onto the token layer, nothing else has to move.",
+    "keyCharacteristics": [
+      "Strict monochrome; color appears only when it carries meaning",
+      "Hierarchy from type weight, size, and whitespace — never from decoration",
+      "Hairline borders and whisper-quiet shadows define structure",
+      "Every visual value flows from src/styles/tokens/; components consume semantic classes exclusively",
+      "Full light/dark parity out of the box"
+    ],
+    "rules": [
+      {
+        "name": "The Monochrome Rule",
+        "body": "Chromatic color is forbidden except: Signal Red for destruction/errors, chart tokens for data visualization, and focus states. If a screen needs emphasis, reach for weight and space, not hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Token Door Rule",
+        "body": "Color enters components only as semantic classes (bg-primary, text-muted-foreground, border-border). A raw hex value or Tailwind palette color in a component is a defect.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "Geist carries everything. Introducing a second display face is a per-app branding decision made in tokens/fonts.css, never inline.",
+        "section": "typography"
+      },
+      {
+        "name": "The Drawn-Not-Lifted Rule",
+        "body": "If a border can express the boundary, use the border. Shadows are reserved for surfaces that genuinely float above the page.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do express every color, radius, shadow, spacing, and font through the token files in src/styles/tokens/ — that is the only door for visual change.",
+      "Do use shadcn semantic classes and built-in variant props before any custom styling.",
+      "Do ship loading (Skeleton), empty (Empty), error, and disabled states with every surface.",
+      "Do keep body text at ≥4.5:1 contrast — Slate Text (#525252) is the lightest allowed body/muted color on light surfaces.",
+      "Do honor prefers-reduced-motion with a crossfade or instant alternative for every animation."
+    ],
+    "donts": [
+      "Don't use purple-to-blue gradients, glassmorphism cards, hero-metric blocks, or identical icon-heading-text card grids — the SaaS-template maximalism this system explicitly rejects.",
+      "Don't introduce warm cream/beige neutrals; the baseline is strict monochrome by intent, not by omission.",
+      "Don't write raw hex or Tailwind palette colors in components — semantic tokens only.",
+      "Don't use colored side-stripe borders, gradient text, or tiny uppercase tracked eyebrows above every section.",
+      "Don't nest cards inside cards, or reach for a card when a border or spacing would do.",
+      "Don't add decorative charts, badges, or stat tiles that don't answer a user question — dashboard clutter is an anti-reference."
+    ]
+  }
+}

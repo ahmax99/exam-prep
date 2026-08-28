@@ -1,0 +1,31 @@
+name: 'Post Terraform Plan PR Comment'
+description: 'Formats terraform plan output and posts or updates a PR comment'
+
+inputs:
+  plan-file:
+    description: 'Path to the file containing raw terraform plan output'
+    required: true
+  environment:
+    description: 'Environment name shown in the comment heading (e.g. dev, prod)'
+    required: true
+    default: 'dev'
+  github-token:
+    description: 'GitHub token with pull-requests: write permission'
+    required: true
+  pr-number:
+    description: 'Pull request number to post the comment on'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Post or update plan comment
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        PLAN_FILE: ${{ inputs.plan-file }}
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: |
+        chmod +x .github/scripts/terraform-plan-comment.sh
+        .github/scripts/terraform-plan-comment.sh "$PLAN_FILE" "$ENVIRONMENT"

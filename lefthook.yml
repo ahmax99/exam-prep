@@ -1,0 +1,37 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: oxc
+      glob: '*.{ts,tsx,js,jsx,yml,yaml,md,json}'
+      run: bunx oxfmt {staged_files} && bunx oxlint --fix --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    - name: terraform-fmt
+      glob:
+        - 'infra/*.{tf,tfvars}'
+        - 'infra/**/*.{tf,tfvars}'
+      run: terraform -chdir=infra fmt -recursive
+      stage_fixed: true
+
+    - name: hadolint
+      glob: '**/Dockerfile'
+      run: command -v hadolint >/dev/null 2>&1 || { echo 'hadolint not installed locally, skipping Dockerfile lint (see https://github.com/hadolint/hadolint)'; exit 0; }; hadolint --config .hadolint.yaml {staged_files}
+
+    - name: gitleaks
+      glob: '*'
+      run: command -v gitleaks >/dev/null 2>&1 || { echo 'gitleaks not installed locally, skipping secret scan (see https://github.com/gitleaks/gitleaks#installing)'; exit 0; }; gitleaks protect --staged --config .gitleaks.toml --redact
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bunx commitlint --edit {1}
+
+pre-push:
+  commands:
+    check-types-build:
+      run: bunx turbo run check-types build --affected
+
+post-commit:
+  scripts:
+    'update-graph.sh':
+      runner: sh

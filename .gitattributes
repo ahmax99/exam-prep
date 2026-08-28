@@ -1,0 +1,16 @@
+# Normalize every text file to LF in the index and on checkout. Without this,
+# a Windows checkout reintroduces CRLF and `terraform fmt`/`oxfmt` rewrite it
+# back to LF, producing whole-file phantom diffs.
+* text=auto eol=lf
+
+# Executed directly (CI, Lefthook, Claude Code hooks, Lambda entrypoints) — a
+# CRLF shebang makes the kernel look for an interpreter named `bash\r`.
+*.sh text eol=lf
+bootstrap text eol=lf
+Dockerfile text eol=lf
+
+# Generated lockfile: LF-normalized, and collapsed in diffs/reviews.
+bun.lock text eol=lf -diff linguist-generated
+
+*.png binary
+*.ico binary

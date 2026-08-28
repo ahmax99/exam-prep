@@ -1,0 +1,38 @@
+name: 'Deploy Static Assets to S3 + Invalidate CloudFront'
+description: 'Extracts Next.js static assets from Docker image, syncs to S3, and invalidates CloudFront cache'
+
+inputs:
+  image-uri:
+    description: 'ECR image URI of the frontend Docker image'
+    required: true
+  static-assets-bucket:
+    description: 'S3 bucket name for static assets'
+    required: true
+  cloudfront-distribution-id:
+    description: 'CloudFront distribution ID for cache invalidation'
+    required: true
+  aws-region:
+    description: 'AWS region'
+    required: true
+  central-ecr-account-id:
+    description: 'Account ID of the shared-services account hosting the central ECR registry'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v2
+      with:
+        registries: ${{ inputs.central-ecr-account-id }}
+
+    - name: Deploy static assets
+      shell: bash
+      env:
+        IMAGE_URI: ${{ inputs.image-uri }}
+        STATIC_ASSETS_BUCKET: ${{ inputs.static-assets-bucket }}
+        CLOUDFRONT_DISTRIBUTION_ID: ${{ inputs.cloudfront-distribution-id }}
+        AWS_REGION: ${{ inputs.aws-region }}
+      run: |
+        chmod +x .github/scripts/deploy-static-assets.sh
+        .github/scripts/deploy-static-assets.sh

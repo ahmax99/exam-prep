@@ -1,0 +1,23 @@
+:root {
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+.dark {
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+  }
+}

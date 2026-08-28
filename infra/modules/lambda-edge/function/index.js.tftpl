@@ -1,0 +1,29 @@
+'use strict';
+
+// Allowed host values — injected at deploy time via Terraform templatefile()
+const ALLOWED_HOSTS = ${allowed_hosts_json};
+
+exports.handler = (event, context, callback) => {
+  const request = event.Records[0].cf.request;
+  const host = request.headers.host[0].value.toLowerCase();
+
+  if (!ALLOWED_HOSTS.includes(host)) {
+    callback(null, {
+      status: '403',
+      statusDescription: 'Forbidden',
+      headers: {
+        'content-type': [{ key: 'Content-Type', value: 'text/plain' }],
+        'cache-control': [{ key: 'Cache-Control', value: 'no-store' }],
+      },
+      body: 'Forbidden: access via this domain is not permitted.',
+    });
+    return;
+  }
+
+  // Preserve the viewer's original Host so the origin Lambda can reconstruct
+  // its public URL (CloudFront strips the viewer Host header for OAC SigV4).
+  // Note: do not set X-Forwarded-Proto here — CloudFront adds it automatically
+  request.headers['x-forwarded-host'] = [{ key: 'X-Forwarded-Host', value: host }];
+
+  callback(null, request);
+};

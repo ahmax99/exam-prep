@@ -1,0 +1,39 @@
+name: 'Check Terraform ECR Image State'
+description: 'Detects whether the central ECR repos have :latest images and whether this environment exists yet; outputs bootstrap or steady-state mode'
+
+inputs:
+  project-name:
+    description: 'Project name used to construct ECR repository and Lambda function names'
+    required: true
+  environment:
+    description: 'Environment name (e.g. dev, prod) — used to probe whether the env is already provisioned'
+    required: true
+  aws-region:
+    description: 'AWS region'
+    required: true
+  central-ecr-account-id:
+    description: 'Account ID of the shared-services account hosting the central ECR registry'
+    required: true
+
+outputs:
+  mode:
+    description: 'bootstrap — images absent or environment fresh; steady-state — otherwise'
+    value: ${{ steps.check.outputs.mode }}
+  images:
+    description: 'present/absent — whether both central repos have a :latest image'
+    value: ${{ steps.check.outputs.images }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check ECR image state
+      id: check
+      shell: bash
+      env:
+        PROJECT_NAME: ${{ inputs.project-name }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        AWS_REGION: ${{ inputs.aws-region }}
+        CENTRAL_ECR_ACCOUNT_ID: ${{ inputs.central-ecr-account-id }}
+      run: |
+        chmod +x .github/scripts/terraform-ecr-check.sh
+        .github/scripts/terraform-ecr-check.sh

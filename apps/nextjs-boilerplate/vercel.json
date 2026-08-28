@@ -1,0 +1,4 @@
+{
+  "buildCommand": "cd ../.. && turbo run build --filter=nextjs-boilerplate",
+  "bunVersion": "1.3.8"
+}

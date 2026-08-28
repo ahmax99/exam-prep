@@ -1,0 +1,21 @@
+# Keeps non-VSCode editors aligned with .oxfmtrc.json (2-space, 80 cols) and
+# with .gitattributes' LF normalization.
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+max_line_length = 80
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{tf,tfvars,hcl}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab

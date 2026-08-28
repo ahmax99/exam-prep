@@ -1,0 +1,79 @@
+name: 'Terraform Apply (per environment)'
+description: 'init + idempotent apply (bootstrap or steady-state) + job summary for one environment'
+
+inputs:
+  environment:
+    description: 'Environment name (dev, prod) — selects backend config and Lambda function names'
+    required: true
+  project-name:
+    description: 'Project name used to construct ECR repo and Lambda function names'
+    required: true
+  aws-region:
+    description: 'AWS region'
+    required: true
+  central-ecr-account-id:
+    description: 'Account ID of the shared-services account hosting the central ECR registry'
+    required: true
+  ecr-push-role-arn:
+    description: 'Role in shared-services assumed to push seed images during bootstrap'
+    required: true
+  apply-role-arn:
+    description: "This environment's terraform-apply role (re-assumed after a bootstrap image push)"
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Terraform init
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: terraform -chdir=infra init -reconfigure -backend-config="backends/${ENVIRONMENT}.hcl"
+
+    # ── Idempotency check: central images present? environment provisioned? ──
+    - name: Check ECR image state
+      id: ecr-check
+      uses: ./.github/actions/terraform-ecr-check
+      with:
+        project-name: ${{ inputs.project-name }}
+        environment: ${{ inputs.environment }}
+        aws-region: ${{ inputs.aws-region }}
+        central-ecr-account-id: ${{ inputs.central-ecr-account-id }}
+
+    # ── BOOTSTRAP PATH (fresh env or empty central registry) ─────────────────
+    - name: Bootstrap
+      if: steps.ecr-check.outputs.mode == 'bootstrap'
+      uses: ./.github/actions/terraform-bootstrap
+      with:
+        aws-region: ${{ inputs.aws-region }}
+        project-name: ${{ inputs.project-name }}
+        central-ecr-account-id: ${{ inputs.central-ecr-account-id }}
+        images: ${{ steps.ecr-check.outputs.images }}
+        ecr-push-role-arn: ${{ inputs.ecr-push-role-arn }}
+        apply-role-arn: ${{ inputs.apply-role-arn }}
+
+    # ── STEADY-STATE PATH ─────────────────────────────────────────────────────
+    - name: Steady-state — Plan + Apply
+      if: steps.ecr-check.outputs.mode == 'steady-state'
+      shell: bash
+      run: |
+        chmod +x .github/scripts/terraform-apply-retry.sh
+        .github/scripts/terraform-apply-retry.sh
+
+    # ── SUMMARY ───────────────────────────────────────────────────────────────
+    - name: Surface outputs to job summary
+      if: always()
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        MODE: ${{ steps.ecr-check.outputs.mode }}
+      run: |
+        {
+          echo "## Terraform Apply — ${ENVIRONMENT}"
+          echo "**Mode:** ${MODE}"
+          echo ""
+          echo "### Outputs"
+          echo '```'
+          terraform -chdir=infra output 2>/dev/null || echo "(outputs unavailable)"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "unicorn"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error"
+  },
+  "ignorePatterns": [
+    "**/routeTree.gen.ts",
+    "**/next-env.d.ts",
+    "**/generated/**",
+    "**/graphify-out/**",
+    "**/*.d.ts"
+  ]
+}

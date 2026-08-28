@@ -1,0 +1,4 @@
+# Trivy IaC ignore file — https://trivy.dev/latest/docs/configuration/filtering/
+
+# AWS-0132 (HIGH): "Bucket does not encrypt data with a customer managed key." The S3 module (modules/s3) deliberately uses SSE-S3 (AES256). This is an intentional default for the boilerplate: buckets are still encrypted at rest, and SSE-KMS is not supported for the S3 server-access-log destination bucket
+AWS-0132

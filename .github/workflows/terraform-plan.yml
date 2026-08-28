@@ -1,0 +1,108 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/**'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: terraform-plan-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: dev
+
+    env:
+      TF_IN_AUTOMATION: 'true'
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_VAR_project_name: ${{ github.event.repository.name }}
+      TF_VAR_environment: dev
+      TF_VAR_maintenance_mode: ${{ vars.MAINTENANCE_MODE || 'false' }}
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      TF_VAR_root_domain: ${{ vars.TF_VAR_root_domain }}
+      TF_VAR_contact_to_email: ${{ vars.TF_VAR_contact_to_email }}
+      TF_VAR_from_email: ${{ vars.TF_VAR_from_email }}
+      TF_VAR_database_url: ${{ secrets.TF_VAR_database_url }}
+      TF_VAR_google_client_id: ${{ secrets.TF_VAR_google_client_id }}
+      TF_VAR_google_client_secret: ${{ secrets.TF_VAR_google_client_secret }}
+      TF_VAR_resend_api_key: ${{ secrets.TF_VAR_resend_api_key }}
+      TF_VAR_session_secret: ${{ secrets.TF_VAR_session_secret }}
+      TF_VAR_backend_sentry_dsn: ${{ secrets.TF_VAR_backend_sentry_dsn }}
+      TF_VAR_frontend_sentry_dsn: ${{ secrets.TF_VAR_frontend_sentry_dsn }}
+      TF_VAR_central_ecr_account_id: ${{ vars.CENTRAL_ECR_ACCOUNT_ID }}
+      TF_VAR_dns_account_role_arn: ${{ vars.DNS_ACCOUNT_ROLE_ARN }}
+      TF_VAR_github_org: ${{ github.repository_owner }}
+      TF_VAR_github_org_id: ${{ github.repository_owner_id }}
+      TF_VAR_github_repo_id: ${{ github.repository_id }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '~> 1.14'
+
+      - name: Configure AWS credentials (plan role)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: TerraformPlan
+
+      - name: Terraform fmt check
+        run: terraform -chdir=infra fmt -check -recursive
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6.3.0
+        with:
+          tflint_version: v0.63.1
+
+      - name: Init TFLint
+        run: tflint --chdir=infra --init
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run TFLint
+        run: tflint --chdir=infra --recursive --format compact --minimum-failure-severity=error
+
+      - name: Terraform init
+        run: terraform -chdir=infra init -backend-config=backends/dev.hcl
+
+      - name: Terraform validate
+        run: terraform -chdir=infra validate
+
+      - name: Terraform plan
+        id: plan
+        # Capture exit code separately; 0=no changes, 1=error, 2=changes present
+        run: |
+          set +e
+          terraform -chdir=infra plan \
+            -no-color \
+            -lock=false \
+            2>&1 | tee /tmp/plan-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          set -e
+          [ "$EXIT_CODE" -ne 1 ]
+
+      - name: Post or update PR comment
+        if: always()
+        uses: ./.github/actions/terraform-plan-comment
+        with:
+          plan-file: /tmp/plan-output.txt
+          environment: dev
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          pr-number: ${{ github.event.pull_request.number }}

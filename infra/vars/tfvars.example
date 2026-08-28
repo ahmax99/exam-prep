@@ -1,0 +1,36 @@
+# Common
+aws_region   = "ap-northeast-1"
+project_name = "boilerplate-template"
+environment  = "dev"             # dev | prod
+root_domain  = "ahmax99.online"
+
+# Local runs only
+maintenance_mode = false
+
+# Cross-account DNS (apex zone hosted in the shared-services account)
+dns_account_role_arn = "" # prod: the org repo's dns-apex-manager role ARN; dev: empty (dev.<root> zone lives in the dev account)
+
+# Central ECR (shared-services account hosting the org-wide image registry)
+central_ecr_account_id = "" # e.g. "000000000000"
+
+# GitHub identity for the app-deploy role's OIDC trust.
+github_org     = "ahmax99"     # github.repository_owner
+github_org_id  = ""            # github.repository_owner_id (numeric) — gh api users/<org> --jq .id
+github_repo_id = ""            # github.repository_id (numeric) — gh api repos/<org>/<repo> --jq .id
+
+# Backend Environment Variables
+database_url       = "postgresql://user:password@host/database"
+backend_sentry_dsn = "https://your-backend-sentry-dsn"
+
+# Frontend Environment Variables
+contact_to_email    = "contact@example.com"
+from_email          = "no-reply@example.com"
+resend_api_key      = "" # Get from resend.com
+frontend_sentry_dsn = "https://your-frontend-sentry-dsn"
+
+# Google OAuth (create credentials at console.cloud.google.com)
+google_client_id     = ""
+google_client_secret = ""
+
+# Session
+session_secret = "" # Generate with: openssl rand -base64 32

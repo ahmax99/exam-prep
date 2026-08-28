@@ -1,0 +1,127 @@
+name: Toggle Maintenance Mode
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        type: choice
+        options:
+          - dev
+          - prod
+        default: dev
+        required: true
+      enabled:
+        description: 'Turn maintenance mode ON (serve the static page, delete the WAF, zero provisioned concurrency). Uncheck to return to Live.'
+        type: boolean
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    name: ${{ inputs.enabled && 'Enable' || 'Disable' }} maintenance → ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: terraform-state-${{ inputs.environment }}
+      cancel-in-progress: false
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      TF_IN_AUTOMATION: 'true'
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_VAR_project_name: ${{ github.event.repository.name }}
+      TF_VAR_environment: ${{ inputs.environment }}
+      TF_VAR_maintenance_mode: ${{ inputs.enabled }}
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      TF_VAR_root_domain: ${{ vars.TF_VAR_root_domain }}
+      TF_VAR_contact_to_email: ${{ vars.TF_VAR_contact_to_email }}
+      TF_VAR_from_email: ${{ vars.TF_VAR_from_email }}
+      TF_VAR_database_url: ${{ secrets.TF_VAR_database_url }}
+      TF_VAR_google_client_id: ${{ secrets.TF_VAR_google_client_id }}
+      TF_VAR_google_client_secret: ${{ secrets.TF_VAR_google_client_secret }}
+      TF_VAR_resend_api_key: ${{ secrets.TF_VAR_resend_api_key }}
+      TF_VAR_session_secret: ${{ secrets.TF_VAR_session_secret }}
+      TF_VAR_backend_sentry_dsn: ${{ secrets.TF_VAR_backend_sentry_dsn }}
+      TF_VAR_frontend_sentry_dsn: ${{ secrets.TF_VAR_frontend_sentry_dsn }}
+      TF_VAR_central_ecr_account_id: ${{ vars.CENTRAL_ECR_ACCOUNT_ID }}
+      TF_VAR_dns_account_role_arn: ${{ vars.DNS_ACCOUNT_ROLE_ARN }}
+      TF_VAR_github_org: ${{ github.repository_owner }}
+      TF_VAR_github_org_id: ${{ github.repository_owner_id }}
+      TF_VAR_github_repo_id: ${{ github.repository_id }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '~> 1.14'
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials (apply role)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.TF_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: ToggleMaintenance${{ inputs.environment }}
+
+      - name: Apply
+        uses: ./.github/actions/terraform-apply-env
+        with:
+          environment: ${{ inputs.environment }}
+          project-name: ${{ github.event.repository.name }}
+          aws-region: ${{ env.AWS_REGION }}
+          central-ecr-account-id: ${{ vars.CENTRAL_ECR_ACCOUNT_ID }}
+          ecr-push-role-arn: ${{ vars.ECR_PUSH_ROLE_ARN }}
+          apply-role-arn: ${{ vars.TF_APPLY_ROLE_ARN }}
+
+      - name: Get CloudFront distribution ID
+        id: distribution
+        run: echo "id=$(terraform -chdir=infra output -raw cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
+
+      - name: Verify at the edge
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          ENABLED: ${{ inputs.enabled }}
+          PROJECT_NAME: ${{ github.event.repository.name }}
+          ROOT_DOMAIN: ${{ vars.TF_VAR_root_domain }}
+          DISTRIBUTION_ID: ${{ steps.distribution.outputs.id }}
+        run: |
+          chmod +x .github/scripts/toggle-maintenance-verify.sh
+          .github/scripts/toggle-maintenance-verify.sh
+
+  record:
+    name: Record MAINTENANCE_MODE → ${{ inputs.environment }}
+    needs: apply
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Generate a token for the maintenance bot
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.AUTOMATION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+          permission-environments: write
+
+      - name: Record the flag
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          ENABLED: ${{ inputs.enabled }}
+        run: |
+          set -euo pipefail
+          gh variable set MAINTENANCE_MODE --env "$ENVIRONMENT" --body "$ENABLED"
+          echo "MAINTENANCE_MODE=${ENABLED} for ${ENVIRONMENT}"

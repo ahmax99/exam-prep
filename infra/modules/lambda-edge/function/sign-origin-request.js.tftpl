@@ -1,0 +1,137 @@
+'use strict';
+
+const crypto = require('crypto');
+
+// Injected at deploy time via Terraform templatefile() — must match the
+// frontend Lambda Function URL's region so the SigV4 credential scope is valid.
+const REGION = '${signer_region}';
+const SERVICE = 'lambda';
+
+const sha256Hex = (data) => crypto.createHash('sha256').update(data).digest('hex');
+const hmac = (key, data) => crypto.createHmac('sha256', key).update(data).digest();
+const hmacHex = (key, data) => crypto.createHmac('sha256', key).update(data).digest('hex');
+
+const getSigningKey = (secretKey, dateStamp, region, service) => {
+  const kDate = hmac('AWS4' + secretKey, dateStamp);
+  const kRegion = hmac(kDate, region);
+  const kService = hmac(kRegion, service);
+  return hmac(kService, 'aws4_request');
+};
+
+const uriEncode = (value) =>
+  encodeURIComponent(value).replace(
+    /[!'()*]/g,
+    (char) => '%' + char.charCodeAt(0).toString(16).toUpperCase()
+  );
+
+const canonicalQueryString = (querystring) => {
+  if (!querystring) return '';
+
+  return querystring
+    .split('&')
+    .filter(Boolean)
+    .map((pair) => {
+      const parts = pair.split('=');
+      const key = parts[0];
+      const value = parts[1] || '';
+      return [uriEncode(decodeURIComponent(key)), uriEncode(decodeURIComponent(value))];
+    })
+    .sort((a, b) => {
+      if (a[0] !== b[0]) return a[0] < b[0] ? -1 : 1;
+      if (a[1] === b[1]) return 0;
+      return a[1] < b[1] ? -1 : 1;
+    })
+    .map((pair) => pair[0] + '=' + pair[1])
+    .join('&');
+};
+
+exports.handler = (event, context, callback) => {
+  const request = event.Records[0].cf.request;
+  const host = request.origin.custom.domainName;
+
+  const body = request.body || {};
+
+  // CloudFront caps origin-request include_body around 1 MB and sets this
+  // flag instead of silently dropping bytes — signing a partial body would
+  // produce a signature the origin rejects with an opaque InvalidSignatureException.
+  if (body.inputTruncated) {
+    callback(null, {
+      status: '413',
+      statusDescription: 'Payload Too Large',
+      headers: {
+        'content-type': [{ key: 'Content-Type', value: 'text/plain' }],
+        'cache-control': [{ key: 'Cache-Control', value: 'no-store' }]
+      },
+      body: 'Request body exceeds the Lambda@Edge origin-request size limit and cannot be signed.'
+    });
+    return;
+  }
+
+  const bodyBuffer = body.data
+    ? Buffer.from(body.data, body.encoding === 'base64' ? 'base64' : 'utf8')
+    : Buffer.alloc(0);
+  const payloadHash = sha256Hex(bodyBuffer);
+
+  // Lambda rotates AWS_SESSION_TOKEN on every invocation — read credentials
+  // fresh here rather than caching a signed client at module scope.
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const sessionToken = process.env.AWS_SESSION_TOKEN;
+
+  const now = new Date();
+  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+  const dateStamp = amzDate.slice(0, 8);
+
+  const canonicalUri = request.uri || '/';
+  const canonicalQs = canonicalQueryString(request.querystring);
+
+  const headersToSign = {
+    host: host,
+    'x-amz-content-sha256': payloadHash,
+    'x-amz-date': amzDate
+  };
+  if (sessionToken) headersToSign['x-amz-security-token'] = sessionToken;
+
+  const signedHeaderNames = Object.keys(headersToSign).sort();
+  const canonicalHeaders = signedHeaderNames
+    .map((name) => name + ':' + headersToSign[name] + '\n')
+    .join('');
+  const signedHeaders = signedHeaderNames.join(';');
+
+  const canonicalRequest = [
+    request.method,
+    canonicalUri,
+    canonicalQs,
+    canonicalHeaders,
+    signedHeaders,
+    payloadHash
+  ].join('\n');
+
+  const credentialScope = dateStamp + '/' + REGION + '/' + SERVICE + '/aws4_request';
+  const stringToSign = [
+    'AWS4-HMAC-SHA256',
+    amzDate,
+    credentialScope,
+    sha256Hex(canonicalRequest)
+  ].join('\n');
+
+  const signingKey = getSigningKey(secretAccessKey, dateStamp, REGION, SERVICE);
+  const signature = hmacHex(signingKey, stringToSign);
+
+  const authorization =
+    'AWS4-HMAC-SHA256 Credential=' + accessKeyId + '/' + credentialScope +
+    ', SignedHeaders=' + signedHeaders + ', Signature=' + signature;
+
+  request.headers['authorization'] = [{ key: 'Authorization', value: authorization }];
+  request.headers['x-amz-content-sha256'] = [
+    { key: 'X-Amz-Content-Sha256', value: payloadHash }
+  ];
+  request.headers['x-amz-date'] = [{ key: 'X-Amz-Date', value: amzDate }];
+  if (sessionToken) {
+    request.headers['x-amz-security-token'] = [
+      { key: 'X-Amz-Security-Token', value: sessionToken }
+    ];
+  }
+
+  callback(null, request);
+};
