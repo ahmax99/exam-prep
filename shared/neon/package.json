@@ -26,7 +26,7 @@
     "@shared/typescript-config": "workspace:*",
     "@types/node": "^26.4.0",
     "@types/ws": "^8.18.1",
-    "prisma": "^7.9.1",
+    "prisma": "^7.10.0",
     "typescript": "^7.0.2"
   }
 }
