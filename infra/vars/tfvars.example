@@ -1,0 +1,11 @@
+aws_region   = "ap-northeast-1"
+project_name = "exam-prep"
+environment  = "prod"
+root_domain  = "ahmax99.online"
+
+dns_account_role_arn = ""
+
+github_org           = "ahmax99"
+github_access_token  = ""
+
+database_url = "postgresql://user:password@host/database"

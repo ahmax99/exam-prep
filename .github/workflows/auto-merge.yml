@@ -1,0 +1,68 @@
+name: Auto-merge PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependabot-auto-merge:
+    name: Auto-merge Dependabot PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.actor == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        id: meta
+
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Auto-merge eligible updates
+        if: >
+          steps.metadata.outputs.update-type != 'version-update:semver-major' &&
+          (steps.metadata.outputs.package-ecosystem == 'bun' ||
+           steps.metadata.outputs.package-ecosystem == 'github-actions')
+        run: |
+          gh pr review "$GITHUB_HEAD_REF" --approve
+          gh pr merge "$GITHUB_HEAD_REF" --auto --squash
+
+  dependabot-merge-on-approval:
+    name: Merge Dependabot major-version PR on approval
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: >
+      github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.merged == false
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Merge now that a human has approved the major-version bump
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: gh pr merge "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" --auto --squash

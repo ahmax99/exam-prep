@@ -1,0 +1,18 @@
+import { HeroSection } from '@/components/common'
+import { PageTemplate } from '@/components/layout'
+import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
+
+export const generateMetadata = () =>
+  generatePageMetadata({
+    title: 'Home',
+    description:
+      'A production-grade full-stack boilerplate — Next.js and Neon Postgres.'
+  })
+
+export default function HomePage() {
+  return (
+    <PageTemplate maxWidth="wide">
+      <HeroSection />
+    </PageTemplate>
+  )
+}

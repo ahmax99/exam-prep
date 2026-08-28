@@ -1,0 +1,35 @@
+name: 'Terraform Apply (per environment)'
+description: 'init + apply + job summary for one environment'
+
+inputs:
+  environment:
+    description: 'Environment name (prod) — selects backend config'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Terraform init
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: terraform -chdir=infra init -reconfigure -backend-config="backends/${ENVIRONMENT}.hcl"
+
+    - name: Apply
+      shell: bash
+      run: terraform -chdir=infra apply -auto-approve -no-color -lock-timeout=300s
+
+    - name: Surface outputs to job summary
+      if: always()
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+      run: |
+        {
+          echo "## Terraform Apply — ${ENVIRONMENT}"
+          echo ""
+          echo "### Outputs"
+          echo '```'
+          terraform -chdir=infra output 2>/dev/null || echo "(outputs unavailable)"
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"

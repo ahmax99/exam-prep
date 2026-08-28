@@ -1,0 +1,2817 @@
+<meta charset="utf-8" />
+<title>Boilerplate Template — Codebase Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  :root {
+    --bg: #f4f5f8;
+    --bg2: #eaecf1;
+    --panel: #ffffff;
+    --panel2: #f7f8fa;
+    --ink: #111827;
+    --ink2: #4b5563;
+    --ink3: #8a93a3;
+    --line: #dfe3ea;
+    --line2: #c9cfda;
+    --grid: #d8dde6;
+    --ground: #e6e9ef;
+    --accent: #4f46e5;
+    --accent-soft: #eef0ff;
+    --shadow:
+      0 1px 2px rgba(16, 24, 40, 0.06), 0 8px 24px rgba(16, 24, 40, 0.06);
+    --face-top: 1.18;
+    --face-r: 0.82;
+    --face-l: 0.58;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --bg: #0b0e14;
+      --bg2: #0f131b;
+      --panel: #121722;
+      --panel2: #0e131c;
+      --ink: #e8ecf4;
+      --ink2: #a3adc0;
+      --ink3: #6b7688;
+      --line: #232b3a;
+      --line2: #2f3949;
+      --grid: #1a2130;
+      --ground: #111722;
+      --accent: #818cf8;
+      --accent-soft: #1b2136;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.36);
+      --face-top: 1.05;
+      --face-r: 0.72;
+      --face-l: 0.48;
+    }
+  }
+  :root[data-theme='dark'] {
+    --bg: #0b0e14;
+    --bg2: #0f131b;
+    --panel: #121722;
+    --panel2: #0e131c;
+    --ink: #e8ecf4;
+    --ink2: #a3adc0;
+    --ink3: #6b7688;
+    --line: #232b3a;
+    --line2: #2f3949;
+    --grid: #1a2130;
+    --ground: #111722;
+    --accent: #818cf8;
+    --accent-soft: #1b2136;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 28px rgba(0, 0, 0, 0.36);
+    --face-top: 1.05;
+    --face-r: 0.72;
+    --face-l: 0.48;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .mono {
+    font-family:
+      'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* ---------- shell ---------- */
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  #topbar {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+  }
+  #brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 0 0 auto;
+    padding-right: 14px;
+    border-right: 1px solid var(--line);
+  }
+  #brand b {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  #brand span {
+    font-size: 11px;
+    color: var(--ink3);
+    white-space: nowrap;
+  }
+  .stat {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .stat .v {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .stat .k {
+    font-size: 10px;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  #themeBtn {
+    margin-left: auto;
+    flex: 0 0 auto;
+    border: 1px solid var(--line2);
+    background: var(--panel2);
+    color: var(--ink2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+  }
+  #themeBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  #main {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+  }
+
+  /* ---------- rails ---------- */
+  #rail,
+  #info {
+    flex: 0 0 254px;
+    background: var(--panel);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line2) transparent;
+  }
+  #rail {
+    border-right: 1px solid var(--line);
+  }
+  #info {
+    flex-basis: 320px;
+    border-left: 1px solid var(--line);
+  }
+  .railGroup {
+    padding: 10px 12px 4px;
+  }
+  .railGroup h4 {
+    margin: 0 0 6px;
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .railGroup h4 i {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    display: inline-block;
+    flex: 0 0 auto;
+  }
+  .railItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 7px;
+    border-radius: 7px;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .railItem:hover {
+    background: var(--panel2);
+    border-color: var(--line);
+  }
+  .railItem.on {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .railItem .code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    width: 22px;
+    height: 18px;
+    display: grid;
+    place-items: center;
+    border-radius: 4px;
+    color: #fff;
+    flex: 0 0 auto;
+  }
+  .railItem .nm {
+    flex: 1 1 auto;
+    font-size: 12.5px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .railItem .lc {
+    font-size: 10.5px;
+    color: var(--ink3);
+    font-family: 'JetBrains Mono', monospace;
+    flex: 0 0 auto;
+  }
+
+  /* ---------- stage ---------- */
+  #stage {
+    flex: 1 1 auto;
+    position: relative;
+    background: radial-gradient(
+      120% 90% at 50% 0%,
+      var(--bg2) 0%,
+      var(--bg) 70%
+    );
+    min-width: 0;
+    overflow: hidden;
+  }
+  #svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+  #svg.drag {
+    cursor: grabbing;
+  }
+
+  #hud {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    max-width: calc(100% - 24px);
+  }
+  .btn {
+    border: 1px solid var(--line2);
+    background: var(--panel);
+    color: var(--ink2);
+    border-radius: 8px;
+    padding: 6px 11px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    box-shadow: var(--shadow);
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn.primary:hover {
+    filter: brightness(1.08);
+    color: #fff;
+  }
+  .btn[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn[disabled]:hover {
+    border-color: var(--line2);
+    color: var(--ink2);
+  }
+
+  #legend {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 11px;
+    box-shadow: var(--shadow);
+    font-size: 11px;
+    color: var(--ink2);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 190px;
+  }
+  #legend .row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  #legend i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    flex: 0 0 auto;
+  }
+  #legend .sep {
+    height: 1px;
+    background: var(--line);
+    margin: 2px 0;
+  }
+
+  #tip {
+    position: absolute;
+    pointer-events: none;
+    z-index: 40;
+    background: var(--panel);
+    border: 1px solid var(--line2);
+    border-radius: 9px;
+    padding: 8px 10px;
+    box-shadow: var(--shadow);
+    font-size: 12px;
+    max-width: 280px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    color: var(--ink);
+  }
+  #tip b {
+    display: block;
+    font-size: 12.5px;
+    margin-bottom: 2px;
+  }
+  #tip small {
+    color: var(--ink3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+  }
+
+  /* ---------- trace ---------- */
+  #trace {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 10px 12px;
+    display: none;
+    gap: 10px;
+    flex-direction: column;
+  }
+  #trace.on {
+    display: flex;
+  }
+  #traceTop {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #traceSel {
+    border: 1px solid var(--line2);
+    background: var(--panel2);
+    color: var(--ink);
+    font: inherit;
+    font-size: 12px;
+    border-radius: 8px;
+    padding: 5px 8px;
+    max-width: 100%;
+  }
+  #traceStep {
+    flex: 1 1 260px;
+    min-width: 200px;
+    font-size: 13px;
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+  }
+  #traceStep .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 5px;
+    flex: 0 0 auto;
+    margin-top: 1px;
+  }
+  #traceBar {
+    display: flex;
+    gap: 3px;
+  }
+  #traceBar span {
+    flex: 1 1 0;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--line);
+    transition: background 0.2s;
+  }
+  #traceBar span.done {
+    background: var(--accent);
+  }
+  #traceBar span.now {
+    background: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+
+  /* ---------- info panel ---------- */
+  #info .pad {
+    padding: 14px 15px;
+  }
+  #infoHead {
+    border-bottom: 1px solid var(--line);
+  }
+  #infoHead .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink3);
+  }
+  #infoHead h2 {
+    margin: 4px 0 8px;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  #chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 10.5px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    color: var(--ink2);
+  }
+  .sect {
+    border-bottom: 1px solid var(--line);
+  }
+  .sect h3 {
+    margin: 0 0 7px;
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink3);
+  }
+  .sect p {
+    margin: 0 0 9px;
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.58;
+  }
+  .sect p:last-child {
+    margin-bottom: 0;
+  }
+  .sect p strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .kidRow {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12.5px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .kidRow:last-child {
+    border-bottom: 0;
+  }
+  .kidRow .kn {
+    flex: 1 1 auto;
+    color: var(--ink2);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kidRow .kl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink3);
+    flex: 0 0 auto;
+  }
+  .linkRow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .linkRow button {
+    text-align: left;
+    border: 1px solid var(--line);
+    background: var(--panel2);
+    color: var(--ink2);
+    border-radius: 7px;
+    padding: 6px 8px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .linkRow button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .linkRow button .ar {
+    color: var(--ink3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+  #note {
+    padding: 11px 15px;
+    font-size: 11.5px;
+    color: var(--ink3);
+    line-height: 1.55;
+  }
+
+  /* ---------- svg bits ---------- */
+  .blk {
+    cursor: pointer;
+  }
+  .blk .fc {
+    transition: opacity 0.16s;
+  }
+  .blk:hover .fc {
+    opacity: 0.86;
+  }
+  .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    fill: #fff;
+    pointer-events: none;
+    text-anchor: middle;
+    dominant-baseline: middle;
+  }
+  .nlbl {
+    font-size: 11px;
+    fill: var(--ink2);
+    pointer-events: none;
+    text-anchor: middle;
+    font-weight: 500;
+    paint-order: stroke;
+    stroke: var(--bg);
+    stroke-width: 3px;
+    stroke-linejoin: round;
+  }
+  .edge {
+    fill: none;
+    stroke: var(--line2);
+    stroke-width: 1.2;
+    opacity: 0.55;
+  }
+  .edge.dash {
+    stroke-dasharray: 4 4;
+    opacity: 0.35;
+  }
+  .dot {
+    pointer-events: auto;
+    cursor: help;
+  }
+  .ext rect {
+    fill: var(--panel);
+    stroke: var(--line2);
+    stroke-width: 1.1;
+    stroke-dasharray: 3 3;
+  }
+  .ext text {
+    font-size: 10px;
+    fill: var(--ink2);
+    text-anchor: middle;
+    dominant-baseline: middle;
+    font-weight: 500;
+  }
+  .lead {
+    stroke: var(--line2);
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    fill: none;
+    opacity: 0.6;
+  }
+  .dim {
+    opacity: 0.16;
+    transition: opacity 0.2s;
+  }
+  .hot .fc {
+    opacity: 1;
+  }
+  .zoneLbl {
+    font-size: 10px;
+    fill: var(--ink3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-anchor: middle;
+    pointer-events: none;
+    font-weight: 600;
+    opacity: 0.7;
+  }
+
+  /* digits that line up in columns get fixed-width figures */
+  .stat .v,
+  .railItem .lc,
+  .kidRow .kl,
+  .chip {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* keyboard focus must be visible everywhere it can land */
+  .btn:focus-visible,
+  #themeBtn:focus-visible,
+  #traceSel:focus-visible,
+  .railItem:focus-visible,
+  .linkRow button:focus-visible,
+  .blk:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 7px;
+  }
+  .railItem:focus-visible {
+    background: var(--accent-soft);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+  @media (max-width: 1180px) {
+    #rail {
+      display: none;
+    }
+  }
+  @media (max-width: 900px) {
+    #info {
+      display: none;
+    }
+    #legend {
+      display: none;
+    }
+  }
+</style>
+
+<div id="app">
+  <div id="topbar">
+    <div id="brand">
+      <b>Boilerplate Template</b
+      ><span>Turborepo · Bun · Next.js BFF + Elysia API</span>
+    </div>
+    <div id="stats"></div>
+    <button id="themeBtn" type="button">Theme</button>
+  </div>
+  <div id="main">
+    <aside id="rail"></aside>
+    <div id="stage">
+      <svg id="svg"></svg>
+      <div id="hud">
+        <button class="btn primary" id="playBtn" type="button">
+          ▶ Play trace
+        </button>
+        <button class="btn" id="backBtn" type="button" style="display: none">
+          ← Back to city
+        </button>
+        <button class="btn" id="resetBtn" type="button">Reset view</button>
+      </div>
+      <div id="legend"></div>
+      <div id="tip"></div>
+      <div id="trace">
+        <div id="traceTop">
+          <select id="traceSel"></select>
+          <div id="traceStep"></div>
+          <button class="btn" id="prevBtn" type="button">←</button>
+          <button class="btn" id="nextBtn" type="button">→</button>
+          <button class="btn" id="stopBtn" type="button">✕</button>
+        </div>
+        <div id="traceBar"></div>
+      </div>
+    </div>
+    <aside id="info"></aside>
+  </div>
+</div>
+
+<script>
+  'use strict'
+
+  /* =======================================================================
+     ALL NUMBERS BELOW COME FROM A SCAN OF THE REPOSITORY WORKING TREE.
+     Line counts: `find <dir> -type f | xargs cat | wc -l` (tracked files for
+     infra/.github/.claude; source files for apps/ and shared/).
+     Counts exclude node_modules, build output, and the git-ignored generated
+     Prisma client. Measured on the `main` branch at commit c7d2297.
+     ======================================================================= */
+
+  const GROUPS = [
+    { id: 'ui', name: 'Browser surfaces', color: '#6366f1' },
+    { id: 'features', name: 'Feature modules', color: '#8b5cf6' },
+    { id: 'bff', name: 'BFF boundary', color: '#06b6d4' },
+    { id: 'api', name: 'Elysia API', color: '#10b981' },
+    { id: 'shared', name: 'Shared packages', color: '#f59e0b' },
+    { id: 'storage', name: 'Data stores', color: '#64748b' },
+    { id: 'infra', name: 'Infrastructure', color: '#f97316' },
+    { id: 'ci', name: 'Delivery pipeline', color: '#f43f5e' },
+    { id: 'harness', name: 'Agent harness', color: '#14b8a6' }
+  ]
+  const GC = Object.fromEntries(GROUPS.map((g) => [g.id, g.color]))
+
+  const STRUCTURES = [
+    /* ---------------- browser surfaces ---------------- */
+    {
+      id: 'pages',
+      code: 'PG',
+      name: 'Pages & layouts',
+      group: 'ui',
+      loc: 577,
+      files: 18,
+      gx: 2,
+      gy: 0,
+      w: 3,
+      d: 2,
+      what: 'These are the screens a visitor actually sees: the home page, the posts list, a single post, the contact form, the account pages and the create-post form. Each screen is a server-rendered file that gathers its own data before any HTML is sent.',
+      how: 'Next.js App Router with two route groups — one for pages that need a session, one for open pages. Cache Components is on, so a page opts into dynamic rendering by reading request data first rather than by setting a segment flag.',
+      children: [
+        { n: 'page.tsx screens', l: 9 },
+        { n: 'layout.tsx shells', l: 3 },
+        { n: 'loading.tsx skeletons', l: 4 },
+        { n: 'global-error.tsx', l: 1 }
+      ]
+    },
+
+    {
+      id: 'components',
+      code: 'CP',
+      name: 'Component library',
+      group: 'ui',
+      loc: 1217,
+      files: 29,
+      gx: 6,
+      gy: 0,
+      w: 3,
+      d: 2,
+      what: 'The shared visual vocabulary every screen draws from — buttons, inputs, cards, tabs, dialogs, avatars, page shells and marketing sections. Anything used by more than one feature lives here.',
+      how: 'Atomic design in four layers. Atoms never import molecules or organisms, and molecules only import atoms. Variants are built with class-variance-authority, and every root element carries a data-slot attribute so parents can style children by selector.',
+      children: [
+        { n: 'molecules', l: 429 },
+        { n: 'organisms', l: 326 },
+        { n: 'atoms', l: 233 },
+        { n: 'layout', l: 160 },
+        { n: 'common', l: 69 }
+      ]
+    },
+
+    {
+      id: 'styles',
+      code: 'ST',
+      name: 'Design tokens',
+      group: 'ui',
+      loc: 354,
+      files: 12,
+      gx: 10,
+      gy: 0,
+      w: 2,
+      d: 2,
+      what: 'The raw design decisions of the product — colour, type scale, spacing, shadows, borders, animation timings and scrollbar styling — written once as CSS custom properties instead of being scattered through components.',
+      how: 'Tailwind CSS 4 with a token layer split by concern. Colour carries the largest share, defining both the light and dark palettes.',
+      children: [
+        { n: 'colors.css', l: 113 },
+        { n: 'shadows.css', l: 54 },
+        { n: 'container.css', l: 35 },
+        { n: 'scrollbars.css', l: 33 },
+        { n: 'typography.css', l: 29 },
+        { n: 'animations.css', l: 25 }
+      ]
+    },
+
+    {
+      id: 'feat-error',
+      code: 'ER',
+      name: 'Error handling (web)',
+      group: 'ui',
+      loc: 257,
+      files: 12,
+      gx: 13,
+      gy: 0,
+      w: 2,
+      d: 2,
+      what: 'Turns anything that goes wrong in the browser or on the server into one predictable outcome: a typed error object, a toast or full-screen message for the person, and a report sent to the monitoring service.',
+      how: 'A frontend mirror of the backend error pipeline. Failures are caught as values rather than thrown across layers, mapped to a shared AppError shape, and surfaced through a React context and a small store.',
+      children: [
+        { n: 'ErrorScreenProvider', l: 57 },
+        { n: 'mapToAppError', l: 38 },
+        { n: 'handleError', l: 34 },
+        { n: 'useErrorHandler', l: 26 },
+        { n: 'monitoring config', l: 25 }
+      ]
+    },
+
+    /* ---------------- feature modules ---------------- */
+    {
+      id: 'feat-auth',
+      code: 'AU',
+      name: 'Auth (sign in / out)',
+      group: 'features',
+      loc: 583,
+      files: 19,
+      gx: 0,
+      gy: 3,
+      w: 3,
+      d: 2,
+      what: 'Everything about proving who someone is: starting a login, handling the redirect back, storing the session, reading the current user, assigning a default role and signing out. It is the largest feature module in the web app.',
+      how: 'OpenID Connect against the managed identity provider using PKCE. Two separate encrypted HttpOnly cookies hold state — one short-lived cookie for the in-flight login, one for the finished session, which stores only a refresh token.',
+      children: [
+        { n: 'server/ (services + api)', l: 315 },
+        { n: 'client/ (components)', l: 113 },
+        { n: 'lib/ (client, routes, CASL)', l: 65 },
+        { n: 'utils/ (PKCE, redirect)', l: 35 },
+        { n: 'constants/', l: 33 },
+        { n: 'schemas/', l: 22 }
+      ]
+    },
+
+    {
+      id: 'feat-post',
+      code: 'PO',
+      name: 'Posts',
+      group: 'features',
+      loc: 418,
+      files: 9,
+      gx: 4,
+      gy: 3,
+      w: 2,
+      d: 2,
+      what: 'The main content type. Covers listing posts, showing one post, and the create form with its optional image upload, plus deleting a post you own.',
+      how: 'Split by execution context. Server files fetch through the backend client; client files own the form, its validation and the two-step image upload. The form schema is Zod and the wire types come from the shared package.',
+      children: [
+        { n: 'PostForm (client)', l: 140 },
+        { n: 'PostDetail (server)', l: 60 },
+        { n: 'PostsList (server)', l: 57 },
+        { n: 'usePostActions', l: 55 },
+        { n: 'client/api', l: 38 },
+        { n: 'DeletePostButton', l: 35 }
+      ]
+    },
+
+    {
+      id: 'feat-account',
+      code: 'AC',
+      name: 'Account',
+      group: 'features',
+      loc: 399,
+      files: 8,
+      gx: 7,
+      gy: 3,
+      w: 2,
+      d: 2,
+      what: 'The signed-in person managing their own profile — viewing it, editing their name and picture, and deleting the account entirely.',
+      how: 'Same client/server split as posts, reusing the same presigned-upload pattern for the profile image. Destructive actions are wrapped in a confirmation dialog.',
+      children: [
+        { n: 'AccountForm', l: 115 },
+        { n: 'AccountManagement', l: 96 },
+        { n: 'useAccountActions', l: 69 },
+        { n: 'client/api', l: 36 },
+        { n: 'UserInfo (server)', l: 34 }
+      ]
+    },
+
+    {
+      id: 'feat-comment',
+      code: 'CM',
+      name: 'Comments',
+      group: 'features',
+      loc: 272,
+      files: 7,
+      gx: 10,
+      gy: 3,
+      w: 2,
+      d: 2,
+      what: 'Replies attached to a post — rendering the thread beneath a post, adding a comment, and removing one you wrote.',
+      how: 'The thread itself is a server component so it renders with the post; the form and delete button are client components that call the BFF and then refresh the route.',
+      children: [
+        { n: 'CommentSection (server)', l: 91 },
+        { n: 'CommentForm (client)', l: 83 },
+        { n: 'useCommentActions', l: 33 },
+        { n: 'DeleteCommentButton', l: 30 }
+      ]
+    },
+
+    {
+      id: 'feat-mailing',
+      code: 'ML',
+      name: 'Contact & email',
+      group: 'features',
+      loc: 320,
+      files: 8,
+      gx: 13,
+      gy: 3,
+      w: 2,
+      d: 2,
+      what: 'The public contact form. A submitted message sends two emails at once — a notification to the site owner and a confirmation back to the sender.',
+      how: 'This is the one feature that does not cross the BFF route layer: the form calls a Server Action directly. The action re-validates the input with Zod on the server, then renders both emails as React components and hands them to a transactional email service.',
+      children: [
+        { n: 'ContactForm (client)', l: 102 },
+        { n: 'confirmation email', l: 61 },
+        { n: 'notification email', l: 49 },
+        { n: 'sendContactEmail action', l: 34 },
+        { n: 'sendEmail util', l: 24 }
+      ]
+    },
+
+    /* ---------------- BFF ---------------- */
+    {
+      id: 'bff-routes',
+      code: 'BR',
+      name: 'BFF route handlers',
+      group: 'bff',
+      loc: 214,
+      files: 12,
+      gx: 2,
+      gy: 6,
+      w: 3,
+      d: 2,
+      what: 'The only doors the browser may knock on. Twelve small endpoints covering posts, comments, account, images, upload URLs, login, callback, logout and runtime config. The browser never reaches the API directly.',
+      how: 'Deliberately thin Next.js route handlers: read the request, call one feature server function, return JSON. Every handler is wrapped in a logging decorator so each hop is traceable.',
+      children: [
+        { n: 'posts (3 handlers)', l: 65 },
+        { n: 'auth (3 handlers)', l: 44 },
+        { n: 'comments (2 handlers)', l: 41 },
+        { n: 'account (2 handlers)', l: 34 },
+        { n: 'images', l: 20 },
+        { n: 'config', l: 10 }
+      ]
+    },
+
+    {
+      id: 'bff-clients',
+      code: 'BC',
+      name: 'Backend clients',
+      group: 'bff',
+      loc: 198,
+      files: 6,
+      gx: 6,
+      gy: 6,
+      w: 2,
+      d: 2,
+      what: 'The single place the web app is allowed to call the API from. One client for open reads, one for authenticated calls that attaches the caller identity token and, in production, cryptographically signs the request.',
+      how: 'Two HTTP clients built on ky with retry and timeout policy. Hook order matters and is documented in the file: the token hook must run before the signing hook, because signing returns a fresh request and ends the hook chain.',
+      children: [
+        { n: 'requestLogging', l: 73 },
+        { n: 'serverApiClient', l: 71 },
+        { n: 'request signing', l: 25 },
+        { n: 'CASL setup', l: 12 },
+        { n: 'browser apiClient', l: 10 },
+        { n: 'identity helper', l: 7 }
+      ]
+    },
+
+    {
+      id: 'fe-runtime',
+      code: 'FR',
+      name: 'Web runtime & config',
+      group: 'bff',
+      loc: 204,
+      files: 9,
+      gx: 9,
+      gy: 6,
+      w: 2,
+      d: 2,
+      what: 'The plumbing the app boots with: environment validation, the logger, page metadata generation, monitoring startup, and the middleware that redirects an unauthenticated visitor away from a protected page.',
+      how: 'Every environment variable is a server-only runtime value, validated at startup. No build-time public variables exist, so one built image can be promoted from one environment to the next unchanged. The middleware only checks that a session cookie is present — real verification happens in the API.',
+      children: [
+        { n: 'metadata generation', l: 59 },
+        { n: 'middleware', l: 37 },
+        { n: 'logger', l: 34 },
+        { n: 'monitoring bootstrap', l: 48 },
+        { n: 'env validation', l: 22 }
+      ]
+    },
+
+    /* ---------------- Elysia API ---------------- */
+    {
+      id: 'be-runtime',
+      code: 'RT',
+      name: 'API runtime',
+      group: 'api',
+      loc: 172,
+      files: 6,
+      gx: 1,
+      gy: 9,
+      w: 2,
+      d: 2,
+      what: 'How the API starts up and how its endpoints are assembled. It loads its database credentials, mounts logging and security headers, then attaches every feature route under one versioned prefix and publishes an OpenAPI document.',
+      how: 'A small composition file plus a route aggregator. In production the database URL is pulled from the managed secret store at boot; locally it comes from an environment file. Environment values are schema-validated before anything else runs.',
+      children: [
+        { n: 'route aggregator + OpenAPI', l: 30 },
+        { n: 'app composition', l: 35 },
+        { n: 'logger plugin', l: 43 },
+        { n: 'secret loading', l: 39 },
+        { n: 'env validation', l: 17 }
+      ]
+    },
+
+    {
+      id: 'mod-auth',
+      code: 'AZ',
+      name: 'Identity & permissions',
+      group: 'api',
+      loc: 94,
+      files: 3,
+      gx: 4,
+      gy: 9,
+      w: 2,
+      d: 2,
+      what: 'Decides who a caller is and what they are allowed to do. It verifies the identity token on every protected endpoint and turns the result into a permission set the services can query.',
+      how: 'A plugin exposing a route flag that other controllers switch on. It reads a bearer token and falls back to a dedicated header, because server-side calls spend the standard header on request signing. Permissions are CASL rules; an anonymous caller still gets a read-only public set.',
+      children: [
+        { n: 'auth plugin', l: 48 },
+        { n: 'permission builder', l: 28 },
+        { n: 'token verification', l: 18 }
+      ]
+    },
+
+    {
+      id: 'mod-posts',
+      code: 'PS',
+      name: 'Posts module',
+      group: 'api',
+      loc: 207,
+      files: 3,
+      gx: 7,
+      gy: 9,
+      w: 2,
+      d: 2,
+      what: 'Six endpoints for posts: list, read one, create, update, soft-delete, and issue an upload URL for a post image. Deleting never removes the row — it stamps a deleted timestamp.',
+      how: 'The repository triad. A plugin injects the service, a thin controller declares routes and validates every body, query and path parameter against the shared schemas, and the service holds all the logic and returns a result value rather than throwing.',
+      children: [
+        { n: 'controller (6 routes)', l: 123 },
+        { n: 'service', l: 73 },
+        { n: 'plugin', l: 11 }
+      ]
+    },
+
+    {
+      id: 'mod-users',
+      code: 'US',
+      name: 'Users module',
+      group: 'api',
+      loc: 275,
+      files: 3,
+      gx: 10,
+      gy: 9,
+      w: 2,
+      d: 2,
+      what: 'Seven endpoints covering the user record: list, read one, read yourself, create on first login, update, delete, and issue an upload URL for a profile picture. The largest module in the API.',
+      how: 'Same triad as posts. Creating a user is written to be safe to repeat, so a replayed login returns the existing record instead of failing. Every endpoint requires a verified caller.',
+      children: [
+        { n: 'controller (7 routes)', l: 137 },
+        { n: 'service', l: 129 },
+        { n: 'plugin', l: 9 }
+      ]
+    },
+
+    {
+      id: 'mod-comments',
+      code: 'CO',
+      name: 'Comments module',
+      group: 'api',
+      loc: 136,
+      files: 3,
+      gx: 1,
+      gy: 12,
+      w: 2,
+      d: 2,
+      what: 'Three endpoints: list the comments on a post, add one, and soft-delete one. Reading is open; writing and deleting are not.',
+      how: 'Triad again. The list query filters through the caller permission set rather than trusting an identifier from the request, so a caller can never widen their own view by changing a parameter.',
+      children: [
+        { n: 'controller (3 routes)', l: 76 },
+        { n: 'service', l: 51 },
+        { n: 'plugin', l: 9 }
+      ]
+    },
+
+    {
+      id: 'mod-media',
+      code: 'MD',
+      name: 'Media & uploads',
+      group: 'api',
+      loc: 141,
+      files: 4,
+      gx: 4,
+      gy: 12,
+      w: 2,
+      d: 2,
+      what: 'Two jobs. It hands out short-lived upload links so a browser can send a file straight to object storage without the file passing through the API, and it serves stored images back out through a single proxy endpoint.',
+      how: 'Upload links are presigned with an expiry. Before signing, the service checks the caller permission set and sanitises the filename, then namespaces the object key by folder and timestamp.',
+      children: [
+        { n: 'image controller', l: 60 },
+        { n: 'upload service', l: 44 },
+        { n: 'image service', l: 30 },
+        { n: 'image plugin', l: 7 }
+      ]
+    },
+
+    {
+      id: 'be-error',
+      code: 'EH',
+      name: 'Error pipeline',
+      group: 'api',
+      loc: 100,
+      files: 5,
+      gx: 7,
+      gy: 12,
+      w: 2,
+      d: 2,
+      what: 'One place that decides what a failure looks like to a caller. A service signals a problem by its kind — not found, forbidden, unauthorised — and this layer turns that into the right status code and a safe message, with no internal detail leaking out.',
+      how: 'Promises are wrapped so a rejection becomes a value instead of an exception. Two wrappers exist by intent: one reports to the monitoring service for genuinely exceptional faults, one stays quiet for expected failures such as bad input. A single handler at the edge converts the result into a response.',
+      children: [
+        { n: 'catchError utilities', l: 36 },
+        { n: 'error handler plugin', l: 28 },
+        { n: 'AppError', l: 20 },
+        { n: 'handleApiError', l: 13 },
+        { n: 'capture', l: 3 }
+      ]
+    },
+
+    {
+      id: 'be-lib',
+      code: 'LB',
+      name: 'API utilities',
+      group: 'api',
+      loc: 96,
+      files: 6,
+      gx: 10,
+      gy: 12,
+      w: 2,
+      d: 2,
+      what: 'Small shared helpers the modules lean on: the permission-to-query bridge, a guard that refuses an action the caller lacks rights for, the storage and identity SDK clients, slug generation and filename sanitising.',
+      how: 'The permission bridge is the important one — it converts a CASL rule set into a database filter, so authorisation is expressed once and enforced inside the query rather than checked after the rows come back.',
+      children: [
+        { n: 'authorizeResource', l: 46 },
+        { n: 'CASL-to-query bridge', l: 21 },
+        { n: 'slug generation', l: 8 },
+        { n: 'filename sanitising', l: 7 },
+        { n: 'SDK clients', l: 14 }
+      ]
+    },
+
+    /* ---------------- shared packages ---------------- */
+    {
+      id: 'shared-config',
+      code: 'SC',
+      name: 'Shared schemas',
+      group: 'shared',
+      loc: 155,
+      files: 8,
+      gx: 4,
+      gy: 15,
+      w: 3,
+      d: 2,
+      what: 'The contract both applications agree on. Every request and response shape, the list of error kinds, and the role-group names live here once, so the web app and the API can never drift apart on what a post or a user looks like.',
+      how: 'Zod models exported as a workspace package. The API validates incoming requests against them at the route boundary; the web app imports the same models for form validation and the same inferred types for its function signatures.',
+      children: [
+        { n: 'post model', l: 46 },
+        { n: 'user model', l: 32 },
+        { n: 'comment model', l: 28 },
+        { n: 'error definitions', l: 21 },
+        { n: 'email schema', l: 17 },
+        { n: 'role groups', l: 4 }
+      ]
+    },
+
+    {
+      id: 'shared-neon',
+      code: 'DB',
+      name: 'Database client',
+      group: 'shared',
+      loc: 111,
+      files: 4,
+      gx: 8,
+      gy: 15,
+      w: 3,
+      d: 2,
+      what: 'The one way either application talks to the database. It defines the three tables and exports a single ready-to-use client, so nothing else in the repository has to know how the connection is made.',
+      how: 'Prisma against serverless Postgres over a WebSocket adapter, exported as a shared singleton. The generated client is not committed — building the package regenerates it from the schema.',
+      children: [
+        { n: 'schema (3 models)', l: 58 },
+        { n: 'client singleton', l: 39 },
+        { n: 'prisma config', l: 12 },
+        { n: 'index', l: 2 }
+      ]
+    },
+
+    /* ---------------- data stores (slabs) ---------------- */
+    {
+      id: 'db-postgres',
+      code: 'PQ',
+      name: 'Postgres (serverless)',
+      group: 'storage',
+      loc: 0,
+      files: 0,
+      gx: 6,
+      gy: 18,
+      w: 4,
+      d: 2,
+      slab: true,
+      metric: '3 tables · 1 migration',
+      what: 'The system of record. Three tables — users, posts and comments — with posts and comments each pointing at their author, and both carrying a deleted-at column so removal is reversible.',
+      how: 'Serverless Postgres reached through the shared Prisma client. Foreign keys cascade from a user to their content, and indexes cover the columns actually filtered on: the identity subject, email, slug, author and post.',
+      children: [
+        { n: 'users', l: '8 cols' },
+        { n: 'posts', l: '10 cols' },
+        { n: 'comments', l: '8 cols' }
+      ]
+    },
+
+    {
+      id: 's3-buckets',
+      code: 'OB',
+      name: 'Object storage',
+      group: 'storage',
+      loc: 0,
+      files: 0,
+      gx: 11,
+      gy: 18,
+      w: 3,
+      d: 2,
+      slab: true,
+      metric: '4 buckets',
+      what: 'Four separate buckets, each with one job: files people upload, the built static assets the CDN serves, request logs, and a small holding page shown while the site is deliberately offline.',
+      how: 'Uploads arrive straight from the browser using a short-lived signed link, never through the API. The buckets are provisioned by one reusable infrastructure module and are protected against accidental deletion.',
+      children: [
+        { n: 'uploads', l: 'signed PUT' },
+        { n: 'static assets', l: 'CDN origin' },
+        { n: 'access logs', l: 'audit' },
+        { n: 'maintenance page', l: 'failover' }
+      ]
+    },
+
+    /* ---------------- infrastructure ---------------- */
+    {
+      id: 'tf-root',
+      code: 'TR',
+      name: 'Root deployment module',
+      group: 'infra',
+      loc: 1063,
+      files: 15,
+      gx: 17,
+      gy: 0,
+      w: 3,
+      d: 2,
+      what: 'The wiring diagram for the whole deployment. It declares eighteen building blocks and connects them — the CDN in front, the two application functions behind it, identity, storage, alarms and the deployment machinery.',
+      how: 'One root module for every environment, switched by a backend configuration file rather than duplicated directories. Values that a person must supply come in as variables; values the code can decide for itself live in a map keyed on the environment name.',
+      children: [
+        { n: 'main.tf (18 modules)', l: 559 },
+        { n: 'variables.tf', l: 121 },
+        { n: 'outputs.tf', l: 91 },
+        { n: 'locals.tf', l: 66 },
+        { n: 'providers.tf', l: 34 }
+      ]
+    },
+
+    {
+      id: 'tf-edge',
+      code: 'ED',
+      name: 'Edge, CDN & DNS',
+      group: 'infra',
+      loc: 1193,
+      files: 24,
+      gx: 21,
+      gy: 0,
+      w: 3,
+      d: 3,
+      what: 'Everything a request meets before it reaches the application: DNS, the certificate, the content delivery network, the web firewall, and two small functions that run at the edge itself. The largest infrastructure area.',
+      how: 'The delivery network routes by path — built assets to storage, API calls to the API function, everything else to the web application. One edge function shapes the incoming request; the other signs it so the origin can verify it came from the network and not directly from the internet.',
+      children: [
+        { n: 'cloudfront', l: 473 },
+        { n: 'lambda-edge', l: 371 },
+        { n: 'waf', l: 242 },
+        { n: 'acm (certificates)', l: 68 },
+        { n: 'route53 (dns)', l: 39 }
+      ]
+    },
+
+    {
+      id: 'tf-compute',
+      code: 'CU',
+      name: 'Compute & release',
+      group: 'infra',
+      loc: 574,
+      files: 8,
+      gx: 17,
+      gy: 4,
+      w: 3,
+      d: 2,
+      what: 'The two serverless functions that run the applications as container images, and the release mechanism that moves traffic onto a new version safely.',
+      how: 'Each application is packaged as a container image and run as a function with a stable alias in front of numbered versions. Releases shift traffic gradually between versions and roll back automatically if alarms fire, so a bad deploy does not require a human to notice first.',
+      children: [
+        { n: 'lambda', l: 355 },
+        { n: 'codedeploy', l: 219 }
+      ]
+    },
+
+    {
+      id: 'tf-identity',
+      code: 'ID',
+      name: 'Identity & access',
+      group: 'infra',
+      loc: 680,
+      files: 12,
+      gx: 21,
+      gy: 4,
+      w: 3,
+      d: 2,
+      what: 'Who may sign in, and what each machine role is permitted to touch. It defines the user pool and its hosted login, the narrow role the delivery pipeline assumes, and the exact permissions each function is granted.',
+      how: 'The pipeline authenticates by short-lived federated tokens, so no long-lived keys exist anywhere in the repository. The deploy role is scoped to the specific resources this configuration owns, and the user pool is protected against deletion.',
+      children: [
+        { n: 'cognito', l: 346 },
+        { n: 'github-deploy-role', l: 175 },
+        { n: 'lambda-permissions', l: 159 }
+      ]
+    },
+
+    {
+      id: 'tf-storage',
+      code: 'SO',
+      name: 'Storage, secrets & alarms',
+      group: 'infra',
+      loc: 438,
+      files: 13,
+      gx: 17,
+      gy: 8,
+      w: 3,
+      d: 2,
+      what: 'The buckets, the managed secret holding the database credentials, and the alarms that watch both functions for errors and latency.',
+      how: 'One reusable bucket module is instantiated four times rather than four near-identical modules being written. Secrets are stored by reference — the applications read them at run time, and no secret value is ever written into a committed file.',
+      children: [
+        { n: 's3', l: 283 },
+        { n: 'monitoring', l: 94 },
+        { n: 'secret-manager', l: 61 }
+      ]
+    },
+
+    {
+      id: 'tf-bootstrap',
+      code: 'BS',
+      name: 'State bootstrap',
+      group: 'infra',
+      loc: 219,
+      files: 8,
+      gx: 21,
+      gy: 8,
+      w: 2,
+      d: 2,
+      what: 'The chicken-and-egg step: it creates the bucket that stores the deployment state for everything else. It is run once, and it keeps its own state entirely separate from the main configuration.',
+      how: 'A tiny second root module. State locking uses the storage service natively, so there is no separate lock table to maintain.',
+      children: [
+        { n: 'bootstrap module', l: 124 },
+        { n: 'backend + config files', l: 95 }
+      ]
+    },
+
+    /* ---------------- delivery ---------------- */
+    {
+      id: 'gh-workflows',
+      code: 'WF',
+      name: 'CI/CD workflows',
+      group: 'ci',
+      loc: 1611,
+      files: 11,
+      gx: 15,
+      gy: 12,
+      w: 3,
+      d: 2,
+      what: 'Eleven automated jobs that run on a push, a pull request or a tag. They deploy, plan infrastructure changes, scan for vulnerabilities and leaked secrets, check code quality, enforce commit format, cut releases, and tear an environment down.',
+      how: 'Deployment is one workflow with thirteen dependent jobs, so infrastructure is applied before the applications that rely on it. Production is gated behind a required reviewer, and teardown is manual-only and demands a typed confirmation.',
+      children: [
+        { n: 'deploy.yml (13 jobs)', l: 597 },
+        { n: 'destroy.yml', l: 205 },
+        { n: 'security.yml', l: 193 },
+        { n: 'neon-workflow.yml', l: 130 },
+        { n: 'toggle-maintenance.yml', l: 127 },
+        { n: 'terraform-plan.yml', l: 108 }
+      ]
+    },
+
+    {
+      id: 'gh-automation',
+      code: 'AS',
+      name: 'Pipeline scripts',
+      group: 'ci',
+      loc: 1173,
+      files: 23,
+      gx: 19,
+      gy: 12,
+      w: 3,
+      d: 2,
+      what: 'The actual work the workflows delegate to: building and pushing images, releasing a new function version, deciding which applications a change even affects, posting a plan back onto a pull request, and the guarded steps that a teardown needs.',
+      how: 'Shell scripts and reusable composite steps kept out of the workflow files, so the logic can be read and changed on its own. Anything that can destroy data lives only in these teardown scripts — a routine deploy is structurally incapable of reaching it.',
+      children: [
+        { n: 'deploy-lambda.sh', l: 143 },
+        { n: 'detect-affected.sh', l: 93 },
+        { n: 'composite actions (7)', l: 378 },
+        { n: 'teardown scripts (5)', l: 166 },
+        { n: 'terraform helpers', l: 151 }
+      ]
+    },
+
+    /* ---------------- harness & docs ---------------- */
+    {
+      id: 'claude-harness',
+      code: 'AH',
+      name: 'Agent harness',
+      group: 'harness',
+      loc: 7489,
+      files: 77,
+      gx: 1,
+      gy: 18,
+      w: 3,
+      d: 2,
+      what: 'The configuration that lets coding agents work in this repository safely: the coding rules they must follow, the review agents that grade a change, the step-by-step commands for specifying, planning, building and testing a feature, and hooks that block dangerous shell commands or reads of secret files.',
+      how: 'Plain markdown and shell. Most of the volume is the skills library, much of which is vendored plugin content rather than rules written for this repository — the repository-specific part is the rules, agents, commands and hooks, which together come to 2,208 lines.',
+      children: [
+        { n: 'skills (largely vendored)', l: 5281 },
+        { n: 'commands', l: 737 },
+        { n: 'agents', l: 577 },
+        { n: 'hooks', l: 525 },
+        { n: 'rules', l: 369 }
+      ]
+    },
+
+    {
+      id: 'docs',
+      code: 'DC',
+      name: 'Documentation',
+      group: 'harness',
+      loc: 1387,
+      files: 6,
+      gx: 1,
+      gy: 21,
+      w: 3,
+      d: 2,
+      what: 'Six documents aimed at a person rather than a machine: an operations runbook, the deployment architecture with diagrams, how authentication actually works step by step, how environments differ, repository settings, and how the agent-assisted workflow is meant to be used.',
+      how: 'Markdown with mermaid diagrams. The authentication document is the one to read before touching anything in the login flow; the architecture document before changing how the system is deployed.',
+      children: [
+        { n: 'runbook.md', l: 456 },
+        { n: 'architecture.md', l: 272 },
+        { n: 'deployment-environments.md', l: 226 },
+        { n: 'authentication.md', l: 224 },
+        { n: 'ai-driven-development.md', l: 126 },
+        { n: 'github-repo-settings.md', l: 83 }
+      ]
+    }
+  ]
+
+  /* Off-map systems this repository does not contain but does depend on. */
+  const EXTERNALS = [
+    {
+      id: 'x-user',
+      name: 'Person in a browser',
+      gx: 2,
+      gy: -4,
+      anchor: 'pages'
+    },
+    {
+      id: 'x-idp',
+      name: 'Managed identity provider',
+      gx: -4,
+      gy: 2,
+      anchor: 'feat-auth'
+    },
+    {
+      id: 'x-mail',
+      name: 'Transactional email service',
+      gx: 17,
+      gy: -3,
+      anchor: 'feat-mailing'
+    },
+    {
+      id: 'x-monitor',
+      name: 'Error monitoring service',
+      gx: 15,
+      gy: 8,
+      anchor: 'feat-error'
+    },
+    {
+      id: 'x-registry',
+      name: 'Container image registry',
+      gx: 24,
+      gy: 15,
+      anchor: 'gh-automation'
+    }
+  ]
+
+  const EDGES = [
+    /* browser surfaces */
+    { f: 'x-user', t: 'pages', flow: 1, pay: 'HTTPS page request' },
+    { f: 'pages', t: 'components', pay: 'atoms, molecules, organisms' },
+    { f: 'components', t: 'styles', pay: 'colour, spacing and type tokens' },
+    {
+      f: 'pages',
+      t: 'feat-auth',
+      flow: 1,
+      pay: 'who is signed in, and may they?'
+    },
+    { f: 'pages', t: 'feat-post', flow: 1, pay: 'post list and post detail' },
+    { f: 'pages', t: 'feat-account', pay: 'profile view and edit form' },
+    { f: 'pages', t: 'feat-comment', pay: 'comment thread for a post' },
+    { f: 'pages', t: 'feat-mailing', pay: 'contact form' },
+
+    /* features across the BFF boundary */
+    {
+      f: 'feat-post',
+      t: 'bff-routes',
+      flow: 1,
+      pay: 'create post, request upload link'
+    },
+    {
+      f: 'feat-account',
+      t: 'bff-routes',
+      flow: 1,
+      pay: 'update profile, delete account'
+    },
+    {
+      f: 'feat-comment',
+      t: 'bff-routes',
+      flow: 1,
+      pay: 'add comment, delete comment'
+    },
+    {
+      f: 'feat-auth',
+      t: 'bff-routes',
+      flow: 1,
+      pay: 'start login, handle callback, log out'
+    },
+    {
+      f: 'feat-mailing',
+      t: 'x-mail',
+      flow: 1,
+      pay: 'notification and confirmation emails'
+    },
+    { f: 'feat-error', t: 'x-monitor', dashed: 1, pay: 'captured exceptions' },
+
+    { f: 'bff-routes', t: 'bff-clients', flow: 1, pay: 'one call per handler' },
+    {
+      f: 'fe-runtime',
+      t: 'bff-routes',
+      dashed: 1,
+      pay: 'redirect if no session cookie'
+    },
+    {
+      f: 'feat-auth',
+      t: 'x-idp',
+      flow: 1,
+      pay: 'authorisation code exchange (PKCE)'
+    },
+    { f: 'feat-auth', t: 'fe-runtime', pay: 'protected route list' },
+
+    /* BFF to API */
+    {
+      f: 'bff-clients',
+      t: 'be-runtime',
+      flow: 1,
+      pay: 'signed request + identity token'
+    },
+    { f: 'be-runtime', t: 'mod-posts', pay: 'mounts /posts' },
+    { f: 'be-runtime', t: 'mod-users', pay: 'mounts /users' },
+    { f: 'be-runtime', t: 'mod-comments', pay: 'mounts /comments' },
+    { f: 'be-runtime', t: 'mod-media', pay: 'mounts /images' },
+
+    /* API internals */
+    {
+      f: 'mod-posts',
+      t: 'mod-auth',
+      flow: 1,
+      pay: 'verify caller, build permissions'
+    },
+    {
+      f: 'mod-users',
+      t: 'mod-auth',
+      flow: 1,
+      pay: 'verify caller, build permissions'
+    },
+    {
+      f: 'mod-comments',
+      t: 'mod-auth',
+      pay: 'verify caller, build permissions'
+    },
+    { f: 'mod-posts', t: 'mod-media', pay: 'presigned upload link' },
+    { f: 'mod-users', t: 'mod-media', pay: 'presigned upload link' },
+    {
+      f: 'mod-auth',
+      t: 'x-idp',
+      dashed: 1,
+      pay: 'public keys for token verification'
+    },
+    {
+      f: 'mod-posts',
+      t: 'be-error',
+      pay: 'result value, never a thrown error'
+    },
+    {
+      f: 'mod-users',
+      t: 'be-error',
+      pay: 'result value, never a thrown error'
+    },
+    {
+      f: 'mod-comments',
+      t: 'be-error',
+      pay: 'result value, never a thrown error'
+    },
+    { f: 'mod-auth', t: 'be-lib', pay: 'permissions as a query filter' },
+    {
+      f: 'mod-media',
+      t: 'be-lib',
+      pay: 'permission guard, filename sanitising'
+    },
+
+    /* shared + storage */
+    { f: 'mod-posts', t: 'shared-config', pay: 'request and response schemas' },
+    { f: 'mod-users', t: 'shared-config', pay: 'request and response schemas' },
+    {
+      f: 'mod-comments',
+      t: 'shared-config',
+      pay: 'request and response schemas'
+    },
+    { f: 'feat-post', t: 'shared-config', pay: 'same schemas, same types' },
+    {
+      f: 'mod-posts',
+      t: 'shared-neon',
+      flow: 1,
+      pay: 'permission-filtered queries'
+    },
+    {
+      f: 'mod-users',
+      t: 'shared-neon',
+      flow: 1,
+      pay: 'permission-filtered queries'
+    },
+    {
+      f: 'mod-comments',
+      t: 'shared-neon',
+      flow: 1,
+      pay: 'permission-filtered queries'
+    },
+    {
+      f: 'shared-neon',
+      t: 'db-postgres',
+      flow: 1,
+      pay: 'SQL over a pooled connection'
+    },
+    {
+      f: 'mod-media',
+      t: 's3-buckets',
+      flow: 1,
+      pay: 'signed upload link, image reads'
+    },
+
+    /* infrastructure */
+    { f: 'tf-root', t: 'tf-edge', pay: 'certificate, function URLs, firewall' },
+    { f: 'tf-root', t: 'tf-compute', pay: 'image URI, environment, alarms' },
+    { f: 'tf-root', t: 'tf-identity', pay: 'resource ARNs to scope roles to' },
+    { f: 'tf-root', t: 'tf-storage', pay: 'bucket names, secret name' },
+    { f: 'tf-edge', t: 'tf-compute', pay: 'routes traffic to both functions' },
+    {
+      f: 'tf-compute',
+      t: 'tf-identity',
+      pay: 'execution role and permissions'
+    },
+    { f: 'tf-compute', t: 'tf-storage', pay: 'reads database credentials' },
+    {
+      f: 'tf-bootstrap',
+      t: 'tf-root',
+      dashed: 1,
+      pay: 'creates the state bucket first'
+    },
+    {
+      f: 'tf-storage',
+      t: 's3-buckets',
+      dashed: 1,
+      pay: 'provisions the four buckets'
+    },
+    {
+      f: 'tf-identity',
+      t: 'x-idp',
+      dashed: 1,
+      pay: 'provisions the user pool'
+    },
+
+    /* delivery */
+    {
+      f: 'gh-workflows',
+      t: 'gh-automation',
+      flow: 1,
+      pay: 'delegates each step'
+    },
+    {
+      f: 'gh-automation',
+      t: 'x-registry',
+      flow: 1,
+      pay: 'pushes container images'
+    },
+    {
+      f: 'gh-automation',
+      t: 'tf-compute',
+      flow: 1,
+      pay: 'new image, then shift traffic'
+    },
+    {
+      f: 'gh-workflows',
+      t: 'tf-root',
+      flow: 1,
+      pay: 'plan on a pull request, apply on merge'
+    },
+    {
+      f: 'gh-workflows',
+      t: 'shared-neon',
+      dashed: 1,
+      pay: 'runs pending migrations'
+    },
+    {
+      f: 'claude-harness',
+      t: 'docs',
+      dashed: 1,
+      pay: 'rules point at the human docs'
+    },
+    {
+      f: 'claude-harness',
+      t: 'gh-workflows',
+      dashed: 1,
+      pay: 'local gates mirror the CI gates'
+    }
+  ]
+
+  const TRACES = [
+    {
+      id: 'create-post',
+      name: 'Publish a post with an image',
+      steps: [
+        [
+          'pages',
+          'Someone opens the create-post screen. Before any HTML is produced the server component asks who they are and checks that this person may create a post — if not, it redirects away rather than rendering a form they cannot use.'
+        ],
+        [
+          'feat-auth',
+          'Answering "who is this" means reading the session cookie, taking the identity token from it, and asking the API for the matching user record.'
+        ],
+        [
+          'feat-post',
+          'The form itself is a client component. The person fills in a title and body, picks an image, and presses submit — which calls one action that owns the whole sequence.'
+        ],
+        [
+          'feat-post',
+          'Because a file was chosen, the upload runs first. The browser asks the app for a link that will let it write that one file.'
+        ],
+        [
+          'bff-routes',
+          'A route handler reads the filename and content type from the query and forwards them. This is the only door open to the browser — it cannot reach the API itself.'
+        ],
+        [
+          'bff-clients',
+          'The authenticated client attaches the identity token in a dedicated header and, in production, signs the request so the origin can prove it came from the network edge.'
+        ],
+        [
+          'mod-posts',
+          'The API validates the query against the shared schema and refuses the call outright unless a verified caller is attached.'
+        ],
+        [
+          'mod-media',
+          'The upload service checks that this caller may create a post, cleans the filename, and signs a link that expires shortly.'
+        ],
+        [
+          's3-buckets',
+          'The browser sends the file straight to the uploads bucket. The image never travels through either application.'
+        ],
+        [
+          'feat-post',
+          'With the stored object key in hand, the client posts the form contents plus that key.'
+        ],
+        [
+          'mod-posts',
+          'The controller validates the body, resolves the signed-in identity to a real user row, and generates a slug from the title when none was supplied.'
+        ],
+        [
+          'shared-neon',
+          'The service writes the row through the shared database client, having already narrowed what it may write by the caller permission set.'
+        ],
+        [
+          'db-postgres',
+          'The post lands in Postgres and the browser is redirected to the posts list, where the new entry is now visible.'
+        ]
+      ]
+    },
+    {
+      id: 'sign-in',
+      name: 'Sign in with the identity provider',
+      steps: [
+        [
+          'fe-runtime',
+          'Someone requests a page that needs a session. The middleware sees no session cookie, and redirects to the login page carrying the address they were trying to reach.'
+        ],
+        [
+          'pages',
+          'The login page renders almost nothing — just a client component whose only job is to start the flow.'
+        ],
+        [
+          'feat-auth',
+          'That component immediately sends the browser to the login endpoint, preserving the address to return to afterwards.'
+        ],
+        [
+          'bff-routes',
+          'The endpoint hands off to the login service and will end by issuing a redirect.'
+        ],
+        [
+          'feat-auth',
+          'The service generates a one-time secret, its hash, a state value and a nonce — the ingredients that make an intercepted authorisation code useless to anybody else.'
+        ],
+        [
+          'feat-auth',
+          'Those transient values are sealed into a short-lived encrypted cookie, kept deliberately separate from the real session cookie.'
+        ],
+        [
+          'x-idp',
+          'The browser is sent to the hosted login page. The application never sees the password.'
+        ],
+        [
+          'bff-routes',
+          'After a successful login the provider redirects back with a code and the state value.'
+        ],
+        [
+          'feat-auth',
+          'The callback re-opens the transient cookie and rejects the attempt if the state does not match, or the one-time secret or nonce is missing.'
+        ],
+        [
+          'feat-auth',
+          'The code is exchanged for tokens. Only the refresh token is written into the session cookie — the access and identity tokens are never persisted in the browser.'
+        ],
+        [
+          'mod-users',
+          'The API is asked to create the user. This is written to be safe to repeat, so a returning visitor simply gets their existing record back.'
+        ],
+        [
+          'shared-neon',
+          'The record is read or written through the shared database client.'
+        ],
+        [
+          'feat-auth',
+          'The default role group is assigned, and the browser is finally sent to whichever page it originally wanted.'
+        ]
+      ]
+    },
+    {
+      id: 'ship',
+      name: 'Ship a release to production',
+      steps: [
+        [
+          'gh-workflows',
+          'A version tag is pushed. The deployment workflow wakes up — thirteen jobs whose dependencies encode the safe order.'
+        ],
+        [
+          'gh-automation',
+          'The first job works out which applications the change actually touched, so unaffected ones are never rebuilt or redeployed.'
+        ],
+        [
+          'gh-automation',
+          'Each affected application is built as a container image and pushed to the registry.'
+        ],
+        [
+          'x-registry',
+          'The images wait in the registry, addressed by digest, ready for a function to point at them.'
+        ],
+        [
+          'gh-workflows',
+          'Applying to production stops and waits for a named reviewer to approve. Nothing below happens until a person says so.'
+        ],
+        [
+          'tf-root',
+          'Infrastructure is applied against production, holding a lock so no other run can touch the same state at the same time.'
+        ],
+        [
+          'tf-identity',
+          'The pipeline is doing this as a short-lived federated role scoped to only these resources. There are no long-lived keys anywhere in the repository.'
+        ],
+        [
+          'gh-automation',
+          'With infrastructure settled, each function is pointed at its new image and a new numbered version is published.'
+        ],
+        [
+          'tf-compute',
+          'Traffic is shifted onto the new version gradually rather than all at once, and rolls back on its own if the alarms fire.'
+        ],
+        [
+          'tf-edge',
+          'The delivery network keeps serving throughout, routing built assets to storage, API paths to the API function and everything else to the web application.'
+        ],
+        [
+          'tf-storage',
+          'The alarms watch error rate and latency on the version that just went live — the same alarms that can reverse the release.'
+        ]
+      ]
+    }
+  ]
+
+  const OVERVIEW_WHAT = [
+    'This repository is a production-shaped starting point for a web product, not a demo. It contains a small blogging domain — users, posts and comments, with images — built the way a real system is built: a public website, a separate API behind it, one shared definition of every data shape, a full deployment described as code, and a delivery pipeline that can put it live and take it down again.',
+    'The domain itself is deliberately small so the surrounding structure is visible. Three tables. Seventeen API operations. Twelve doors the browser is allowed to knock on. Everything else in the city — the edge, identity, storage, alarms, the release machinery — is the part you would otherwise have to build yourself.',
+    'The rule that shapes almost every block here is that the browser never talks to the API. It talks to the website, and the website talks to the API on its behalf, attaching the caller identity and signing the request. That single boundary is why the front of the city has a layer of small, thin doors rather than a direct road to the core.'
+  ].join(' ')
+
+  const OVERVIEW_HOW = [
+    'A Turborepo monorepo on Bun, with two applications and three shared packages. The website is Next.js with the App Router and Cache Components; the API is Elysia running on Bun and deployed as a container image.',
+    'Two patterns recur everywhere. In the API, each resource is a plugin, a thin controller and a service — the controller only validates and delegates, and the service returns a failure as a value rather than throwing it across layers, so error handling collects at one edge instead of being repeated at every call site. In authorisation, the caller permission set is converted into a database filter, so a list query cannot return a row the caller was never allowed to see, no matter what identifier arrives in the request.',
+    'Deployment is one configuration switched by environment rather than duplicated per environment, and destructive capability is kept out of it entirely: emptying storage, relaxing deletion protection and force-deleting secrets exist only in a manual teardown workflow, so an ordinary apply is structurally unable to delete data.',
+    'One honest gap: there is no test runner in this repository, and no test files. Verification comes from type checking, linting, security and quality scanning in the pipeline, and browser-level checks — not from unit tests.'
+  ].join(' ')
+
+  const STATS = [
+    { v: '452', k: 'tracked files' },
+    { v: '6,076', k: 'lines of TypeScript' },
+    { v: '4,167', k: 'lines of infra config' },
+    { v: '2,784', k: 'lines of pipeline' },
+    { v: '17', k: 'API operations' },
+    { v: '12', k: 'BFF handlers' },
+    { v: '3', k: 'data models' },
+    { v: '13', k: 'infra modules' },
+    { v: '2', k: 'deployed services' },
+    { v: '0', k: 'test files' }
+  ]
+
+  /* ===================== rendering ===================== */
+  const NS = 'http://www.w3.org/2000/svg'
+  const K = 1.22,
+    U = 26,
+    V = 14.3,
+    HU = 36,
+    HCAP = 2.0
+  const SVG = document.getElementById('svg')
+  const TIP = document.getElementById('tip')
+  const STAGE = document.getElementById('stage')
+  const byId = Object.fromEntries(STRUCTURES.map((s) => [s.id, s]))
+  const extById = Object.fromEntries(EXTERNALS.map((e) => [e.id, e]))
+  const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  const el = (n, a = {}) => {
+    const e = document.createElementNS(NS, n)
+    for (const k in a) e.setAttribute(k, a[k])
+    return e
+  }
+  const esc = (s) =>
+    String(s).replace(
+      /[&<>"]/g,
+      (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]
+    )
+  const fmt = (n) => n.toLocaleString('en-US')
+
+  const hexAdj = (hex, f) => {
+    const n = parseInt(hex.slice(1), 16)
+    const cl = (v) => Math.max(0, Math.min(255, Math.round(v)))
+    return (
+      '#' +
+      [cl(((n >> 16) & 255) * f), cl(((n >> 8) & 255) * f), cl((n & 255) * f)]
+        .map((v) => v.toString(16).padStart(2, '0'))
+        .join('')
+    )
+  }
+  const cssNum = (name) =>
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(name)
+    ) || 1
+
+  const heightOf = (s) =>
+    s.slab ? 0.14 : Math.min(HCAP, 0.35 * Math.sqrt(s.loc / 100))
+  /* grid -> screen. Positions are spread by K; footprints are not. */
+  const proj = (a, b, h = 0) => ({ x: (a - b) * U, y: (a + b) * V - h * HU })
+  const originOf = (s) => ({ ax: s.gx * K, ay: s.gy * K })
+  const footOf = (s) => {
+    const { ax, ay } = originOf(s)
+    return { ax, ay, bx: ax + s.w, by: ay + s.d }
+  }
+  const centerGrid = (s) => {
+    const f = footOf(s)
+    return { a: (f.ax + f.bx) / 2, b: (f.ay + f.by) / 2 }
+  }
+  const centerPt = (s) => {
+    const c = centerGrid(s)
+    return proj(c.a, c.b, heightOf(s))
+  }
+  const groundPt = (s) => {
+    const c = centerGrid(s)
+    return proj(c.a, c.b, 0)
+  }
+  const extCenter = (e) => proj(e.gx * K, e.gy * K, 0)
+
+  /* --- layers: edges, then blocks, then dots (dots must sit above blocks) --- */
+  let gRoot, gEdge, gExt, gBlock, gLabel, gDot, gZone
+  let view = { x: 0, y: 0, k: 1 },
+    drag = null,
+    panSeq = 0
+  let mode = 'city',
+    insideId = null,
+    selected = null
+
+  const buildSvgSkeleton = () => {
+    SVG.textContent = ''
+    gRoot = el('g', { id: 'root' })
+    gZone = el('g', { id: 'zones' })
+    gEdge = el('g', { id: 'edges' })
+    gExt = el('g', { id: 'externals' })
+    gBlock = el('g', { id: 'blocks' })
+    // captions ride above every block so a nearer tower can never clip them
+    gLabel = el('g', { id: 'labels' })
+    gDot = el('g', { id: 'dots' })
+    gRoot.append(gZone, gEdge, gExt, gBlock, gLabel, gDot)
+    SVG.append(gRoot)
+  }
+
+  const applyView = () =>
+    gRoot.setAttribute(
+      'transform',
+      `translate(${view.x},${view.y}) scale(${view.k})`
+    )
+
+  /* ---- one block ---- */
+  const drawBlock = (s, parentG, opts = {}) => {
+    const color = opts.color || GC[s.group]
+    const h = opts.h !== undefined ? opts.h : heightOf(s)
+    const f = footOf(s)
+    const fT = cssNum('--face-top'),
+      fR = cssNum('--face-r'),
+      fL = cssNum('--face-l')
+
+    const g = el('g', { class: 'blk', 'data-id': s.id })
+
+    const pt = (a, b, hh) => {
+      const p = proj(a, b, hh)
+      return `${p.x},${p.y}`
+    }
+
+    // right face  (plane gx = bx)
+    g.append(
+      el('polygon', {
+        class: 'fc',
+        points: [
+          pt(f.bx, f.ay, h),
+          pt(f.bx, f.by, h),
+          pt(f.bx, f.by, 0),
+          pt(f.bx, f.ay, 0)
+        ].join(' '),
+        fill: hexAdj(color, fR)
+      })
+    )
+    // left face   (plane gy = by)
+    g.append(
+      el('polygon', {
+        class: 'fc',
+        points: [
+          pt(f.ax, f.by, h),
+          pt(f.bx, f.by, h),
+          pt(f.bx, f.by, 0),
+          pt(f.ax, f.by, 0)
+        ].join(' '),
+        fill: hexAdj(color, fL)
+      })
+    )
+    // top face
+    g.append(
+      el('polygon', {
+        class: 'fc',
+        points: [
+          pt(f.ax, f.ay, h),
+          pt(f.bx, f.ay, h),
+          pt(f.bx, f.by, h),
+          pt(f.ax, f.by, h)
+        ].join(' '),
+        fill: hexAdj(color, fT),
+        stroke: hexAdj(color, fT * 1.12),
+        'stroke-width': 0.6
+      })
+    )
+
+    const c = proj((f.ax + f.bx) / 2, (f.ay + f.by) / 2, h)
+    const t = el('text', { class: 'lbl', x: c.x, y: c.y })
+    t.textContent = s.code
+    g.append(t)
+
+    const base = proj((f.ax + f.bx) / 2, (f.ay + f.by) / 2, 0)
+    const nl = el('text', {
+      class: 'nlbl',
+      'data-id': s.id,
+      x: base.x,
+      y: base.y + 13
+    })
+    nl.textContent = s.name
+    ;(opts.labelLayer || gLabel).append(nl)
+
+    g.addEventListener('mouseenter', (ev) => showTip(ev, s))
+    g.addEventListener('mousemove', moveTip)
+    g.addEventListener('mouseleave', hideTip)
+    g.addEventListener('click', (ev) => {
+      ev.stopPropagation()
+      onPick(s.id)
+    })
+    parentG.append(g)
+    return g
+  }
+
+  /* ---- externals ---- */
+  const drawExternal = (e) => {
+    const p = extCenter(e)
+    const w = Math.max(96, e.name.length * 5.6 + 18),
+      h = 26
+    const g = el('g', { class: 'ext', 'data-id': e.id })
+    g.append(
+      el('rect', { x: p.x - w / 2, y: p.y - h / 2, width: w, height: h, rx: 7 })
+    )
+    const t = el('text', { x: p.x, y: p.y })
+    t.textContent = e.name
+    g.append(t)
+    const a = byId[e.anchor]
+    if (a) {
+      const q = groundPt(a)
+      gEdge.append(
+        el('path', { class: 'lead', d: `M ${p.x} ${p.y} L ${q.x} ${q.y}` })
+      )
+    }
+    g.addEventListener('mouseenter', (ev) =>
+      showTip(ev, { name: e.name, ext: true })
+    )
+    g.addEventListener('mousemove', moveTip)
+    g.addEventListener('mouseleave', hideTip)
+    gExt.append(g)
+  }
+
+  /* ---- edges as L elbows in grid space ---- */
+  const nodeGrid = (id) => {
+    if (byId[id]) {
+      const c = centerGrid(byId[id])
+      return c
+    }
+    const e = extById[id]
+    return e ? { a: e.gx * K, b: e.gy * K } : null
+  }
+  const edgePath = (ed) => {
+    const A = nodeGrid(ed.f),
+      B = nodeGrid(ed.t)
+    if (!A || !B) return null
+    const pts = [[A.a, A.b]]
+    if (ed.via) ed.via.forEach((v) => pts.push([v[0] * K, v[1] * K]))
+    else pts.push([B.a, A.b])
+    pts.push([B.a, B.b])
+    return pts
+      .map(([a, b]) => proj(a, b, 0))
+      .map((p, i) => `${i ? 'L' : 'M'} ${p.x} ${p.y}`)
+      .join(' ')
+  }
+
+  const drawEdges = () => {
+    EDGES.forEach((ed, i) => {
+      const d = edgePath(ed)
+      if (!d) return
+      const p = el('path', {
+        class: 'edge' + (ed.dashed ? ' dash' : ''),
+        d,
+        id: 'ep' + i,
+        'data-f': ed.f,
+        'data-t': ed.t
+      })
+      gEdge.append(p)
+      if (ed.flow) {
+        const col =
+          GC[(byId[ed.t] || {}).group] ||
+          GC[(byId[ed.f] || {}).group] ||
+          '#94a3b8'
+        const n = REDUCED ? 1 : 2
+        for (let j = 0; j < n; j++) {
+          const dot = el('circle', {
+            class: 'dot',
+            r: 2.6,
+            fill: col,
+            'data-f': ed.f,
+            'data-t': ed.t
+          })
+          const title = `${ed.pay}`
+          dot.addEventListener('mouseenter', (ev) =>
+            showTip(ev, {
+              name: labelOf(ed.f) + ' → ' + labelOf(ed.t),
+              sub: title,
+              ext: true
+            })
+          )
+          dot.addEventListener('mousemove', moveTip)
+          dot.addEventListener('mouseleave', hideTip)
+          if (REDUCED) {
+            const m = midOf(d)
+            dot.setAttribute('cx', m.x)
+            dot.setAttribute('cy', m.y)
+          } else {
+            const am = el('animateMotion', {
+              dur: '3.4s',
+              repeatCount: 'indefinite',
+              begin: j * 1.7 + 's',
+              rotate: '0'
+            })
+            am.append(el('mpath', { href: '#ep' + i }))
+            dot.append(am)
+          }
+          gDot.append(dot)
+        }
+      }
+    })
+  }
+  const labelOf = (id) => (byId[id] || extById[id] || { name: id }).name
+  const midOf = (d) => {
+    const nums = d.match(/-?\d+(\.\d+)?/g).map(Number)
+    const n = nums.length
+    return { x: nums[n - 2], y: nums[n - 1] }
+  }
+
+  /* ---- zone captions ---- */
+  /* Captions sit in the empty margin beside each cluster, never over a block. */
+  const ZONES = [
+    { t: 'browser', at: [0, -3] },
+    { t: 'features', at: [-4, 5] },
+    { t: 'bff boundary', at: [-3, 8] },
+    { t: 'elysia api', at: [-3.5, 11.5] },
+    { t: 'shared', at: [13, 17] },
+    { t: 'data stores', at: [14.5, 21.5] },
+    { t: 'harness', at: [-2.5, 20] },
+    { t: 'infrastructure', at: [27, 6] },
+    { t: 'delivery', at: [24.5, 15] }
+  ]
+  const drawZones = () => {
+    ZONES.forEach((z) => {
+      const p = proj(z.at[0] * K, z.at[1] * K, 0)
+      const t = el('text', { class: 'zoneLbl', x: p.x, y: p.y })
+      t.textContent = z.t
+      gZone.append(t)
+    })
+  }
+
+  /* ---- city ---- */
+  const renderCity = () => {
+    mode = 'city'
+    insideId = null
+    buildSvgSkeleton()
+    drawZones()
+    drawEdges()
+    EXTERNALS.forEach(drawExternal)
+    ;[...STRUCTURES]
+      .sort((a, b) => a.gx + a.gy - (b.gx + b.gy))
+      .forEach((s) => drawBlock(s, gBlock))
+    applyView()
+    document.getElementById('backBtn').style.display = 'none'
+  }
+
+  /* ---- inside view ---- */
+  const renderInside = (id) => {
+    const s = byId[id]
+    if (!s || !s.children) return
+    mode = 'inside'
+    insideId = id
+    buildSvgSkeleton()
+    // largest first, so the number on each block is its rank by size
+    const kids = [...s.children].sort(
+      (a, b) =>
+        (typeof b.l === 'number' ? b.l : 0) -
+        (typeof a.l === 'number' ? a.l : 0)
+    )
+    const nums = kids.map((k) => (typeof k.l === 'number' ? k.l : 0))
+    const max = Math.max(1, ...nums)
+    const cols = Math.min(3, Math.ceil(Math.sqrt(kids.length)))
+    const fake = kids.map((k, i) => ({
+      id: 'kid' + i,
+      code: String(i + 1).padStart(2, '0'),
+      name: k.n,
+      group: s.group,
+      loc: typeof k.l === 'number' ? k.l : 0,
+      files: 0,
+      gx: (i % cols) * 4,
+      gy: Math.floor(i / cols) * 4,
+      w: 3,
+      d: 3,
+      _label: typeof k.l === 'number' ? fmt(k.l) + ' lines' : String(k.l)
+    }))
+    ;[...fake]
+      .sort((a, b) => a.gx + a.gy - (b.gx + b.gy))
+      .forEach((f) => {
+        const h =
+          typeof kids[fake.indexOf(f)].l === 'number'
+            ? 0.25 + 1.5 * (f.loc / max)
+            : 0.4
+        const g = drawBlock(f, gBlock, { h })
+        const base = proj(f.gx * K + f.w / 2, f.gy * K + f.d / 2, 0)
+        const kfoot = proj(f.gx * K + f.w, f.gy * K + f.d, 0)
+        const sub = el('text', { class: 'nlbl', x: base.x, y: kfoot.y + 26 })
+        sub.textContent = f._label
+        sub.style.opacity = '.75'
+        g.append(sub)
+        g.addEventListener('click', (ev) => ev.stopPropagation())
+      })
+    // caption goes in the label layer and above the tallest block, so nothing covers it
+    const top = gBlock.getBBox()
+    const t = el('text', {
+      class: 'zoneLbl',
+      x: top.x + top.width / 2,
+      y: top.y - 26
+    })
+    t.textContent = 'inside · ' + s.name
+    gLabel.append(t)
+    applyView()
+    fitToContent(true)
+    infoFor(id)
+    document.getElementById('backBtn').style.display = ''
+  }
+
+  /* ---- tooltip ---- */
+  const showTip = (ev, s) => {
+    const sub = s.ext
+      ? s.sub || ''
+      : s.slab
+        ? s.metric || ''
+        : `${fmt(s.loc)} lines · ${s.files} files`
+    TIP.innerHTML = `<b>${esc(s.name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}`
+    TIP.style.opacity = '1'
+    moveTip(ev)
+  }
+  const moveTip = (ev) => {
+    const r = STAGE.getBoundingClientRect()
+    let x = ev.clientX - r.left + 14,
+      y = ev.clientY - r.top + 14
+    const tw = TIP.offsetWidth,
+      th = TIP.offsetHeight
+    if (x + tw > r.width - 8) x = ev.clientX - r.left - tw - 14
+    if (y + th > r.height - 8) y = ev.clientY - r.top - th - 14
+    TIP.style.left = x + 'px'
+    TIP.style.top = y + 'px'
+  }
+  const hideTip = () => {
+    TIP.style.opacity = '0'
+  }
+
+  /* ---- highlight ---- */
+  const highlight = (id) => {
+    selected = id
+    const near = new Set([id])
+    EDGES.forEach((e) => {
+      if (e.f === id) near.add(e.t)
+      if (e.t === id) near.add(e.f)
+    })
+    gBlock.querySelectorAll('.blk').forEach((g) => {
+      const on = !id || near.has(g.dataset.id)
+      g.classList.toggle('dim', !!id && !on)
+      g.classList.toggle('hot', !!id && g.dataset.id === id)
+    })
+    gLabel.querySelectorAll('.nlbl').forEach((t) => {
+      t.classList.toggle('dim', !!id && !near.has(t.dataset.id))
+    })
+    gExt.querySelectorAll('.ext').forEach((g) => {
+      g.classList.toggle('dim', !!id && !near.has(g.dataset.id))
+    })
+    gEdge.querySelectorAll('.edge').forEach((p) => {
+      const on = !id || p.dataset.f === id || p.dataset.t === id
+      p.classList.toggle('dim', !!id && !on)
+    })
+    gDot.querySelectorAll('.dot').forEach((p) => {
+      const on = !id || p.dataset.f === id || p.dataset.t === id
+      p.classList.toggle('dim', !!id && !on)
+    })
+    document
+      .querySelectorAll('.railItem')
+      .forEach((r) => r.classList.toggle('on', r.dataset.id === id))
+  }
+
+  /* ---- info panel ---- */
+  const infoOverview = () => {
+    document.getElementById('info').innerHTML = `
+      <div class="pad sect" id="infoHead">
+        <div class="eyebrow">Codebase atlas</div>
+        <h2>Boilerplate Template</h2>
+        <div id="chips">
+          <span class="chip">Turborepo</span><span class="chip">Bun</span>
+          <span class="chip">Next.js BFF</span><span class="chip">Elysia API</span>
+          <span class="chip">Terraform</span>
+        </div>
+      </div>
+      <div class="pad sect"><h3>What it does</h3><p>${esc(OVERVIEW_WHAT)}</p></div>
+      <div class="pad sect"><h3>How it's built</h3><p>${esc(OVERVIEW_HOW)}</p></div>
+      <div id="note">Every line count and file count on this page was measured by scanning the working tree, not estimated. Click any block to read what it does; click again on a block with a breakdown to go inside it.</div>`
+  }
+
+  const infoFor = (id) => {
+    const s = byId[id]
+    if (!s) return infoOverview()
+    const gname = (GROUPS.find((g) => g.id === s.group) || {}).name || ''
+    const size = s.slab
+      ? `<span class="chip">${esc(s.metric || '')}</span>`
+      : `<span class="chip">${fmt(s.loc)} lines</span><span class="chip">${s.files} files</span>`
+    const kids = [...(s.children || [])]
+      // same order as the go-inside view, so the ranks agree
+      .sort(
+        (a, b) =>
+          (typeof b.l === 'number' ? b.l : 0) -
+          (typeof a.l === 'number' ? a.l : 0)
+      )
+      .map((k) => {
+        const v = typeof k.l === 'number' ? fmt(k.l) + ' lines' : k.l
+        return `<div class="kidRow"><span class="kn">${esc(k.n)}</span><span class="kl">${esc(v)}</span></div>`
+      })
+      .join('')
+    const ins = EDGES.filter((e) => e.t === id),
+      outs = EDGES.filter((e) => e.f === id)
+    const linkBtns = (arr) =>
+      arr
+        .map((e) => {
+          const other = e.f === id ? e.t : e.f,
+            dir = e.f === id ? '→' : '←'
+          return `<button data-goto="${esc(other)}"><span class="ar">${dir}</span> ${esc(labelOf(other))}<br><span class="ar">${esc(e.pay)}</span></button>`
+        })
+        .join('')
+
+    document.getElementById('info').innerHTML = `
+      <div class="pad sect" id="infoHead">
+        <div class="eyebrow">${esc(gname)}</div>
+        <h2>${esc(s.name)}</h2>
+        <div id="chips"><span class="chip">${esc(s.code)}</span>${size}</div>
+      </div>
+      <div class="pad sect"><h3>What it does</h3><p>${esc(s.what)}</p></div>
+      <div class="pad sect"><h3>How it's built</h3><p>${esc(s.how)}</p></div>
+      ${
+        kids
+          ? `<div class="pad sect"><h3>Breakdown</h3>${kids}
+        <div style="margin-top:9px"><button class="btn" data-inside="${esc(id)}">Go inside →</button></div></div>`
+          : ''
+      }
+      ${outs.length ? `<div class="pad sect"><h3>Sends to</h3><div class="linkRow">${linkBtns(outs)}</div></div>` : ''}
+      ${ins.length ? `<div class="pad sect"><h3>Receives from</h3><div class="linkRow">${linkBtns(ins)}</div></div>` : ''}
+      <div id="note">Counts measured from the working tree.</div>`
+
+    document
+      .querySelectorAll('[data-goto]')
+      .forEach((b) => b.addEventListener('click', () => onPick(b.dataset.goto)))
+    const ib = document.querySelector('[data-inside]')
+    if (ib) ib.addEventListener('click', () => renderInside(id))
+  }
+
+  const onPick = (id) => {
+    if (mode === 'inside') return
+    if (extById[id]) {
+      highlight(id)
+      return
+    }
+    if (!byId[id]) return
+    highlight(id)
+    infoFor(id)
+    panTo(id)
+  }
+
+  /* ---- rail ---- */
+  const buildRail = () => {
+    const r = document.getElementById('rail')
+    r.innerHTML = GROUPS.map((g) => {
+      const items = STRUCTURES.filter((s) => s.group === g.id)
+      if (!items.length) return ''
+      return `<div class="railGroup"><h4><i style="background:${g.color}"></i>${esc(g.name)}</h4>${items
+        .map(
+          (
+            s
+          ) => `<div class="railItem" data-id="${esc(s.id)}" tabindex="0" role="button">
+          <span class="code" style="background:${g.color}">${esc(s.code)}</span>
+          <span class="nm">${esc(s.name)}</span>
+          <span class="lc">${s.slab ? '—' : fmt(s.loc)}</span></div>`
+        )
+        .join('')}</div>`
+    }).join('')
+    r.querySelectorAll('.railItem').forEach((i) => {
+      const go = () => {
+        if (mode === 'inside') renderCity()
+        onPick(i.dataset.id)
+      }
+      i.addEventListener('click', go)
+      i.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault()
+          go()
+        }
+      })
+    })
+  }
+
+  const buildStats = () => {
+    document.getElementById('stats').innerHTML =
+      `<div style="display:flex;gap:18px">` +
+      STATS.map(
+        (s) =>
+          `<div class="stat"><span class="v">${esc(s.v)}</span><span class="k">${esc(s.k)}</span></div>`
+      ).join('') +
+      `</div>`
+  }
+
+  const buildLegend = () => {
+    document.getElementById('legend').innerHTML =
+      GROUPS.map(
+        (g) =>
+          `<div class="row"><i style="background:${g.color}"></i>${esc(g.name)}</div>`
+      ).join('') +
+      `<div class="sep"></div>
+       <div class="row"><i style="background:var(--ink3);border-radius:50%"></i>moving dot = live data</div>
+       <div class="row"><i style="background:transparent;border:1px dashed var(--line2)"></i>dashed = build-time link</div>
+       <div class="row" style="color:var(--ink3)">height ∝ √lines of code</div>`
+  }
+
+  /* ---- pan / zoom ---- */
+  const fitToContent = (instant) => {
+    const bb = gRoot.getBBox()
+    const r = SVG.getBoundingClientRect()
+    const pad = 34
+    const k = Math.min(
+      (r.width - pad * 2) / bb.width,
+      (r.height - pad * 2 - 30) / bb.height,
+      1.6
+    )
+    view.k = k
+    view.x = r.width / 2 - (bb.x + bb.width / 2) * k
+    view.y = (r.height - 40) / 2 - (bb.y + bb.height / 2) * k
+    applyView()
+  }
+
+  const panTo = (id) => {
+    const s = byId[id]
+    if (!s) return
+    const p = centerPt(s)
+    const r = SVG.getBoundingClientRect()
+    const tx = r.width / 2 - p.x * view.k,
+      ty = (r.height - 90) / 2 - p.y * view.k
+    animatePan(tx, ty)
+  }
+
+  const animatePan = (tx, ty) => {
+    const seq = ++panSeq
+    if (REDUCED) {
+      view.x = tx
+      view.y = ty
+      applyView()
+      return
+    }
+    const sx = view.x,
+      sy = view.y,
+      t0 = performance.now(),
+      dur = 420
+    const step = (now) => {
+      if (seq !== panSeq) return // a newer pan took over
+      const t = Math.min(1, (now - t0) / dur),
+        e = 1 - Math.pow(1 - t, 3)
+      view.x = sx + (tx - sx) * e
+      view.y = sy + (ty - sy) * e
+      applyView()
+      if (t < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }
+
+  SVG.addEventListener('pointerdown', (ev) => {
+    drag = { x: ev.clientX, y: ev.clientY, vx: view.x, vy: view.y }
+    panSeq++
+    SVG.classList.add('drag')
+    SVG.setPointerCapture(ev.pointerId)
+  })
+  SVG.addEventListener('pointermove', (ev) => {
+    if (!drag) return
+    view.x = drag.vx + (ev.clientX - drag.x)
+    view.y = drag.vy + (ev.clientY - drag.y)
+    applyView()
+  })
+  const endDrag = (ev) => {
+    drag = null
+    SVG.classList.remove('drag')
+  }
+  SVG.addEventListener('pointerup', endDrag)
+  SVG.addEventListener('pointercancel', endDrag)
+  SVG.addEventListener(
+    'wheel',
+    (ev) => {
+      ev.preventDefault()
+      panSeq++
+      const r = SVG.getBoundingClientRect()
+      const mx = ev.clientX - r.left,
+        my = ev.clientY - r.top
+      const f = Math.exp(-ev.deltaY * 0.0014)
+      const nk = Math.max(0.25, Math.min(4, view.k * f))
+      view.x = mx - (mx - view.x) * (nk / view.k)
+      view.y = my - (my - view.y) * (nk / view.k)
+      view.k = nk
+      applyView()
+    },
+    { passive: false }
+  )
+  SVG.addEventListener('click', () => {
+    if (mode === 'city') {
+      highlight(null)
+      infoOverview()
+    }
+  })
+
+  /* ---- traces ---- */
+  let tIdx = 0,
+    tStep = -1
+  const traceEl = document.getElementById('trace')
+  const traceSel = document.getElementById('traceSel')
+  const traceStepEl = document.getElementById('traceStep')
+  const traceBar = document.getElementById('traceBar')
+
+  const buildTraceUI = () => {
+    traceSel.innerHTML = TRACES.map(
+      (t, i) => `<option value="${i}">${esc(t.name)}</option>`
+    ).join('')
+    traceSel.addEventListener('change', () => {
+      tIdx = +traceSel.value
+      tStep = -1
+      nextStep()
+    })
+    document.getElementById('nextBtn').addEventListener('click', nextStep)
+    document.getElementById('prevBtn').addEventListener('click', prevStep)
+    document.getElementById('stopBtn').addEventListener('click', stopTrace)
+  }
+  const renderBar = () => {
+    const n = TRACES[tIdx].steps.length
+    traceBar.innerHTML = Array.from(
+      { length: n },
+      (_, i) =>
+        `<span class="${i < tStep ? 'done' : i === tStep ? 'now' : ''}"></span>`
+    ).join('')
+  }
+  const showStep = () => {
+    const t = TRACES[tIdx],
+      st = t.steps[tStep]
+    if (!st) return
+    const [sid, txt] = st
+    const node = byId[sid] || extById[sid] || { name: sid }
+    const col = byId[sid] ? GC[byId[sid].group] : '#64748b'
+    traceStepEl.innerHTML = `<span class="badge" style="background:${col}">${tStep + 1}/${t.steps.length}</span>
+       <span><strong>${esc(node.name)}</strong> — ${esc(txt)}</span>`
+    renderBar()
+    if (byId[sid]) {
+      highlight(sid)
+      infoFor(sid)
+      panTo(sid)
+    } else {
+      highlight(sid)
+    }
+    document.getElementById('prevBtn').disabled = tStep <= 0
+    document.getElementById('nextBtn').disabled = tStep >= t.steps.length - 1
+  }
+  const nextStep = () => {
+    if (mode === 'inside') renderCity()
+    traceEl.classList.add('on')
+    const t = TRACES[tIdx]
+    tStep = Math.min(t.steps.length - 1, tStep + 1)
+    showStep()
+  }
+  const prevStep = () => {
+    tStep = Math.max(0, tStep - 1)
+    showStep()
+  }
+  const stopTrace = () => {
+    traceEl.classList.remove('on')
+    tStep = -1
+    highlight(null)
+    infoOverview()
+  }
+
+  document.getElementById('playBtn').addEventListener('click', () => {
+    if (mode === 'inside') renderCity()
+    traceEl.classList.add('on')
+    tStep = -1
+    nextStep()
+  })
+  document.getElementById('backBtn').addEventListener('click', () => {
+    renderCity()
+    fitToContent()
+    if (selected) highlight(selected)
+  })
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (mode === 'inside') renderCity()
+    highlight(null)
+    infoOverview()
+    fitToContent()
+  })
+
+  /* ---- theme ---- */
+  const applyTheme = (v) => {
+    if (v === 'system') document.documentElement.removeAttribute('data-theme')
+    else document.documentElement.setAttribute('data-theme', v)
+    try {
+      localStorage.setItem('atlas-theme', v)
+    } catch (e) {}
+    const inside = insideId
+    if (mode === 'inside' && inside) renderInside(inside)
+    else renderCity()
+    if (selected) highlight(selected)
+  }
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') || 'system'
+    applyTheme(cur === 'system' ? 'dark' : cur === 'dark' ? 'light' : 'system')
+  })
+  try {
+    const saved = localStorage.getItem('atlas-theme')
+    if (saved && saved !== 'system')
+      document.documentElement.setAttribute('data-theme', saved)
+  } catch (e) {}
+
+  /* ---- keyboard ---- */
+  addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && traceEl.classList.contains('on')) nextStep()
+    if (ev.key === 'ArrowLeft' && traceEl.classList.contains('on')) prevStep()
+    if (ev.key === 'Escape') {
+      if (mode === 'inside') {
+        renderCity()
+        fitToContent()
+      } else stopTrace()
+    }
+  })
+
+  /* ---- boot ---- */
+  buildStats()
+  buildRail()
+  buildLegend()
+  buildTraceUI()
+  renderCity()
+  infoOverview()
+  fitToContent()
+  addEventListener('resize', () => {
+    if (mode === 'city') fitToContent()
+  })
+
+  /* expose for headless verification */
+  window.__atlas = {
+    STRUCTURES,
+    EDGES,
+    TRACES,
+    EXTERNALS,
+    get mode() {
+      return mode
+    },
+    get insideId() {
+      return insideId
+    },
+    get step() {
+      return tStep
+    },
+    get traceIdx() {
+      return tIdx
+    },
+    pick: onPick,
+    inside: renderInside,
+    city: renderCity,
+    next: nextStep,
+    prev: prevStep,
+    play: () => document.getElementById('playBtn').click(),
+    stop: stopTrace,
+    setTrace: (i) => {
+      tIdx = i
+      traceSel.value = String(i)
+      tStep = -1
+      nextStep()
+    },
+    theme: applyTheme,
+    footOf,
+    heightOf
+  }
+</script>

@@ -1,0 +1,43 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "tabWidth": 2,
+  "useTabs": false,
+  "printWidth": 80,
+  "endOfLine": "lf",
+  "bracketSameLine": false,
+  "bracketSpacing": true,
+  "objectWrap": "preserve",
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "quoteProps": "as-needed",
+  "trailingComma": "none",
+  "semi": false,
+  "arrowParens": "always",
+  "sortImports": {
+    "groups": [
+      "builtin",
+      "react-next",
+      "external",
+      "alias",
+      "parent",
+      ["sibling", "index"]
+    ],
+    "customGroups": [
+      {
+        "groupName": "react-next",
+        "elementNamePattern": ["react", "next", "next/**"]
+      },
+      { "groupName": "alias", "elementNamePattern": ["@/**"] }
+    ],
+    "newlinesBetween": true
+  },
+  "sortTailwindcss": true,
+  "ignorePatterns": [
+    "**/routeTree.gen.ts",
+    "**/next-env.d.ts",
+    "**/*.d.ts",
+    "**/generated/**",
+    "**/graphify-out/**",
+    "pnpm-lock.yaml"
+  ]
+}

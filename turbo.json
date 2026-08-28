@@ -1,0 +1,47 @@
+{
+  "$schema": "https://v2-10-12.turborepo.dev/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!.next/**",
+        "!dist/**",
+        "!build/**",
+        "!out/**",
+        "!.env",
+        "!.env.*",
+        "!**/.turbo/**"
+      ],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": ["DATABASE_URL", "S3_BUCKET_NAME"],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "db:generate": {
+      "cache": true,
+      "outputs": ["prisma/generated/**"],
+      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
+      "env": ["DATABASE_URL"]
+    },
+    "db:migrate": {
+      "cache": false,
+      "persistent": true,
+      "outputs": ["prisma/migrations/**"]
+    },
+    "db:deploy": {
+      "cache": false,
+      "env": ["DATABASE_URL"]
+    }
+  }
+}

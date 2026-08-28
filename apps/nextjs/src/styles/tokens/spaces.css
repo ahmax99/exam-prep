@@ -1,0 +1,15 @@
+:root {
+  --spacing-base: 0.25rem;
+}
+
+.dark {
+  --spacing-base: 0.25rem;
+}
+
+@theme inline {
+  --gap-xs: calc(var(--spacing-base) / 2);
+  --gap-sm: var(--spacing-base);
+  --gap-md: calc(var(--spacing-base) * 2);
+  --gap-lg: calc(var(--spacing-base) * 4);
+  --gap-xl: calc(var(--spacing-base) * 8);
+}

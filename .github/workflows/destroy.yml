@@ -1,0 +1,137 @@
+name: Destroy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "destroy prod" exactly'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Confirm teardown of prod
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check the confirmation phrase
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          set -euo pipefail
+          expected="destroy prod"
+          if [ "$CONFIRM" != "$expected" ]; then
+            echo "::error::confirm must be exactly \"${expected}\""
+            exit 1
+          fi
+          echo "Confirmed teardown of prod."
+
+  destroy:
+    name: Destroy prod
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: prod
+    concurrency:
+      group: terraform-state-prod
+      cancel-in-progress: false
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      TF_IN_AUTOMATION: 'true'
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      TF_VAR_project_name: ${{ github.event.repository.name }}
+      TF_VAR_environment: prod
+      TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+      TF_VAR_root_domain: ${{ vars.TF_VAR_root_domain }}
+      TF_VAR_database_url: ${{ secrets.TF_VAR_database_url }}
+      TF_VAR_dns_account_role_arn: ${{ vars.DNS_ACCOUNT_ROLE_ARN }}
+      TF_VAR_github_org: ${{ github.repository_owner }}
+      TF_VAR_github_access_token: ${{ secrets.TF_VAR_github_access_token }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: '~> 1.14'
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials (apply role)
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.TF_APPLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: TerraformDestroy
+
+      - name: Terraform init
+        run: terraform -chdir=infra init -backend-config="backends/prod.hcl"
+
+      - name: Empty the S3 buckets
+        env:
+          ENVIRONMENT: prod
+        run: |
+          chmod +x .github/scripts/destroy-purge-buckets.sh
+          .github/scripts/destroy-purge-buckets.sh
+
+      - name: Terraform destroy
+        run: terraform -chdir=infra destroy -auto-approve -no-color -lock-timeout=300s
+
+      - name: Force-delete the database secret
+        env:
+          PROJECT_NAME: ${{ github.event.repository.name }}
+          ENVIRONMENT: prod
+        run: |
+          chmod +x .github/scripts/destroy-force-delete-secret.sh
+          .github/scripts/destroy-force-delete-secret.sh
+
+      - name: Assert the state is empty
+        run: |
+          set -euo pipefail
+          if ! remaining=$(terraform -chdir=infra state list); then
+            echo "::error::Could not read Terraform state, so destruction is unverified. Re-dispatch to retry."
+            exit 1
+          fi
+          if [ -n "$remaining" ]; then
+            echo "::error::terraform destroy reported success but these resources remain in state:"
+            echo "$remaining"
+            exit 1
+          fi
+          echo "State is empty — every managed resource is destroyed."
+
+  db-reset:
+    name: Reset the prod database
+    needs: destroy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: prod
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Ensure psql is available
+        run: command -v psql >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; }
+
+      - name: Drop every table
+        env:
+          DATABASE_URL: ${{ secrets.TF_VAR_database_url }}
+        run: |
+          chmod +x .github/scripts/destroy-reset-database.sh
+          .github/scripts/destroy-reset-database.sh

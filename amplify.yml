@@ -1,0 +1,21 @@
+version: 1
+applications:
+  - appRoot: apps/nextjs
+    frontend:
+      buildPath: /
+      phases:
+        preBuild:
+          commands:
+            - curl -fsSL https://bun.sh/install | bash -s "bun-v1.3.14"
+            - export PATH="$HOME/.bun/bin:$PATH"
+            - bun install --frozen-lockfile
+            - export DATABASE_URL=$(aws secretsmanager get-secret-value --secret-id "$DATABASE_URL_SECRET_NAME" --query SecretString --output text --region "$AWS_REGION")
+            - bunx turbo run db:deploy --filter=nextjs
+        build:
+          commands:
+            - export PATH="$HOME/.bun/bin:$PATH"
+            - bunx turbo build --filter=nextjs
+      artifacts:
+        baseDirectory: apps/nextjs/.next
+        files:
+          - '**/*'
