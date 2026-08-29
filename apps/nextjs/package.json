@@ -14,7 +14,8 @@
     "db:deploy": "bun --bun prisma migrate deploy",
     "db:push": "bun --bun prisma db push",
     "db:pull": "bun --bun prisma db pull",
-    "db:reset": "bun --bun prisma migrate reset"
+    "db:reset": "bun --bun prisma migrate reset",
+    "db:seed": "bun prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1120.0",
