@@ -6,3 +6,126 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model Certification {
+  id     String @id @default(cuid())
+  slug   String @unique
+  name   String
+  vendor String
+  exams  Exam[]
+}
+
+model Exam {
+  id              String        @id @default(cuid())
+  certificationId String
+  certification   Certification @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  code            String
+  title           String
+  questions       Question[]
+
+  @@unique([certificationId, code])
+}
+
+model Question {
+  id              String            @id @default(cuid())
+  examId          String
+  exam            Exam              @relation(fields: [examId], references: [id], onDelete: Cascade)
+  number          Int
+  objective       String
+  topic           String
+  prompt          String
+  explanation     String
+  type            QuestionType
+  options         QuestionOption[]
+  correctLetters  String[]
+  acceptedAnswers String[]
+  answerDisplay   String?
+  progress        QuestionProgress?
+  bookmark        Bookmark?
+  attempts        Attempt[]
+
+  @@unique([examId, number])
+  @@index([objective])
+}
+
+enum QuestionType {
+  SINGLE_ANSWER
+  MULTIPLE_ANSWER
+  FILL_IN
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  letter     String
+  text       String
+
+  @@unique([questionId, letter])
+}
+
+/// Absence of a row means "unseen" — so seeding does not write 413 rows,
+/// and "never touched" cannot drift out of sync with reality.
+model QuestionProgress {
+  questionId    String       @id
+  question      Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  state         MasteryState
+  correctStreak Int          @default(0)
+  timesSeen     Int          @default(0)
+  timesCorrect  Int          @default(0)
+  lastSeenAt    DateTime
+
+  @@index([state])
+}
+
+enum MasteryState {
+  WRONG
+  SHAKY
+  MASTERED
+}
+
+model DrillRun {
+  id          String    @id @default(cuid())
+  scopeKind   ScopeKind
+  scopeValue  String
+  questionIds String[]
+  startedAt   DateTime  @default(now())
+  finishedAt  DateTime?
+  attempts    Attempt[]
+
+  @@index([scopeKind, scopeValue, startedAt])
+}
+
+enum ScopeKind {
+  CERT
+  EXAM
+  TOPIC
+  OBJECTIVE
+  MISSED
+  UNSEEN
+  BOOKMARKS
+}
+
+/// Immutable log. Never updated, never deleted — this is what makes
+/// "save all previous drill attempts" queryable rather than merely retained.
+model Attempt {
+  id         String    @id @default(cuid())
+  runId      String?
+  run        DrillRun? @relation(fields: [runId], references: [id], onDelete: SetNull)
+  questionId String
+  question   Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  isCorrect  Boolean
+  response   String?
+  selfGraded Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  @@index([questionId, createdAt])
+  @@index([runId])
+}
+
+model Bookmark {
+  questionId String   @id
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  note       String?
+  createdAt  DateTime @default(now())
+}
