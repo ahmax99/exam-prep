@@ -33,7 +33,9 @@ export const getWeakestObjectives = async (
     LEFT JOIN "QuestionProgress" qp ON qp."questionId" = q.id
     WHERE c.slug = ${certSlug}
     GROUP BY q.objective, q.topic
-    ORDER BY ROUND(mastered::numeric / total * 100) ASC, total DESC, q.objective ASC
+    ORDER BY ROUND(COUNT(*) FILTER (WHERE qp.state = 'MASTERED')::numeric / COUNT(*) * 100) ASC,
+      COUNT(*) DESC,
+      q.objective ASC
     LIMIT ${limit}
   `
 
