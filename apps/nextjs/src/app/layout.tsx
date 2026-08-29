@@ -24,7 +24,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning>
+    <html
+      className="dark"
+      data-scroll-behavior="smooth"
+      lang="en"
+      suppressHydrationWarning
+    >
       <body className={cn(geistSans.variable, geistMono.variable)}>
         {children}
         <Toaster position="bottom-right" richColors />
