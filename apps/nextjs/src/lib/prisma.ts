@@ -8,9 +8,9 @@ import { WebSocket } from 'ws'
 
 import { env } from '@/config/env'
 
-import { PrismaClient } from '../../prisma/generated/client.js'
+import { PrismaClient } from '../../prisma/generated/client'
 
-export * from '../../prisma/generated/client.js'
+export * from '../../prisma/generated/client'
 
 neonConfig.webSocketConstructor = WebSocket
 neonConfig.poolQueryViaFetch = true
