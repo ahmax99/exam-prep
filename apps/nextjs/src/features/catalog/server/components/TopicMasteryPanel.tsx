@@ -8,10 +8,10 @@ interface TopicMasteryPanelProps {
   topics: TopicMastery[]
 }
 
-function TopicMasteryPanel({
+const TopicMasteryPanel = ({
   certSlug,
   topics
-}: Readonly<TopicMasteryPanelProps>) {
+}: Readonly<TopicMasteryPanelProps>) => {
   return (
     <section
       aria-label="Topics"

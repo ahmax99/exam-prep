@@ -47,6 +47,13 @@ export const generateMetadata = async ({ params }: CertificationPageProps) => {
   const cert = parseCertSlug((await params).cert)
   const result = await loadCertification(cert)
 
+  if (result.isErr() && result.error.code !== 'NOT_FOUND') {
+    log.error(
+      { error: result.error, certSlug: cert },
+      'Failed to load certification for metadata'
+    )
+  }
+
   return generatePageMetadata({
     title: result.isOk() ? result.value.name : 'Certification',
     description: 'Exams, topic mastery, and recent drill outcomes.'

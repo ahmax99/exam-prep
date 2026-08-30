@@ -9,7 +9,11 @@ interface ExamListProps {
   selectedCode: string
 }
 
-function ExamList({ certSlug, exams, selectedCode }: Readonly<ExamListProps>) {
+const ExamList = ({
+  certSlug,
+  exams,
+  selectedCode
+}: Readonly<ExamListProps>) => {
   return (
     <section
       aria-label="Exams"

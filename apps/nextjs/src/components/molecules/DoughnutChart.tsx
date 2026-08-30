@@ -27,13 +27,13 @@ interface DoughnutLegendProps {
 const sumSegments = (segments: DoughnutSegment[]) =>
   segments.reduce((sum, segment) => sum + segment.value, 0)
 
-function DoughnutChart({
+const DoughnutChart = ({
   title,
   unit,
   segments,
   emptyMessage,
   className
-}: Readonly<DoughnutChartProps>) {
+}: Readonly<DoughnutChartProps>) => {
   const total = sumSegments(segments)
   const ariaLabel = `${title}: ${segments
     .map((segment) => `${segment.value} ${segment.label}`)
@@ -104,7 +104,7 @@ function DoughnutChart({
   )
 }
 
-function DoughnutLegend({ segments }: Readonly<DoughnutLegendProps>) {
+const DoughnutLegend = ({ segments }: Readonly<DoughnutLegendProps>) => {
   const total = sumSegments(segments)
 
   return (
