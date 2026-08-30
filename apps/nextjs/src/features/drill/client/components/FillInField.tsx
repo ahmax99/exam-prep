@@ -51,6 +51,7 @@ function FillInField({
       <div className="flex items-center gap-3">
         <input
           ref={inputRef}
+          aria-label="Your answer"
           autoCapitalize="off"
           autoComplete="off"
           autoCorrect="off"
