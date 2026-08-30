@@ -68,7 +68,8 @@ const runGetRun = async (id: string) => {
         select: { letter: true, text: true },
         orderBy: { letter: 'asc' }
       },
-      exam: { select: { code: true, title: true } }
+      exam: { select: { code: true, title: true } },
+      progress: { select: { timesSeen: true } }
     }
   })
 
