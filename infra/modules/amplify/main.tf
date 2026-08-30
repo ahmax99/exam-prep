@@ -30,6 +30,7 @@ resource "aws_amplify_branch" "main" {
   branch_name       = var.branch_name
   stage             = "PRODUCTION"
   enable_auto_build = true
+  framework         = "Next.js - SSR"
 
   tags = var.tags
 }
