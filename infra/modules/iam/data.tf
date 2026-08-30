@@ -21,6 +21,17 @@ data "aws_iam_policy_document" "ssr_compute_permissions" {
     actions   = ["secretsmanager:GetSecretValue"]
     resources = [var.database_secret_arn]
   }
+
+  statement {
+    sid = "WriteSSRComputeLogs"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:DescribeLogGroups",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
 }
 
 data "aws_iam_policy_document" "build_service_permissions" {
