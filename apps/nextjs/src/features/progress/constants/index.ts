@@ -1,0 +1,1 @@
+export const WEAKEST_OBJECTIVES_LIMIT = 5
