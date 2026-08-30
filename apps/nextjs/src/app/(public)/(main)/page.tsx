@@ -1,4 +1,5 @@
 import { PageTemplate } from '@/components/layout'
+import { logger } from '@/config/logger'
 import { getCertifications } from '@/features/catalog/server/api'
 import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
@@ -10,6 +11,8 @@ import { CertificationCard } from '@/features/progress/server/components/Certifi
 import { WeakestObjectivesPanel } from '@/features/progress/server/components/WeakestObjectivesPanel'
 
 export const dynamic = 'force-dynamic'
+
+const log = logger.child({ module: 'dashboard-page' })
 
 export const generateMetadata = () =>
   generatePageMetadata({
@@ -48,11 +51,26 @@ export default async function HomePage() {
     )
   }
 
-  const dashboard = (await catchAsyncError(getDashboard())).unwrapOr([])
+  const dashboard = (await catchAsyncError(getDashboard())).match(
+    (value) => value,
+    (error) => {
+      log.error({ error }, 'Failed to load dashboard mastery')
+      return []
+    }
+  )
   const primaryCertSlug = primaryCertification.slug
   const weakestObjectives = (
     await catchAsyncError(getWeakestObjectives(primaryCertSlug))
-  ).unwrapOr([])
+  ).match(
+    (value) => value,
+    (error) => {
+      log.error(
+        { error, certSlug: primaryCertSlug },
+        'Failed to load weakest objectives'
+      )
+      return []
+    }
+  )
 
   return (
     <PageTemplate maxWidth="wide">

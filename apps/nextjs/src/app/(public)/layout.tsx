@@ -4,6 +4,7 @@ import {
   PageHeader,
   type AppRailPracticeItem
 } from '@/components/layout'
+import { logger } from '@/config/logger'
 import { getCertifications } from '@/features/catalog/server/api'
 import { ErrorScreenProvider } from '@/features/error/client/providers/ErrorScreenProvider'
 import { catchAsyncError } from '@/features/error/utils/catchError'
@@ -11,13 +12,25 @@ import { getDashboard } from '@/features/progress/server/api'
 
 export const dynamic = 'force-dynamic'
 
+const log = logger.child({ module: 'public-layout' })
+
 export default async function PublicLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  const certifications = (await catchAsyncError(getCertifications())).unwrapOr(
-    []
+  const certifications = (await catchAsyncError(getCertifications())).match(
+    (value) => value,
+    (error) => {
+      log.error({ error }, 'Failed to load certifications for app rail')
+      return []
+    }
   )
-  const dashboard = (await catchAsyncError(getDashboard())).unwrapOr([])
+  const dashboard = (await catchAsyncError(getDashboard())).match(
+    (value) => value,
+    (error) => {
+      log.error({ error }, 'Failed to load dashboard mastery for app rail')
+      return []
+    }
+  )
 
   const primaryCertSlug = certifications[0]?.slug
   const primaryMastery = dashboard.find(
