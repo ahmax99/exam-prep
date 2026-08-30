@@ -8,6 +8,8 @@ interface DrillKeyHandlers {
   onPrimary: () => void
   onSkip: () => void
   onBookmark: () => void
+  onSelfGradeHadIt?: () => void
+  onSelfGradeMissedIt?: () => void
 }
 
 const isTextEntryTarget = (target: EventTarget | null) =>
@@ -46,12 +48,26 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       if (current.optionLetters.includes(letter)) {
         event.preventDefault()
         current.onLetter(letter)
-      } else if (letter === 'S') {
-        event.preventDefault()
-        current.onSkip()
-      } else if (letter === 'B') {
-        event.preventDefault()
-        current.onBookmark()
+        return
+      }
+
+      switch (letter) {
+        case 'S':
+          event.preventDefault()
+          current.onSkip()
+          break
+        case 'B':
+          event.preventDefault()
+          current.onBookmark()
+          break
+        case 'Y':
+          event.preventDefault()
+          current.onSelfGradeHadIt?.()
+          break
+        case 'N':
+          event.preventDefault()
+          current.onSelfGradeMissedIt?.()
+          break
       }
     }
 
