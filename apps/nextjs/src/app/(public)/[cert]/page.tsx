@@ -5,7 +5,10 @@ import { cache } from 'react'
 import { PageTemplate } from '@/components/layout'
 import { DoughnutChart, type DoughnutSegment } from '@/components/molecules'
 import { logger } from '@/config/logger'
-import { certPageParamsSchema } from '@/features/catalog/schemas/certPageParams.schema'
+import {
+  certPageParamsSchema,
+  certSlugSchema
+} from '@/features/catalog/schemas/certPageParams.schema'
 import { getCertification, getQuestionMix } from '@/features/catalog/server/api'
 import { ExamList } from '@/features/catalog/server/components/ExamList'
 import { TopicMasteryPanel } from '@/features/catalog/server/components/TopicMasteryPanel'
@@ -27,13 +30,21 @@ const loadCertification = cache((slug: string) =>
   catchAsyncError(getCertification(slug))
 )
 
+// The `[cert]` segment reaches four separate `server/api` reads below; reject
+// a shape that can't match a row before any of them run.
+const parseCertSlug = (cert: string) => {
+  const result = certSlugSchema.safeParse(cert)
+  if (!result.success) notFound()
+  return result.data
+}
+
 interface CertificationPageProps {
   params: Promise<{ cert: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 export const generateMetadata = async ({ params }: CertificationPageProps) => {
-  const { cert } = await params
+  const cert = parseCertSlug((await params).cert)
   const result = await loadCertification(cert)
 
   return generatePageMetadata({
@@ -46,7 +57,7 @@ export default async function CertificationPage({
   params,
   searchParams
 }: Readonly<CertificationPageProps>) {
-  const { cert } = await params
+  const cert = parseCertSlug((await params).cert)
   const result = await loadCertification(cert)
 
   if (result.isErr()) {
