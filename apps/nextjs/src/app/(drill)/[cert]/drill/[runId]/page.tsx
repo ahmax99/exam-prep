@@ -60,6 +60,10 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
       )
     },
     (error) => {
+      // A well-formed but nonexistent runId is a real 404, not a transient
+      // failure a refresh could fix.
+      if (error.code === 'NOT_FOUND') notFound()
+
       log.error({ error, runId }, 'Failed to load drill run')
       return (
         <main

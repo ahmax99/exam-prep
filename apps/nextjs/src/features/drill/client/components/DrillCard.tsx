@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { toast } from 'sonner'
 
@@ -48,6 +48,9 @@ function DrillCard({
   const [verdict, setVerdict] = useState<AnswerVerdict | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
+  // A plain ref, not `isSubmitting` state: two keydown events arriving before
+  // React flushes a state update must still see the in-flight request.
+  const isSubmittingRef = useRef(false)
 
   const question = questions[currentIndex]
 
@@ -83,7 +86,9 @@ function DrillCard({
   }
 
   const submit = () => {
-    if (!question || selectedLetters.length === 0 || isSubmitting) return
+    if (!question || selectedLetters.length === 0 || isSubmittingRef.current)
+      return
+    isSubmittingRef.current = true
     setIsSubmitting(true)
     const response =
       question.type === 'SINGLE_ANSWER'
@@ -95,7 +100,10 @@ function DrillCard({
         (result) => setVerdict(result),
         (error) => toast.error(error.message)
       )
-      .finally(() => setIsSubmitting(false))
+      .finally(() => {
+        isSubmittingRef.current = false
+        setIsSubmitting(false)
+      })
   }
 
   const skip = () => goNext()

@@ -1,7 +1,5 @@
 'use client'
 
-import type { ReactNode } from 'react'
-
 import { Bookmark } from 'lucide-react'
 
 import type { QuestionType } from '@/lib/prisma'
@@ -12,7 +10,6 @@ interface QuestionMetaProps {
   timesSeen: number
   isBookmarked: boolean
   onToggleBookmark: () => void
-  bookmarkSlot?: ReactNode
 }
 
 const TYPE_LABELS: Record<QuestionType, string> = {
@@ -41,8 +38,7 @@ function QuestionMeta({
   type,
   timesSeen,
   isBookmarked,
-  onToggleBookmark,
-  bookmarkSlot
+  onToggleBookmark
 }: Readonly<QuestionMetaProps>) {
   return (
     <div
@@ -53,21 +49,19 @@ function QuestionMeta({
       <span>{TYPE_LABELS[type]}</span>
       {timesSeen >= 1 && <span>{ordinal(timesSeen + 1)} time seen</span>}
       <span className="ml-auto">
-        {bookmarkSlot ?? (
-          // Issue #10 replaces this with the persisted BookmarkToggle.
-          <button
-            aria-label="Bookmark question"
-            aria-pressed={isBookmarked}
-            className="flex min-h-11 min-w-11 items-center justify-center"
-            type="button"
-            onClick={onToggleBookmark}
-          >
-            <Bookmark
-              className="size-4"
-              fill={isBookmarked ? 'currentColor' : 'none'}
-            />
-          </button>
-        )}
+        {/* A follow-up issue replaces this with the persisted BookmarkToggle. */}
+        <button
+          aria-label="Bookmark question"
+          aria-pressed={isBookmarked}
+          className="flex min-h-11 min-w-11 items-center justify-center"
+          type="button"
+          onClick={onToggleBookmark}
+        >
+          <Bookmark
+            className="size-4"
+            fill={isBookmarked ? 'currentColor' : 'none'}
+          />
+        </button>
       </span>
     </div>
   )

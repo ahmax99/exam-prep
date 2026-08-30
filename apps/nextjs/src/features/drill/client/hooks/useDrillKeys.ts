@@ -28,6 +28,9 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       if (event.ctrlKey || event.metaKey || event.altKey) return
       if (event.isComposing) return
       if (isTextEntryTarget(event.target)) return
+      // OS key-repeat would otherwise let a held Enter/S/letter fire the
+      // handler many times (e.g. skip past several questions unintentionally).
+      if (event.repeat) return
 
       const current = handlersRef.current
 
