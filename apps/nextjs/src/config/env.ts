@@ -10,7 +10,14 @@ export const env = createEnv({
     NODE_ENV: z.enum(['development', 'production']).default('production'),
     S3_BUCKET_NAME: z.string().min(1)
   },
-  runtimeEnv: process.env,
+  runtimeEnv: {
+    AWS_REGION: process.env.AWS_REGION,
+    BASE_URL: process.env.BASE_URL,
+    DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_URL_SECRET_NAME: process.env.DATABASE_URL_SECRET_NAME,
+    NODE_ENV: process.env.NODE_ENV,
+    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME
+  },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true
 })
