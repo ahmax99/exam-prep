@@ -41,6 +41,8 @@ function DrillCard({
   startIndex
 }: Readonly<DrillCardProps>) {
   const router = useRouter()
+  // startIndex is read once: a route param change (new runId) remounts this
+  // whole page tree, so the prop never changes under a live instance.
   const [currentIndex, setCurrentIndex] = useState(startIndex)
   const [selectedLetters, setSelectedLetters] = useState<string[]>([])
   const [verdict, setVerdict] = useState<AnswerVerdict | null>(null)

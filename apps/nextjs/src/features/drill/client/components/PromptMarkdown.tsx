@@ -16,7 +16,7 @@ function PromptMarkdown({ text, className }: Readonly<PromptMarkdownProps>) {
       {segments.map((segment, index) =>
         isCodeSpan(segment) ? (
           <code
-            key={index}
+            key={`${index}-${segment}`}
             className="bg-muted rounded px-1 py-0.5 font-mono text-[0.9em]"
           >
             {segment.slice(1, -1)}
