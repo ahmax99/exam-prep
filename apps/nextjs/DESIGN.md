@@ -1,6 +1,6 @@
 ---
-name: Boilerplate Baseline
-description: A strict monochrome, token-driven baseline system designed to accept a derived app's brand without redesign.
+name: Exam Prep Design System
+description: A strict monochrome, token-driven system for a personal LPIC-1 drill tool, with color reserved for answer verdicts, mastery state, and data visualization.
 colors:
   primary: '#000000'
   primary-foreground: '#ffffff'
@@ -14,6 +14,16 @@ colors:
   ring: '#000000'
   destructive: '#e54b4f'
   destructive-foreground: '#ffffff'
+  success: '#1a7f4f'
+  success-foreground: '#ffffff'
+  warning: '#916417'
+  warning-foreground: '#ffffff'
+  chart-correct: '#24a969'
+  chart-self-graded: '#a57218'
+  chart-missed: '#b02a2f'
+  chart-fill-in: '#a57218'
+  chart-single: '#4a8df5'
+  chart-multiple: '#a258c1'
 typography:
   display:
     fontFamily: 'Geist Sans, sans-serif'
@@ -94,7 +104,7 @@ components:
     padding: '2px 8px'
 ---
 
-# Design System: Boilerplate Baseline
+# Design System: Exam Prep Design System
 
 ## 1. Overview
 
@@ -102,10 +112,11 @@ components:
 
 This system is a precision tool, not a personality. It is strict monochrome by
 intent: black ink on near-white paper (light) and white ink on true black
-(dark), with a single red reserved for destruction. The design's job is to make
-hierarchy, state, and affordance unmistakable using only type weight, size,
-spacing, and hairline borders — so that when a derived app grafts its brand
-color onto the token layer, nothing else has to move.
+(dark), with color reserved for meaning — destruction, answer verdicts,
+mastery state, and data visualization. The design's job is to make hierarchy,
+state, and affordance unmistakable using type weight, size, spacing, and
+hairline borders first, so that the handful of chromatic signals that do exist
+stay legible instead of competing with decoration.
 
 It explicitly rejects SaaS-template maximalism — purple-to-blue gradients,
 glassmorphism cards, hero-metric blocks, identical icon-heading-text card
@@ -114,7 +125,8 @@ not an absence.
 
 **Key Characteristics:**
 
-- Strict monochrome; color appears only when it carries meaning
+- Strict monochrome; color appears only when it carries meaning (destructive,
+  answer verdict, mastery state, or chart data)
 - Hierarchy from type weight, size, and whitespace — never from decoration
 - Hairline borders (#e4e4e4) and whisper-quiet shadows define structure
 - Every visual value flows from `src/styles/tokens/`; components consume
@@ -146,11 +158,33 @@ brandless so the primary slot can be recolored per app.
 
 - **Signal Red** (#e54b4f): destructive actions and validation errors only.
 
+### Feedback
+
+- **Verdict Green** (#1a7f4f): a correct answer, and the mastered portion of
+  a `MasteryBar` (a question that has been answered correctly two times in a
+  row). The one chromatic "you got this right" signal in the system.
+- **Verdict Amber** (#916417): the shaky portion of a `MasteryBar` — a
+  question answered correctly once, not yet enough to call mastered. Distinct
+  from Signal Red: amber means "not solid yet," not "wrong."
+
+### Data Visualization
+
+Chart tokens are scoped to two roles and never reused as UI feedback color:
+
+- **Categorical** (`chart-1`…`chart-5`): generic series color for charts with
+  no inherent semantic mapping (e.g. a doughnut segmented by question type).
+- **Semantic** (`chart-correct` #24a969, `chart-self-graded` #a57218,
+  `chart-missed` #b02a2f, `chart-fill-in` #a57218, `chart-single` #4a8df5,
+  `chart-multiple` #a258c1): fixed meaning across every chart that plots
+  answer outcomes or question-type mix, so the same color always means the
+  same thing from chart to chart.
+
 ### Named Rules
 
 **The Monochrome Rule.** Chromatic color is forbidden except: Signal Red for
-destruction/errors, chart tokens for data visualization, and focus states.
-If a screen needs emphasis, reach for weight and space, not hue.
+destruction/errors, Verdict Green/Amber for answer correctness and mastery
+state, chart tokens for data visualization, and focus states. If a screen
+needs emphasis, reach for weight and space, not hue.
 
 **The Token Door Rule.** Color enters components only as semantic classes
 (`bg-primary`, `text-muted-foreground`, `border-border`). A raw hex value or
