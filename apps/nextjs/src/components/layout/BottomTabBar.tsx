@@ -9,15 +9,20 @@ const TABS = [
   { label: 'Stats', icon: BarChart3, href: null }
 ] as const
 
-function BottomTabBar() {
+interface BottomTabBarProps {
+  savedHref?: string | null
+}
+
+function BottomTabBar({ savedHref }: Readonly<BottomTabBarProps> = {}) {
   return (
     <nav
       aria-label="Primary"
       className="bg-background border-border fixed inset-x-0 bottom-0 z-40 flex h-16 items-center justify-around border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
       data-slot="bottom-tab-bar"
     >
-      {TABS.map(({ label, icon: Icon, href }) =>
-        href ? (
+      {TABS.map(({ label, icon: Icon, href: staticHref }) => {
+        const href = label === 'Saved' ? (savedHref ?? null) : staticHref
+        return href ? (
           <Link
             key={label}
             className="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-xs"
@@ -35,7 +40,7 @@ function BottomTabBar() {
             {label}
           </span>
         )
-      )}
+      })}
     </nav>
   )
 }

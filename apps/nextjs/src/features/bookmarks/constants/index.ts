@@ -1,0 +1,1 @@
+export const BOOKMARK_NOTE_MAX_LENGTH = 280

@@ -5,6 +5,7 @@ import {
   type AppRailPracticeItem
 } from '@/components/layout'
 import { logger } from '@/config/logger'
+import { countBookmarks } from '@/features/bookmarks/server/api'
 import { getCertifications } from '@/features/catalog/server/api'
 import { ErrorScreenProvider } from '@/features/error/client/providers/ErrorScreenProvider'
 import { catchAsyncError } from '@/features/error/utils/catchError'
@@ -36,6 +37,16 @@ export default async function PublicLayout({
   const primaryMastery = dashboard.find(
     (entry) => entry.slug === primaryCertSlug
   )
+  const bookmarkCount = primaryCertSlug
+    ? (await countBookmarks(primaryCertSlug)).match(
+        (value) => value,
+        (error) => {
+          log.error({ error }, 'Failed to load bookmark count for app rail')
+          return null
+        }
+      )
+    : null
+  const savedHref = primaryCertSlug ? `/${primaryCertSlug}/bookmarks` : null
 
   const practiceItems: AppRailPracticeItem[] = [
     {
@@ -52,7 +63,7 @@ export default async function PublicLayout({
         ? `/${primaryCertSlug}/drill?scopeKind=UNSEEN&scopeValue=${primaryCertSlug}`
         : null
     },
-    { label: 'Bookmarked', count: null, href: null },
+    { label: 'Bookmarked', count: bookmarkCount, href: savedHref },
     { label: 'Past runs', count: null, href: null }
   ]
 
@@ -71,7 +82,7 @@ export default async function PublicLayout({
         />
         <main className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</main>
       </div>
-      <BottomTabBar />
+      <BottomTabBar savedHref={savedHref} />
     </>
   )
 }

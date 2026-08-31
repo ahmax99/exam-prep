@@ -1,15 +1,17 @@
 'use client'
 
-import { Bookmark } from 'lucide-react'
+import type { Ref } from 'react'
 
+import { BookmarkToggle } from '@/features/bookmarks/client/components/BookmarkToggle'
 import type { QuestionType } from '@/lib/prisma'
 
 interface QuestionMetaProps {
+  questionId: string
   objective: string
   type: QuestionType
   timesSeen: number
-  isBookmarked: boolean
-  onToggleBookmark: () => void
+  initialBookmarked: boolean
+  toggleRef?: Ref<HTMLButtonElement>
 }
 
 const TYPE_LABELS: Record<QuestionType, string> = {
@@ -34,11 +36,12 @@ const ordinal = (value: number) => {
 }
 
 function QuestionMeta({
+  questionId,
   objective,
   type,
   timesSeen,
-  isBookmarked,
-  onToggleBookmark
+  initialBookmarked,
+  toggleRef
 }: Readonly<QuestionMetaProps>) {
   return (
     <div
@@ -49,19 +52,12 @@ function QuestionMeta({
       <span>{TYPE_LABELS[type]}</span>
       {timesSeen >= 1 && <span>{ordinal(timesSeen + 1)} time seen</span>}
       <span className="ml-auto">
-        {/* A follow-up issue replaces this with the persisted BookmarkToggle. */}
-        <button
-          aria-label="Bookmark question"
-          aria-pressed={isBookmarked}
-          className="flex min-h-11 min-w-11 items-center justify-center"
-          type="button"
-          onClick={onToggleBookmark}
-        >
-          <Bookmark
-            className="size-4"
-            fill={isBookmarked ? 'currentColor' : 'none'}
-          />
-        </button>
+        <BookmarkToggle
+          key={questionId}
+          initialBookmarked={initialBookmarked}
+          questionId={questionId}
+          ref={toggleRef}
+        />
       </span>
     </div>
   )

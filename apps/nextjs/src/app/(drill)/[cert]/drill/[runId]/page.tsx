@@ -42,7 +42,8 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
         type: question.type,
         prompt: question.prompt,
         options: question.options,
-        timesSeen: question.progress?.timesSeen ?? 0
+        timesSeen: question.progress?.timesSeen ?? 0,
+        isBookmarked: question.bookmark !== null
       }))
 
       return (
