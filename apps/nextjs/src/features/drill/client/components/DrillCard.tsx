@@ -28,6 +28,7 @@ interface DrillQuestion {
   prompt: string
   options: { letter: string; text: string }[]
   timesSeen: number
+  isBookmarked: boolean
 }
 
 interface DrillCardProps {
@@ -50,7 +51,6 @@ function DrillCard({
   const [selectedLetters, setSelectedLetters] = useState<string[]>([])
   const [verdict, setVerdict] = useState<AnswerVerdict | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
   const [fillInValue, setFillInValue] = useState('')
   const [selfGradeOutcome, setSelfGradeOutcome] = useState<
     'had-it' | 'missed-it' | null
@@ -62,18 +62,9 @@ function DrillCard({
   // Same reasoning as isSubmittingRef: a fast double-click/double-key-press
   // on Y/N must see the in-flight self-grade request before React re-renders.
   const isSelfGradeSubmittingRef = useRef(false)
+  const bookmarkToggleRef = useRef<HTMLButtonElement>(null)
 
   const question = questions[currentIndex]
-
-  const toggleBookmark = () => {
-    if (!question) return
-    setBookmarkedIds((current) => {
-      const next = new Set(current)
-      if (next.has(question.id)) next.delete(question.id)
-      else next.add(question.id)
-      return next
-    })
-  }
 
   const toggle = (letter: string) => {
     if (verdict !== null || !question) return
@@ -177,7 +168,9 @@ function DrillCard({
     onLetter: toggle,
     onPrimary: verdict ? (isBlocked ? () => {} : goNext) : submit,
     onSkip: isBlocked ? () => {} : skip,
-    onBookmark: toggleBookmark,
+    // Keyboard and pointer share one handler, so the optimistic state has
+    // exactly one owner.
+    onBookmark: () => bookmarkToggleRef.current?.click(),
     onSelfGradeHadIt:
       verdict?.verdict === 'no-match' ? () => submitSelfGrade(true) : undefined,
     onSelfGradeMissedIt:
@@ -216,11 +209,12 @@ function DrillCard({
       </header>
 
       <QuestionMeta
-        isBookmarked={bookmarkedIds.has(question.id)}
+        initialBookmarked={question.isBookmarked}
         objective={question.objective}
+        questionId={question.id}
         timesSeen={question.timesSeen}
+        toggleRef={bookmarkToggleRef}
         type={question.type}
-        onToggleBookmark={toggleBookmark}
       />
 
       <p className="my-4 text-base leading-relaxed">

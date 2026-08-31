@@ -6,6 +6,10 @@ import {
 import { grade, type Verdict } from '@/features/drill/lib/grade'
 import { nextMastery } from '@/features/drill/lib/mastery'
 import { buildScopeWhere, orderQueue } from '@/features/drill/lib/queue'
+import {
+  type AttemptOutcome,
+  summarizeOutcomes
+} from '@/features/drill/lib/summary'
 import type { SelfGradeInput } from '@/features/drill/schemas/selfGrade.schema'
 import type { StartRunInput } from '@/features/drill/schemas/startRun.schema'
 import type { SubmitAnswerInput } from '@/features/drill/schemas/submitAnswer.schema'
@@ -69,7 +73,8 @@ const runGetRun = async (id: string) => {
         orderBy: { letter: 'asc' }
       },
       exam: { select: { code: true, title: true } },
-      progress: { select: { timesSeen: true } }
+      progress: { select: { timesSeen: true } },
+      bookmark: { select: { questionId: true } }
     }
   })
 
@@ -262,14 +267,17 @@ const runSelfGrade = async ({
 export const selfGrade = (input: SelfGradeInput & { runId: string }) =>
   catchAsyncError(runSelfGrade(input))
 
-const runFinishRun = async (id: string) => {
-  const db = await getPrismaClient()
-  // A single conditional statement — the second call matches zero rows and
-  // is a genuine no-op, with no read-then-write window.
-  await db.drillRun.updateMany({
+// A single conditional statement — the second call matches zero rows and
+// is a genuine no-op, with no read-then-write window.
+const closeRunIfOpen = (db: PrismaClient, id: string) =>
+  db.drillRun.updateMany({
     where: { id, finishedAt: null },
     data: { finishedAt: new Date() }
   })
+
+const runFinishRun = async (id: string) => {
+  const db = await getPrismaClient()
+  await closeRunIfOpen(db, id)
 
   const run = await db.drillRun.findUnique({
     where: { id },
@@ -352,3 +360,139 @@ const runGetRunHistory = async ({
 
 export const getRunHistory = (scope: RunHistoryScope) =>
   catchAsyncError(runGetRunHistory(scope))
+
+const runGetRunSummary = async ({
+  runId,
+  certSlug
+}: {
+  runId: string
+  certSlug: string
+}) => {
+  const db = await getPrismaClient()
+  // Reaching the summary closes the run, whether or not it finished normally.
+  await closeRunIfOpen(db, runId)
+
+  const run = await db.drillRun.findUnique({
+    where: { id: runId },
+    select: {
+      id: true,
+      scopeKind: true,
+      scopeValue: true,
+      questionIds: true,
+      startedAt: true,
+      finishedAt: true
+    }
+  })
+  if (!run) throw new AppError('NOT_FOUND', 'Run not found')
+
+  // DrillRun has no certSlug column; the run's first question witnesses its
+  // cert, the same technique runGetRunHistory already uses. An empty
+  // questionIds array cannot occur (startRun rejects an empty queue), but a
+  // missing witness still resolves to NOT_FOUND rather than a thrown TypeError.
+  const witnessId = run.questionIds[0]
+  const witness = witnessId
+    ? await db.question.findFirst({
+        where: { id: witnessId, exam: { certification: { slug: certSlug } } },
+        select: { id: true }
+      })
+    : null
+  if (!witness) throw new AppError('NOT_FOUND', 'Run not found')
+
+  // No DISTINCT needed: writeAttempt sets Attempt.id = `${runId}:${questionId}`,
+  // so the primary key already enforces one attempt per (run, question).
+  const attempts = await db.attempt.findMany({
+    where: { runId },
+    select: {
+      questionId: true,
+      isCorrect: true,
+      selfGraded: true,
+      response: true
+    }
+  })
+
+  const outcomes = summarizeOutcomes(
+    run.questionIds,
+    attempts satisfies AttemptOutcome[]
+  )
+
+  const missedIds = attempts
+    .filter((attempt) => !attempt.isCorrect)
+    .map((attempt) => attempt.questionId)
+  const responseByQuestionId = new Map(
+    attempts.map((attempt) => [attempt.questionId, attempt.response])
+  )
+
+  // The one place answer keys reach the client for a non-answered path — safe
+  // here because the run is finished, and scoped strictly to missed questions.
+  const missedQuestions = await db.question.findMany({
+    where: { id: { in: missedIds } },
+    select: {
+      id: true,
+      number: true,
+      objective: true,
+      prompt: true,
+      type: true,
+      correctLetters: true,
+      answerDisplay: true,
+      explanation: true,
+      options: {
+        select: { letter: true, text: true },
+        orderBy: { letter: 'asc' }
+      }
+    }
+  })
+  const missedById = new Map(
+    missedQuestions.map((question) => [question.id, question])
+  )
+  const misses = missedIds
+    .map((questionId) => {
+      const question = missedById.get(questionId)
+      if (!question) return null
+      return {
+        ...question,
+        response: responseByQuestionId.get(questionId) ?? null
+      }
+    })
+    .filter((miss) => miss !== null)
+    // Order by position in run.questionIds so misses read in run order.
+    .sort(
+      (a, b) => run.questionIds.indexOf(a.id) - run.questionIds.indexOf(b.id)
+    )
+
+  return {
+    run: {
+      id: run.id,
+      scopeKind: run.scopeKind,
+      scopeValue: run.scopeValue,
+      startedAt: run.startedAt,
+      finishedAt: run.finishedAt
+    },
+    outcomes,
+    misses
+  }
+}
+
+export const getRunSummary = (input: { runId: string; certSlug: string }) =>
+  catchAsyncError(runGetRunSummary(input))
+
+const runRetryRun = async (id: string) => {
+  const db = await getPrismaClient()
+  const source = await db.drillRun.findUnique({
+    where: { id },
+    select: { scopeKind: true, scopeValue: true, questionIds: true }
+  })
+  if (!source) throw new AppError('NOT_FOUND', 'Run not found')
+
+  // D7: the array is copied element-for-element — never re-derived from scope,
+  // or the history table would be comparing two different question sets.
+  return db.drillRun.create({
+    data: {
+      scopeKind: source.scopeKind,
+      scopeValue: source.scopeValue,
+      questionIds: source.questionIds
+    },
+    select: { id: true, questionIds: true, startedAt: true }
+  })
+}
+
+export const retryRun = (id: string) => catchAsyncError(runRetryRun(id))
