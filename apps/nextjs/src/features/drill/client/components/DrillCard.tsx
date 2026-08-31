@@ -148,7 +148,15 @@ function DrillCard({
     setIsSelfGradeSubmitting(true)
     selfGrade({ runId, questionId: question.id, hadIt })
       .match(
-        () => setSelfGradeOutcome(hadIt ? 'had-it' : 'missed-it'),
+        (gradedVerdict) => {
+          setSelfGradeOutcome(hadIt ? 'had-it' : 'missed-it')
+          // Flips FillInField from the frozen no-match/amber treatment to the
+          // graded matched/wrong one — the reveal fields are unchanged from
+          // the original no-match response, only the discriminant moves.
+          setVerdict((current) =>
+            current ? { ...current, verdict: gradedVerdict } : current
+          )
+        },
         (error) => toast.error(error.message)
       )
       .finally(() => {
@@ -245,7 +253,7 @@ function DrillCard({
         </>
       )}
 
-      {verdict?.verdict === 'no-match' && (
+      {(verdict?.verdict === 'no-match' || selfGradeOutcome !== null) && (
         <SelfGradePanel
           isSubmitting={isSelfGradeSubmitting}
           outcome={selfGradeOutcome}
