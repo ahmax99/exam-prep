@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "quiz-generator",
+  "owner": "dmccreary",
+  "repo": "claude-skills",
+  "path": "skills/quiz-generator",
+  "branch": "main",
+  "sha": "3167f438aa352470c3eef3d440786083c0f14228",
+  "source": "manual"
+}

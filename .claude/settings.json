@@ -30,7 +30,7 @@
       "Bash(tflint *)"
     ]
   },
-  "enabledMcpjsonServers": ["graphify", "terraform"],
+  "enabledMcpjsonServers": ["graphify", "terraform", "next-devtools", "neon"],
   "hooks": {
     "SessionStart": [
       {
