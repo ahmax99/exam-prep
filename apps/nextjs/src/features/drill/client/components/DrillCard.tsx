@@ -168,7 +168,7 @@ function DrillCard({
       : (question?.options.map((o) => o.letter) ?? []),
     onLetter: toggle,
     onPrimary: verdict ? (isBlocked ? () => {} : goNext) : submit,
-    onSkip: skip,
+    onSkip: isBlocked ? () => {} : skip,
     onBookmark: toggleBookmark,
     onSelfGradeHadIt:
       verdict?.verdict === 'no-match' ? () => submitSelfGrade(true) : undefined,
