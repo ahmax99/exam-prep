@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { toast } from 'sonner'
 
@@ -13,6 +13,7 @@ import type { QuestionType } from '@/lib/prisma'
 import { useDrillKeys } from '../hooks/useDrillKeys'
 import { selfGrade } from '../lib/selfGrade'
 import { submitAnswer } from '../lib/submitAnswer'
+import { buildVerdictAnnouncement } from '../lib/verdictAnnouncement'
 
 import { ChoiceOptions } from './ChoiceOptions'
 import { ExplanationPanel } from './ExplanationPanel'
@@ -63,8 +64,35 @@ function DrillCard({
   // on Y/N must see the in-flight self-grade request before React re-renders.
   const isSelfGradeSubmittingRef = useRef(false)
   const bookmarkToggleRef = useRef<HTMLButtonElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
 
   const question = questions[currentIndex]
+  // Read once, not via the `question` variable: an effect depending on it
+  // would need to be in the deps array and would then re-focus the
+  // container on every question change, stealing focus from wherever the
+  // user currently is mid-run.
+  const initialQuestionTypeRef = useRef(question?.type)
+
+  // Seeds focus into the card once so single-letter shortcuts work
+  // immediately, without requiring a manual Tab first (see useDrillKeys'
+  // focus-containment gate). Skipped when the first question is FILL_IN: it
+  // has no letter shortcuts to seed, and FillInField's own autoFocus (set
+  // during React's commit phase, before this passive effect runs) would
+  // otherwise lose the race and get overridden.
+  useEffect(() => {
+    if (initialQuestionTypeRef.current !== 'FILL_IN')
+      containerRef.current?.focus()
+  }, [])
+
+  // Self-grading updates verdict too (see submitSelfGrade), so once outcome
+  // is set that's the freshest fact — it wins over restating the verdict.
+  const liveAnnouncement = selfGradeOutcome
+    ? selfGradeOutcome === 'had-it'
+      ? 'Recorded: had it.'
+      : 'Recorded: missed it.'
+    : verdict && question
+      ? buildVerdictAnnouncement(question, verdict, selectedLetters)
+      : ''
 
   const toggle = (letter: string) => {
     if (verdict !== null || !question) return
@@ -162,6 +190,7 @@ function DrillCard({
   const isBlocked = verdict?.verdict === 'no-match' && selfGradeOutcome === null
 
   useDrillKeys({
+    containerRef,
     optionLetters: verdict
       ? []
       : (question?.options.map((o) => o.letter) ?? []),
@@ -184,13 +213,24 @@ function DrillCard({
   )
 
   return (
+    // tabIndex + outline-none: this container is only ever focused
+    // programmatically (see the mount effect above), never via Tab — it's
+    // not in the tab sequence — so a full-card outline has no keyboard user
+    // to show itself to and would just be visual noise.
     <article
-      className="border-border bg-card rounded-lg border p-4 pb-24 md:p-6 md:pb-6"
+      ref={containerRef}
+      className="border-border bg-card rounded-lg border p-4 pb-24 outline-none md:p-6 md:pb-6"
       data-slot="drill-card"
+      tabIndex={-1}
     >
+      <h1 className="sr-only">
+        Question {currentIndex + 1} of {questions.length}, objective{' '}
+        {question.objective}
+      </h1>
+
       <header className="mb-4 flex items-center justify-between gap-4">
         <div className="flex flex-1 items-center gap-3">
-          <span className="font-mono text-sm">
+          <span aria-hidden="true" className="font-mono text-sm">
             {currentIndex + 1} / {questions.length}
           </span>
           <span
@@ -246,6 +286,15 @@ function DrillCard({
           {verdict && <ExplanationPanel explanation={verdict.explanation} />}
         </>
       )}
+
+      {/* Always mounted (content toggles empty/set) — a live region only
+          reliably announces a state change if it existed before the change;
+          mounting it alongside the verdict text drops the first announcement
+          on some screen readers. Covers both the submit verdict and the
+          self-grade outcome; see liveAnnouncement above. */}
+      <p aria-live="polite" className="sr-only" role="status">
+        {liveAnnouncement}
+      </p>
 
       {(verdict?.verdict === 'no-match' || selfGradeOutcome !== null) && (
         <SelfGradePanel

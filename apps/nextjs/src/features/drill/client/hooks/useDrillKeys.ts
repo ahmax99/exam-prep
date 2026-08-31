@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 
 interface DrillKeyHandlers {
+  containerRef: RefObject<HTMLElement | null>
   optionLetters: string[]
   onLetter: (letter: string) => void
   onPrimary: () => void
@@ -35,6 +36,13 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       if (event.repeat) return
 
       const current = handlersRef.current
+
+      // A screen reader's browse-mode quick-nav keys (b, s, y, n, ...) move
+      // its virtual cursor without moving real DOM focus, so gating on focus
+      // containment — not just "not a text field" — keeps those keys free
+      // for AT navigation until the user has actually focused into the card.
+      if (!current.containerRef.current?.contains(document.activeElement))
+        return
 
       if (event.key === 'Enter') {
         event.preventDefault()

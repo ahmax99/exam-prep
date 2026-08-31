@@ -28,6 +28,7 @@ export default async function HomePage() {
   if (certifications === null) {
     return (
       <PageTemplate maxWidth="wide">
+        <h1 className="sr-only">Dashboard</h1>
         <p className="text-muted-foreground">
           Something went wrong loading the catalog. Try refreshing.
         </p>
@@ -40,6 +41,7 @@ export default async function HomePage() {
   if (!primaryCertification) {
     return (
       <PageTemplate maxWidth="wide">
+        <h1 className="sr-only">Dashboard</h1>
         <p className="text-muted-foreground">
           No certifications seeded yet. Run{' '}
           <code className="bg-muted rounded px-1 py-0.5 font-mono">
@@ -74,6 +76,7 @@ export default async function HomePage() {
 
   return (
     <PageTemplate maxWidth="wide">
+      <h1 className="sr-only">Dashboard</h1>
       <section
         aria-label="Certifications"
         className="grid gap-4 sm:grid-cols-2"

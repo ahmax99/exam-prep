@@ -50,6 +50,8 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
         <main
           className="mx-auto w-full max-w-[40rem] px-4 py-6"
           data-slot="drill-page"
+          id="main-content"
+          tabIndex={-1}
         >
           <DrillCard
             certSlug={cert}
@@ -70,7 +72,10 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
         <main
           className="mx-auto w-full max-w-[40rem] px-4 py-6"
           data-slot="drill-page"
+          id="main-content"
+          tabIndex={-1}
         >
+          <h1 className="sr-only">Drill</h1>
           <p className="text-muted-foreground">
             Something went wrong loading this run. Try refreshing.
           </p>

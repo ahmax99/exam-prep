@@ -23,10 +23,12 @@ function AppRail({ certifications, practiceItems }: Readonly<AppRailProps>) {
       className="border-border bg-background hidden h-svh w-56 shrink-0 flex-col gap-6 border-r px-4 py-6 lg:flex"
       data-slot="app-rail"
     >
+      {/* A visual label only — nav's own aria-label already names this
+          landmark for AT, so this isn't a real page-outline heading. */}
       <nav aria-label="Certifications" className="flex flex-col gap-1">
-        <h2 className="text-muted-foreground px-2 text-xs font-medium tracking-wide uppercase">
+        <p className="text-muted-foreground px-2 text-xs font-medium tracking-wide uppercase">
           Certifications
-        </h2>
+        </p>
         {certifications.length === 0 ? (
           <p className="text-muted-foreground px-2 text-sm">None seeded</p>
         ) : (
@@ -45,9 +47,9 @@ function AppRail({ certifications, practiceItems }: Readonly<AppRailProps>) {
         )}
       </nav>
       <nav aria-label="Practice" className="flex flex-col gap-1">
-        <h2 className="text-muted-foreground px-2 text-xs font-medium tracking-wide uppercase">
+        <p className="text-muted-foreground px-2 text-xs font-medium tracking-wide uppercase">
           Practice
-        </h2>
+        </p>
         {practiceItems.map((item) =>
           item.href ? (
             <Link
