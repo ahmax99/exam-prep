@@ -3,13 +3,19 @@ import { notFound } from 'next/navigation'
 import { PageTemplate } from '@/components/layout'
 import { logger } from '@/config/logger'
 import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
+import { getCertification } from '@/features/catalog/server/api'
 import { SummaryActions } from '@/features/drill/client/components/SummaryActions'
-import { toHistoryRows } from '@/features/drill/lib/summary'
+import {
+  buildHeadline,
+  describeScope,
+  toHistoryRows
+} from '@/features/drill/lib/summary'
 import { idSchema } from '@/features/drill/schemas/run.schema'
 import { getRunHistory, getRunSummary } from '@/features/drill/server/api'
 import { MissReview } from '@/features/drill/server/components/MissReview'
 import { RunHistoryTable } from '@/features/drill/server/components/RunHistoryTable'
 import { RunSummary } from '@/features/drill/server/components/RunSummary'
+import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 
 export const dynamic = 'force-dynamic'
@@ -82,20 +88,43 @@ export default async function RunSummaryPage({
     }
   )
 
+  // A missing certification (a bad slug already 404'd above) must not block
+  // the summary itself — fall back to the raw slug in the back link.
+  const certResult = await catchAsyncError(getCertification(cert))
+  const backLabel = certResult.match(
+    (certification) => `Back to ${certification.name}`,
+    (error) => {
+      log.error(
+        { error, certSlug: cert },
+        'Failed to load certification name for back link'
+      )
+      return `Back to ${cert}`
+    }
+  )
+
+  const headline = buildHeadline(
+    summary.outcomes,
+    describeScope(summary.run.scopeKind, summary.run.scopeValue)
+  )
+
   return (
-    <PageTemplate
-      back={{ href: `/${cert}`, label: `Back to ${cert}` }}
-      maxWidth="wide"
-    >
+    <PageTemplate back={{ href: `/${cert}`, label: backLabel }} maxWidth="wide">
       <div className="pb-24 md:pb-0">
-        <RunSummary outcomes={summary.outcomes} />
+        <RunSummary headline={headline} outcomes={summary.outcomes} />
         <SummaryActions
           certSlug={cert}
           missCount={summary.misses.length}
           runId={runId}
+          skippedCount={summary.outcomes.skipped}
         />
-        {historyContent}
         <MissReview misses={summary.misses} />
+
+        <details className="mt-6" data-slot="past-runs">
+          <summary className="text-muted-foreground min-h-11 cursor-pointer text-sm">
+            Past runs
+          </summary>
+          <div className="mt-3">{historyContent}</div>
+        </details>
       </div>
     </PageTemplate>
   )
