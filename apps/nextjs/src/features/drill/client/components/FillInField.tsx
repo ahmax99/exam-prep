@@ -75,7 +75,7 @@ function FillInField({
         </Button>
       </div>
 
-      {verdict?.verdict === 'no-match' && verdict.answerDisplay && (
+      {verdict?.verdict !== 'matched' && verdict?.answerDisplay && (
         <p className="text-muted-foreground mt-2 text-sm">
           <PromptMarkdown text={verdict.answerDisplay} />
         </p>
