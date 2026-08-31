@@ -25,12 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className="dark"
+      className={cn('dark', geistSans.variable, geistMono.variable)}
       data-scroll-behavior="smooth"
       lang="en"
       suppressHydrationWarning
     >
-      <body className={cn(geistSans.variable, geistMono.variable)}>
+      <body>
         {children}
         <Toaster position="bottom-right" richColors />
         <DynamicMarker />
