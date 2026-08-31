@@ -59,6 +59,9 @@ function DrillCard({
   // A plain ref, not `isSubmitting` state: two keydown events arriving before
   // React flushes a state update must still see the in-flight request.
   const isSubmittingRef = useRef(false)
+  // Same reasoning as isSubmittingRef: a fast double-click/double-key-press
+  // on Y/N must see the in-flight self-grade request before React re-renders.
+  const isSelfGradeSubmittingRef = useRef(false)
 
   const question = questions[currentIndex]
 
@@ -138,16 +141,20 @@ function DrillCard({
       !question ||
       verdict?.verdict !== 'no-match' ||
       selfGradeOutcome !== null ||
-      isSelfGradeSubmitting
+      isSelfGradeSubmittingRef.current
     )
       return
+    isSelfGradeSubmittingRef.current = true
     setIsSelfGradeSubmitting(true)
     selfGrade({ runId, questionId: question.id, hadIt })
       .match(
         () => setSelfGradeOutcome(hadIt ? 'had-it' : 'missed-it'),
         (error) => toast.error(error.message)
       )
-      .finally(() => setIsSelfGradeSubmitting(false))
+      .finally(() => {
+        isSelfGradeSubmittingRef.current = false
+        setIsSelfGradeSubmitting(false)
+      })
   }
 
   const skip = () => goNext()
@@ -214,6 +221,10 @@ function DrillCard({
 
       {question.type === 'FILL_IN' ? (
         <FillInField
+          // Keyed on question id so React remounts the input (and its
+          // autoFocus) per fill-in question, instead of reusing the same
+          // DOM node whose focus was already spent on the previous one.
+          key={question.id}
           isSubmitting={isSubmitting}
           value={fillInValue}
           verdict={verdict}
