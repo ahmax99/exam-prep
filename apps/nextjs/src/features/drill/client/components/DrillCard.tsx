@@ -25,6 +25,7 @@ interface DrillQuestion {
   prompt: string
   options: { letter: string; text: string }[]
   timesSeen: number
+  isBookmarked: boolean
 }
 
 interface DrillCardProps {
@@ -47,22 +48,12 @@ function DrillCard({
   const [selectedLetters, setSelectedLetters] = useState<string[]>([])
   const [verdict, setVerdict] = useState<AnswerVerdict | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
   // A plain ref, not `isSubmitting` state: two keydown events arriving before
   // React flushes a state update must still see the in-flight request.
   const isSubmittingRef = useRef(false)
+  const bookmarkToggleRef = useRef<HTMLButtonElement>(null)
 
   const question = questions[currentIndex]
-
-  const toggleBookmark = () => {
-    if (!question) return
-    setBookmarkedIds((current) => {
-      const next = new Set(current)
-      if (next.has(question.id)) next.delete(question.id)
-      else next.add(question.id)
-      return next
-    })
-  }
 
   const toggle = (letter: string) => {
     if (verdict !== null || !question) return
@@ -115,7 +106,9 @@ function DrillCard({
     onLetter: toggle,
     onPrimary: verdict ? goNext : submit,
     onSkip: skip,
-    onBookmark: toggleBookmark
+    // Keyboard and pointer share one handler, so the optimistic state has
+    // exactly one owner.
+    onBookmark: () => bookmarkToggleRef.current?.click()
   })
 
   if (!question) return null
@@ -150,11 +143,12 @@ function DrillCard({
       </header>
 
       <QuestionMeta
-        isBookmarked={bookmarkedIds.has(question.id)}
+        initialBookmarked={question.isBookmarked}
         objective={question.objective}
+        questionId={question.id}
         timesSeen={question.timesSeen}
+        toggleRef={bookmarkToggleRef}
         type={question.type}
-        onToggleBookmark={toggleBookmark}
       />
 
       <p className="my-4 text-base leading-relaxed">

@@ -43,15 +43,17 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       if (!/^[a-z]$/i.test(event.key)) return
       const letter = event.key.toUpperCase()
 
-      if (current.optionLetters.includes(letter)) {
+      // B is reserved for the bookmark toggle even when the question has a
+      // lettered "B" option (plan Decision 4: the key always means bookmark).
+      if (letter === 'B') {
+        event.preventDefault()
+        current.onBookmark()
+      } else if (current.optionLetters.includes(letter)) {
         event.preventDefault()
         current.onLetter(letter)
       } else if (letter === 'S') {
         event.preventDefault()
         current.onSkip()
-      } else if (letter === 'B') {
-        event.preventDefault()
-        current.onBookmark()
       }
     }
 
