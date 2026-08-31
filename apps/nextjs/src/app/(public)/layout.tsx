@@ -80,7 +80,13 @@ export default async function PublicLayout({
           }))}
           practiceItems={practiceItems}
         />
-        <main className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</main>
+        <main
+          className="min-w-0 flex-1 pb-20 lg:pb-0"
+          id="main-content"
+          tabIndex={-1}
+        >
+          {children}
+        </main>
       </div>
       <BottomTabBar savedHref={savedHref} />
     </>

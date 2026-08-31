@@ -31,6 +31,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
+        <a
+          className="bg-primary text-primary-foreground focus-visible:ring-ring/50 sr-only rounded-md px-4 py-2 text-sm font-medium focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-50 focus-visible:ring-[3px]"
+          href="#main-content"
+        >
+          Skip to content
+        </a>
         {children}
         <Toaster position="bottom-right" richColors />
         <DynamicMarker />
