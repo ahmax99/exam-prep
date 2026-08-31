@@ -1,3 +1,5 @@
+import type { StartRunInput } from '@/features/drill/schemas/startRun.schema'
+
 export interface RunOutcomes {
   rightFirstTry: number
   selfGraded: number
@@ -37,6 +39,47 @@ export const summarizeOutcomes = (
   const percent = total === 0 ? 0 : Math.round((score / total) * 100)
 
   return { rightFirstTry, selfGraded, missed, skipped, score, total, percent }
+}
+
+// Mirrors queue.ts's SCOPE_WHERE_BUILDERS shape: one function per scope kind,
+// keyed for exhaustiveness rather than a switch.
+const SCOPE_DESCRIPTIONS: Record<
+  StartRunInput['scopeKind'],
+  (scopeValue: string) => string
+> = {
+  CERT: () => 'across the full certification',
+  EXAM: (scopeValue) => `in exam ${scopeValue}`,
+  TOPIC: (scopeValue) => `in ${scopeValue}`,
+  OBJECTIVE: (scopeValue) => `in objective ${scopeValue}`,
+  MISSED: () => 'from your weak spots',
+  UNSEEN: () => 'that were new to you',
+  BOOKMARKS: () => 'from your bookmarks'
+}
+
+export const describeScope = (
+  scopeKind: StartRunInput['scopeKind'],
+  scopeValue: string
+): string => SCOPE_DESCRIPTIONS[scopeKind](scopeValue)
+
+// The summary's opening line: what happened, in words, before any digit.
+// Score/percent stay available as secondary, smaller text alongside this.
+export const buildHeadline = (
+  outcomes: RunOutcomes,
+  scopeDescription: string
+): string => {
+  if (outcomes.total === 0)
+    return `This run has no questions ${scopeDescription}.`
+
+  const questionWord = outcomes.total === 1 ? 'question' : 'questions'
+
+  if (outcomes.skipped === outcomes.total)
+    return `You skipped all ${outcomes.total} ${questionWord} ${scopeDescription}.`
+
+  const worked = `You worked through ${outcomes.total} ${questionWord} ${scopeDescription}.`
+  if (outcomes.missed === 0) return `${worked} Nothing to revisit.`
+
+  const missedWord = outcomes.missed === 1 ? 'One' : `${outcomes.missed}`
+  return `${worked} ${missedWord} to revisit.`
 }
 
 export type HistoryDelta =

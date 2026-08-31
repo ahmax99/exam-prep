@@ -14,24 +14,26 @@ interface MissReviewProps {
   misses: MissDetail[]
 }
 
-// Native <details>/<summary> expands with zero JavaScript, so this stays a
-// server component.
+// The highest-value content on this page — always rendered expanded, never
+// behind a disclosure the user has to find.
 function MissReview({ misses }: Readonly<MissReviewProps>) {
   if (misses.length === 0) return null
 
   return (
-    <details
+    <section
       className="border-border bg-card mt-6 rounded-lg border p-4"
       data-slot="miss-review"
     >
-      <summary className="min-h-11 cursor-pointer">
-        Review {misses.length} {misses.length === 1 ? 'miss' : 'misses'}
-      </summary>
+      <h2 className="text-lg font-medium">
+        {misses.length === 1
+          ? '1 question to review'
+          : `${misses.length} questions to review`}
+      </h2>
 
       {misses.map((miss) => (
         <article
           key={miss.id}
-          className="border-border border-t pt-4 first:border-0 first:pt-0"
+          className="border-border border-t pt-4 first-of-type:border-0 first-of-type:pt-0"
         >
           <p className="my-2 text-base leading-relaxed">
             <PromptMarkdown text={miss.prompt} />
@@ -47,7 +49,7 @@ function MissReview({ misses }: Readonly<MissReviewProps>) {
           <ExplanationPanel explanation={miss.explanation} />
         </article>
       ))}
-    </details>
+    </section>
   )
 }
 
