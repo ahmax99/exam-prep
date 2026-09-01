@@ -1,8 +1,5 @@
 import 'server-only'
-import {
-  DEFAULT_RUN_LIMIT,
-  RUN_HISTORY_LIMIT
-} from '@/features/drill/constants'
+import { RUN_HISTORY_LIMIT } from '@/features/drill/constants'
 import { grade, type Verdict } from '@/features/drill/lib/grade'
 import { nextMastery } from '@/features/drill/lib/mastery'
 import { buildScopeWhere, orderQueue } from '@/features/drill/lib/queue'
@@ -31,7 +28,9 @@ const runStartRun = async (input: StartRunInput) => {
     orderBy: [{ exam: { code: 'asc' } }, { number: 'asc' }]
   })
 
-  const questionIds = orderQueue(candidates, input.limit ?? DEFAULT_RUN_LIMIT)
+  // No `limit` means drill everything in scope — `orderQueue` still puts
+  // wrong/unseen/shaky questions first, it just never truncates the result.
+  const questionIds = orderQueue(candidates, input.limit ?? candidates.length)
 
   if (questionIds.length === 0)
     throw new AppError('NOT_FOUND', 'No questions match this scope')
