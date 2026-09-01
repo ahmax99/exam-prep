@@ -67,22 +67,27 @@ function DrillCard({
   const containerRef = useRef<HTMLElement>(null)
 
   const question = questions[currentIndex]
-  // Read once, not via the `question` variable: an effect depending on it
-  // would need to be in the deps array and would then re-focus the
-  // container on every question change, stealing focus from wherever the
-  // user currently is mid-run.
-  const initialQuestionTypeRef = useRef(question?.type)
 
-  // Seeds focus into the card once so single-letter shortcuts work
-  // immediately, without requiring a manual Tab first (see useDrillKeys'
-  // focus-containment gate). Skipped when the first question is FILL_IN: it
-  // has no letter shortcuts to seed, and FillInField's own autoFocus (set
-  // during React's commit phase, before this passive effect runs) would
-  // otherwise lose the race and get overridden.
+  // Keeps keyboard control anchored in the card so useDrillKeys' focus-
+  // containment gate doesn't silently swallow every shortcut: mount, a
+  // Submit -> Next / Y-N -> outcome transition (both unmount the previously
+  // focused button, which drops document.activeElement to <body>), and
+  // FillInField's own blur-on-answer (a child effect, so it always runs
+  // before this one and gets overridden here) all need focus restored to
+  // the container. The one exception is an unanswered FILL_IN question:
+  // its own autoFocus (set during React's commit phase, before this passive
+  // effect runs) owns focus while verdict is still null, and stealing it
+  // here would fight that — but once verdict is set the input goes
+  // read-only and blurs itself, so the card needs focus back regardless of
+  // question type.
   useEffect(() => {
-    if (initialQuestionTypeRef.current !== 'FILL_IN')
-      containerRef.current?.focus()
-  }, [])
+    if (question?.type === 'FILL_IN' && verdict === null) return
+    // preventScroll: unlike the old one-shot mount focus (top of page, no
+    // visible effect), this now fires after every transition — a long
+    // question on mobile can have its Submit/self-grade button below the
+    // fold, and a bare .focus() would jump the viewport back to the card.
+    containerRef.current?.focus({ preventScroll: true })
+  }, [verdict, selfGradeOutcome, question])
 
   // Self-grading updates verdict too (see submitSelfGrade), so once outcome
   // is set that's the freshest fact — it wins over restating the verdict.

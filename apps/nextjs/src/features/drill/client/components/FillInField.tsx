@@ -39,6 +39,19 @@ function FillInField({
     if (verdict !== null) inputRef.current?.blur()
   }, [verdict])
 
+  // Backstops the `autoFocus` attribute below on every mount (including a
+  // remount when goNext advances to the next FILL_IN question, via
+  // key={question.id}). Real navigation is the case that needs it: Next.js's
+  // App Router refocuses the page's <main> landmark after every navigation
+  // (layout-router.js's scroll-and-focus handler), which runs after the DOM
+  // commit but before passive effects — so it wins the race against
+  // `autoFocus` and leaves focus stranded on <main>. A passive effect fires
+  // after that handler, so it reclaims focus for the input every time; on a
+  // plain in-page advance it's just a harmless no-op reassertion.
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter') return
     event.preventDefault()
