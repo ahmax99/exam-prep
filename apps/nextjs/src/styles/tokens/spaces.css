@@ -1,5 +1,9 @@
 :root {
   --spacing-base: 0.25rem;
+  /* The tab bar is the only fixed bottom overlay; its height and the content
+     reservation below it must never be two independent numbers. */
+  --bottom-nav-height: 4rem;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .dark {
@@ -12,4 +16,8 @@
   --gap-md: calc(var(--spacing-base) * 2);
   --gap-lg: calc(var(--spacing-base) * 4);
   --gap-xl: calc(var(--spacing-base) * 8);
+  --spacing-safe-bottom: var(--safe-area-bottom);
+  --spacing-bottom-nav: calc(
+    var(--bottom-nav-height) + var(--safe-area-bottom)
+  );
 }

@@ -85,7 +85,9 @@ export default async function PublicLayout({
           practiceItems={practiceItems}
         />
         <main
-          className="min-w-0 flex-1 pb-20 lg:pb-0"
+          // Reserves exactly the tab bar's occupied height (spaces.css)
+          // so the two never drift out of sync.
+          className="pb-bottom-nav min-w-0 flex-1 lg:pb-0"
           id="main-content"
           tabIndex={-1}
         >
