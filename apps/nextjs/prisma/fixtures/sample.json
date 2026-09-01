@@ -8,13 +8,13 @@
       "exam": "101",
       "objective": "101.1",
       "topic": "101 — Fixture Topic",
-      "question": "Which command reports the currently running kernel version, shown by `uname -r`?",
-      "explanation": "`uname -r` prints the kernel release string.",
+      "question": "Which command reports the **currently running** kernel version, shown by `uname -r`?",
+      "explanation": "`uname -r` prints the **kernel release string**, not the distribution version.",
       "type": "single_answer",
       "options": [
         {
           "letter": "A",
-          "text": "`uname -r`"
+          "text": "`uname -r` — **the running kernel release**"
         },
         {
           "letter": "B",
@@ -37,7 +37,7 @@
       "objective": "101.2",
       "topic": "101 — Fixture Topic",
       "question": "Which TWO commands display disk usage information, `df` and `du`?",
-      "explanation": "`df` reports filesystem-level usage; `du` reports per-file/directory usage.",
+      "explanation": "`df` reports filesystem usage; the literal `**` glob is **not** emphasis.",
       "type": "multiple_answer",
       "options": [
         {
