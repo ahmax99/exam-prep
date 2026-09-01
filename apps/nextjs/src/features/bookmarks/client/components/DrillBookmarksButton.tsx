@@ -6,6 +6,7 @@ import { useRef } from 'react'
 import { toast } from 'sonner'
 
 import { startBookmarksRun } from '@/features/bookmarks/client/lib/startBookmarksRun'
+import { resolveRunSize } from '@/features/drill/lib/runSize'
 
 interface DrillBookmarksButtonProps {
   certSlug: string
@@ -18,14 +19,15 @@ function DrillBookmarksButton({
 }: Readonly<DrillBookmarksButtonProps>) {
   const router = useRouter()
   const isPendingRef = useRef(false)
+  const runSize = resolveRunSize(count)
 
-  if (count === 0) return null
+  if (runSize === 0) return null
 
   const onClick = () => {
     if (isPendingRef.current) return
     isPendingRef.current = true
 
-    startBookmarksRun(certSlug)
+    startBookmarksRun(certSlug, runSize)
       .match(
         ({ id }) => router.push(`/${certSlug}/drill/${id}`),
         (error) => toast.error(error.message)
@@ -42,7 +44,7 @@ function DrillBookmarksButton({
       type="button"
       onClick={onClick}
     >
-      Drill all {count} →
+      Drill {runSize} →
     </button>
   )
 }

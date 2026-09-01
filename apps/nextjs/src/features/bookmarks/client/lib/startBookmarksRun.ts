@@ -8,11 +8,11 @@ import { catchAsyncError } from '@/features/error/utils/catchError'
 const startRunResponseSchema = z.object({ id: z.string() })
 type StartRunResponse = z.infer<typeof startRunResponseSchema>
 
-export const startBookmarksRun = (certSlug: string) =>
+export const startBookmarksRun = (certSlug: string, limit: number) =>
   catchAsyncError(
     ky
       .post('/api/drill/runs', {
-        json: { scopeKind: 'BOOKMARKS', scopeValue: '', certSlug }
+        json: { scopeKind: 'BOOKMARKS', scopeValue: '', certSlug, limit }
       })
       .json<unknown>()
   ).andThen((body) => {
