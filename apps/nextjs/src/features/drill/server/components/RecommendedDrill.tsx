@@ -1,8 +1,6 @@
 import Link from 'next/link'
 
-import { MAX_RUN_LIMIT } from '@/features/drill/constants'
 import type { DrillRecommendation } from '@/features/drill/lib/recommendation'
-import { resolveRunSize } from '@/features/drill/lib/runSize'
 
 interface RecommendedDrillProps {
   certSlug: string
@@ -10,20 +8,17 @@ interface RecommendedDrillProps {
 }
 
 // `/[cert]`'s single primary action: one recommended run (missed → unseen →
-// exam fallback, decided by `recommendDrill`) plus an optional link to the
-// full remaining scope, both plain navigations to the launcher.
+// exam fallback, decided by `recommendDrill`) covering every question in
+// that scope — a plain navigation to the launcher, no size to pick.
 const RecommendedDrill = ({
   certSlug,
   recommendation
 }: Readonly<RecommendedDrillProps>) => {
-  const defaultSize = resolveRunSize(recommendation.available)
-  const fullSize = resolveRunSize(recommendation.available, MAX_RUN_LIMIT)
+  if (recommendation.available === 0) return null
 
-  if (defaultSize === 0) return null
-
-  const href = (limit: number) =>
+  const href =
     `/${certSlug}/drill?scopeKind=${recommendation.scopeKind}` +
-    `&scopeValue=${encodeURIComponent(recommendation.scopeValue)}&limit=${limit}`
+    `&scopeValue=${encodeURIComponent(recommendation.scopeValue)}`
 
   return (
     <section
@@ -38,19 +33,10 @@ const RecommendedDrill = ({
       <Link
         className="bg-foreground text-background flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-medium lg:w-fit"
         data-slot="recommended-drill-primary"
-        href={href(defaultSize)}
+        href={href}
       >
-        Drill {defaultSize} →
+        Drill {recommendation.available} →
       </Link>
-      {fullSize > defaultSize && (
-        <Link
-          className="text-muted-foreground flex min-h-11 w-fit items-center underline underline-offset-2"
-          data-slot="recommended-drill-full"
-          href={href(fullSize)}
-        >
-          or all {fullSize}
-        </Link>
-      )}
     </section>
   )
 }

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
 import type { CertificationExam } from '@/features/catalog/server/api'
-import { resolveRunSize } from '@/features/drill/lib/runSize'
 import { cn } from '@/utils/mergeClass'
 
 interface ExamListProps {
@@ -24,7 +23,6 @@ const ExamList = ({
       <ul className="flex flex-col gap-2">
         {exams.map((exam) => {
           const selected = exam.code === selectedCode
-          const runSize = resolveRunSize(exam.questionCount)
 
           return (
             <li
@@ -49,12 +47,12 @@ const ExamList = ({
                   {exam.questionCount}
                 </span>
               </Link>
-              {runSize > 0 && (
+              {exam.questionCount > 0 && (
                 <Link
                   className="text-muted-foreground hover:border-foreground/30 border-border flex min-h-11 items-center rounded-md border px-3 text-sm"
-                  href={`/${certSlug}/drill?scopeKind=EXAM&scopeValue=${exam.code}&limit=${runSize}`}
+                  href={`/${certSlug}/drill?scopeKind=EXAM&scopeValue=${exam.code}`}
                 >
-                  Drill {runSize} →
+                  Drill {exam.questionCount} →
                 </Link>
               )}
             </li>

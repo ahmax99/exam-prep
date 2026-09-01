@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-import { MAX_RUN_LIMIT } from '@/features/drill/constants'
-
 export const startRunSchema = z.object({
   scopeKind: z.enum([
     'CERT',
@@ -19,7 +17,9 @@ export const startRunSchema = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/),
-  limit: z.number().int().min(1).max(MAX_RUN_LIMIT).optional()
+  // No upper bound: a run defaults to every question in scope, so `limit`
+  // exists only to request a smaller subset, never to cap a larger one.
+  limit: z.number().int().min(1).optional()
 })
 
 export type StartRunInput = z.infer<typeof startRunSchema>
