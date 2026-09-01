@@ -50,26 +50,30 @@ export default async function PublicLayout({
       )
     : null
   const savedHref = primaryCertSlug ? `/${primaryCertSlug}/bookmarks` : null
+  const runsHref = primaryCertSlug ? `/${primaryCertSlug}/runs` : null
   const sidebarOpen = (await cookies()).get('sidebar_state')?.value !== 'false'
 
-  const practiceItems: AppSidebarPracticeItem[] = [
-    {
-      label: 'Missed',
-      count: primaryMastery?.missed ?? null,
-      href: primaryCertSlug
-        ? `/${primaryCertSlug}/drill?scopeKind=MISSED&scopeValue=${primaryCertSlug}`
-        : null
-    },
-    {
-      label: 'Never seen',
-      count: primaryMastery?.unseen ?? null,
-      href: primaryCertSlug
-        ? `/${primaryCertSlug}/drill?scopeKind=UNSEEN&scopeValue=${primaryCertSlug}`
-        : null
-    },
-    { label: 'Bookmarked', count: bookmarkCount, href: savedHref },
-    { label: 'Past runs', count: null, href: null }
-  ]
+  // "Past runs" carries count: null on purpose — a run count would need two
+  // extra Prisma queries (cert question ids + drillRun.count overlap) on
+  // every page render, since DrillRun has no cert column.
+  const practiceItems: AppSidebarPracticeItem[] = primaryCertSlug
+    ? [
+        {
+          label: 'Missed',
+          count: primaryMastery?.missed ?? null,
+          href: `/${primaryCertSlug}/drill?scopeKind=MISSED&scopeValue=${primaryCertSlug}`
+        },
+        {
+          label: 'Never seen',
+          count: primaryMastery?.unseen ?? null,
+          href: `/${primaryCertSlug}/drill?scopeKind=UNSEEN&scopeValue=${primaryCertSlug}`
+        },
+        // savedHref/runsHref are non-null here: both are derived from
+        // primaryCertSlug, which this branch has already checked truthy.
+        { label: 'Bookmarked', count: bookmarkCount, href: savedHref! },
+        { label: 'Past runs', count: null, href: runsHref! }
+      ]
+    : []
 
   return (
     <SidebarProvider className="flex-col" defaultOpen={sidebarOpen}>
@@ -92,7 +96,7 @@ export default async function PublicLayout({
           {children}
         </main>
       </div>
-      <BottomTabBar savedHref={savedHref} />
+      <BottomTabBar runsHref={runsHref} savedHref={savedHref} />
     </SidebarProvider>
   )
 }

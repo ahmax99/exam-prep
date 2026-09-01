@@ -30,7 +30,7 @@ interface AppSidebarCertification {
 interface AppSidebarPracticeItem {
   label: string
   count: number | null
-  href: string | null
+  href: string // no longer nullable — an item that has no destination is not built
 }
 
 interface AppSidebarProps {
@@ -88,24 +88,33 @@ function AppSidebar({
           <SidebarGroupLabel>Practice</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {practiceItems.map((item) => {
-                const Icon = practiceIcons[item.label] ?? GraduationCap
-                return (
-                  <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton
-                      disabled={!item.href}
-                      render={item.href ? <Link href={item.href} /> : undefined}
-                      tooltip={item.label}
-                    >
-                      <Icon />
-                      <span className="min-w-0 flex-1 truncate">
-                        {item.label}
-                      </span>
-                    </SidebarMenuButton>
-                    <SidebarMenuBadge>{item.count ?? '—'}</SidebarMenuBadge>
-                  </SidebarMenuItem>
-                )
-              })}
+              {practiceItems.length === 0 ? (
+                <SidebarMenuItem>
+                  <span className="text-muted-foreground px-2 text-sm">
+                    Seed a certification first
+                  </span>
+                </SidebarMenuItem>
+              ) : (
+                practiceItems.map((item) => {
+                  const Icon = practiceIcons[item.label] ?? GraduationCap
+                  return (
+                    <SidebarMenuItem key={item.label}>
+                      <SidebarMenuButton
+                        render={<Link href={item.href} />}
+                        tooltip={item.label}
+                      >
+                        <Icon />
+                        <span className="min-w-0 flex-1 truncate">
+                          {item.label}
+                        </span>
+                      </SidebarMenuButton>
+                      {item.count !== null && (
+                        <SidebarMenuBadge>{item.count}</SidebarMenuBadge>
+                      )}
+                    </SidebarMenuItem>
+                  )
+                })
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

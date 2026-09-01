@@ -15,7 +15,11 @@ import type { StartRunInput } from '@/features/drill/schemas/startRun.schema'
 import type { SubmitAnswerInput } from '@/features/drill/schemas/submitAnswer.schema'
 import { AppError } from '@/features/error/lib/AppError'
 import { catchAsyncError } from '@/features/error/utils/catchError'
-import { type PrismaClient, getPrismaClient } from '@/lib/prisma'
+import {
+  type PrismaClient,
+  type ScopeKind,
+  getPrismaClient
+} from '@/lib/prisma'
 
 const runStartRun = async (input: StartRunInput) => {
   const db = await getPrismaClient()
@@ -360,6 +364,73 @@ const runGetRunHistory = async ({
 
 export const getRunHistory = (scope: RunHistoryScope) =>
   catchAsyncError(runGetRunHistory(scope))
+
+export interface CertificationRun {
+  id: string
+  scopeKind: ScopeKind
+  scopeValue: string
+  startedAt: Date
+  finishedAt: Date | null
+  score: number
+  total: number
+}
+
+const runGetCertificationRunHistory = async (
+  certSlug: string
+): Promise<CertificationRun[]> => {
+  const db = await getPrismaClient()
+
+  const certQuestions = await db.question.findMany({
+    where: { exam: { certification: { slug: certSlug } } },
+    select: { id: true }
+  })
+  const certQuestionIds = certQuestions.map((question) => question.id)
+  // An unseeded cert has no questions — hasSome: [] matches nothing in
+  // Postgres, but skip the query outright rather than relying on that.
+  if (certQuestionIds.length === 0) return []
+
+  // DrillRun has no cert column, so a run belongs to a cert iff its question
+  // set overlaps the cert's questions. Unlike runGetRunHistory's witness
+  // technique, this uses an exact array-overlap filter (hasSome) rather than
+  // over-fetching then filtering — without an indexed scopeKind/scopeValue
+  // filter narrowing the set first, take: 50 then post-filtering would
+  // silently return fewer than 50 cert-wide runs.
+  const runs = await db.drillRun.findMany({
+    where: { questionIds: { hasSome: certQuestionIds } },
+    orderBy: { startedAt: 'desc' },
+    take: RUN_HISTORY_LIMIT,
+    select: {
+      id: true,
+      scopeKind: true,
+      scopeValue: true,
+      startedAt: true,
+      finishedAt: true,
+      questionIds: true
+    }
+  })
+
+  const counts = await db.attempt.groupBy({
+    by: ['runId'],
+    where: { runId: { in: runs.map((run) => run.id) }, isCorrect: true },
+    _count: { _all: true }
+  })
+  const scoreByRun = new Map<string | null, number>(
+    counts.map((row) => [row.runId, row._count._all])
+  )
+
+  return runs.map((run) => ({
+    id: run.id,
+    scopeKind: run.scopeKind,
+    scopeValue: run.scopeValue,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    score: scoreByRun.get(run.id) ?? 0,
+    total: run.questionIds.length
+  }))
+}
+
+export const getCertificationRunHistory = (certSlug: string) =>
+  catchAsyncError(runGetCertificationRunHistory(certSlug))
 
 const runGetRunSummary = async ({
   runId,

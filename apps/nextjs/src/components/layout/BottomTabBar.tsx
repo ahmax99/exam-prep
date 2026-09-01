@@ -1,46 +1,35 @@
 import Link from 'next/link'
 
-import { BarChart3, Bookmark, History, NotebookText } from 'lucide-react'
-
-const TABS = [
-  { label: 'Study', icon: NotebookText, href: '/' },
-  { label: 'Saved', icon: Bookmark, href: null },
-  { label: 'Runs', icon: History, href: null },
-  { label: 'Stats', icon: BarChart3, href: null }
-] as const
+import { Bookmark, History, NotebookText } from 'lucide-react'
 
 interface BottomTabBarProps {
-  savedHref?: string | null
+  savedHref: string | null
+  runsHref: string | null
 }
 
-function BottomTabBar({ savedHref }: Readonly<BottomTabBarProps> = {}) {
+function BottomTabBar({ savedHref, runsHref }: Readonly<BottomTabBarProps>) {
+  const tabs = [
+    { label: 'Study', icon: NotebookText, href: '/' },
+    ...(savedHref ? [{ label: 'Saved', icon: Bookmark, href: savedHref }] : []),
+    ...(runsHref ? [{ label: 'Runs', icon: History, href: runsHref }] : [])
+  ]
+
   return (
     <nav
       aria-label="Primary"
       className="bg-background border-border fixed inset-x-0 bottom-0 z-40 flex h-16 items-center justify-around border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
       data-slot="bottom-tab-bar"
     >
-      {TABS.map(({ label, icon: Icon, href: staticHref }) => {
-        const href = label === 'Saved' ? (savedHref ?? null) : staticHref
-        return href ? (
-          <Link
-            key={label}
-            className="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-xs"
-            href={href}
-          >
-            <Icon className="size-5" />
-            {label}
-          </Link>
-        ) : (
-          <span
-            key={label}
-            className="text-muted-foreground flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-xs"
-          >
-            <Icon className="size-5" />
-            {label}
-          </span>
-        )
-      })}
+      {tabs.map(({ label, icon: Icon, href }) => (
+        <Link
+          key={label}
+          className="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-xs"
+          href={href}
+        >
+          <Icon className="size-5" />
+          {label}
+        </Link>
+      ))}
     </nav>
   )
 }

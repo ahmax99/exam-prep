@@ -97,7 +97,7 @@ export interface HistoryRow {
   isCurrent: boolean
 }
 
-const toPercent = (score: number, total: number) =>
+export const toPercent = (score: number, total: number) =>
   total === 0 ? 0 : Math.round((score / total) * 100)
 
 // `runs` arrives newest-first; each row's predecessor is the next element
