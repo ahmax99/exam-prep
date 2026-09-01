@@ -89,8 +89,11 @@ const QUESTION_TYPE_BY_BANK_TYPE: Record<BankQuestion['type'], QuestionType> = {
   fill_in: 'FILL_IN'
 }
 
-const DEFAULT_FIXTURE_PATH = fileURLToPath(
-  new URL('./fixtures/sample.json', import.meta.url)
+// The real question banks, not a fixture — running the seed with no
+// arguments must write the same data this repo ships, never placeholder
+// content that could collide with and overwrite a real exam's rows.
+const DEFAULT_INPUT_PATH = fileURLToPath(
+  new URL('../../../data/lpic1', import.meta.url)
 )
 
 const expandPath = (resolved: string): ResultAsync<string[], AppError> =>
@@ -106,9 +109,11 @@ const expandPath = (resolved: string): ResultAsync<string[], AppError> =>
   })
 
 const resolveInputFiles = (args: string[]): ResultAsync<string[], AppError> => {
-  if (args.length === 0) return okAsync([DEFAULT_FIXTURE_PATH])
+  const resolved =
+    args.length === 0
+      ? [DEFAULT_INPUT_PATH]
+      : args.map((arg) => path.resolve(process.cwd(), arg))
 
-  const resolved = args.map((arg) => path.resolve(process.cwd(), arg))
   return ResultAsync.combine(resolved.map(expandPath)).map((lists) =>
     lists.flat()
   )
