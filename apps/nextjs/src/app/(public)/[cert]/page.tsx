@@ -155,51 +155,49 @@ export default async function CertificationPage({
 
   return (
     <PageTemplate maxWidth="wide">
-      <div className="pb-16 lg:pb-0">
-        <h1 className="text-2xl font-semibold">{certification.name}</h1>
-        <div className="mt-4 flex flex-col gap-2">
-          <h2 className="text-lg font-medium">
-            Exam {selectedExam.code} — {selectedExam.title}
-          </h2>
-          <p className="text-muted-foreground font-mono text-sm">
-            {selectedExam.questionCount} questions across{' '}
-            {selectedExam.topicCount} topics · {selectedExam.objectiveCount}{' '}
-            objectives
-          </p>
-          <Link
-            className="bg-foreground text-background fixed inset-x-4 bottom-20 z-30 flex min-h-11 items-center justify-center rounded-lg px-4 font-medium lg:static lg:inset-auto lg:w-fit"
-            data-slot="drill-all-action"
-            href={`/${cert}/drill?scopeKind=EXAM&scopeValue=${selectedExam.code}`}
-          >
-            Drill all {selectedExam.questionCount} →
-          </Link>
-        </div>
-
-        <div className="mt-6">
-          <ExamList
-            certSlug={cert}
-            exams={certification.exams}
-            selectedCode={selectedExam.code}
-          />
-        </div>
-
-        <section aria-label="Charts" className="mt-6 grid gap-6 md:grid-cols-2">
-          <DoughnutChart
-            emptyMessage="No questions imported for this exam yet."
-            segments={mixSegments}
-            title="Question mix"
-            unit="questions"
-          />
-          <DoughnutChart
-            emptyMessage={`No answers in the last ${RECENT_OUTCOME_DAYS} days`}
-            segments={outcomeSegments}
-            title={`Last ${RECENT_OUTCOME_DAYS} days`}
-            unit="answers"
-          />
-        </section>
-
-        <TopicMasteryPanel certSlug={cert} topics={topics} />
+      <h1 className="text-2xl font-semibold">{certification.name}</h1>
+      <div className="mt-4 flex flex-col gap-2">
+        <h2 className="text-lg font-medium">
+          Exam {selectedExam.code} — {selectedExam.title}
+        </h2>
+        <p className="text-muted-foreground font-mono text-sm">
+          {selectedExam.questionCount} questions across{' '}
+          {selectedExam.topicCount} topics · {selectedExam.objectiveCount}{' '}
+          objectives
+        </p>
+        <Link
+          className="bg-foreground text-background flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-medium lg:w-fit"
+          data-slot="drill-all-action"
+          href={`/${cert}/drill?scopeKind=EXAM&scopeValue=${selectedExam.code}`}
+        >
+          Drill all {selectedExam.questionCount} →
+        </Link>
       </div>
+
+      <div className="mt-6">
+        <ExamList
+          certSlug={cert}
+          exams={certification.exams}
+          selectedCode={selectedExam.code}
+        />
+      </div>
+
+      <section aria-label="Charts" className="mt-6 grid gap-6 md:grid-cols-2">
+        <DoughnutChart
+          emptyMessage="No questions imported for this exam yet."
+          segments={mixSegments}
+          title="Question mix"
+          unit="questions"
+        />
+        <DoughnutChart
+          emptyMessage={`No answers in the last ${RECENT_OUTCOME_DAYS} days`}
+          segments={outcomeSegments}
+          title={`Last ${RECENT_OUTCOME_DAYS} days`}
+          unit="answers"
+        />
+      </section>
+
+      <TopicMasteryPanel certSlug={cert} topics={topics} />
     </PageTemplate>
   )
 }

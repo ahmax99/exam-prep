@@ -64,31 +64,29 @@ export default async function BookmarksPage({
 
   return (
     <PageTemplate maxWidth="wide">
-      <div className="pb-16 lg:pb-0">
-        <h1 className="text-2xl font-semibold">Bookmarked questions</h1>
-        <p className="text-muted-foreground mt-2 font-mono text-sm">
-          {total} questions saved for revision · {mastered} already mastered
-        </p>
+      <h1 className="text-2xl font-semibold">Bookmarked questions</h1>
+      <p className="text-muted-foreground mt-2 font-mono text-sm">
+        {total} questions saved for revision · {mastered} already mastered
+      </p>
 
-        {total === 0 ? (
-          <p className="text-muted-foreground mt-8 max-w-prose">
-            A bookmark marks the thing the app can't infer — a question you got
-            right for the wrong reason. Press <kbd className="font-mono">B</kbd>{' '}
-            or tap the bookmark glyph during a drill to save one here.
-          </p>
-        ) : (
-          <>
-            <div className="mt-4">
-              <DrillBookmarksButton certSlug={cert} count={total} />
-            </div>
-            <ul className="mt-6">
-              {items.map((item) => (
-                <BookmarkRow key={item.questionId} item={item} />
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
+      {total === 0 ? (
+        <p className="text-muted-foreground mt-8 max-w-prose">
+          A bookmark marks the thing the app can't infer — a question you got
+          right for the wrong reason. Press <kbd className="font-mono">B</kbd>{' '}
+          or tap the bookmark glyph during a drill to save one here.
+        </p>
+      ) : (
+        <>
+          <div className="mt-4">
+            <DrillBookmarksButton certSlug={cert} count={total} />
+          </div>
+          <ul className="mt-6">
+            {items.map((item) => (
+              <BookmarkRow key={item.questionId} item={item} />
+            ))}
+          </ul>
+        </>
+      )}
     </PageTemplate>
   )
 }
