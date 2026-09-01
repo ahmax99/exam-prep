@@ -1,9 +1,12 @@
+import { cookies } from 'next/headers'
+
 import {
-  AppRail,
+  AppSidebar,
   BottomTabBar,
   PageHeader,
-  type AppRailPracticeItem
+  type AppSidebarPracticeItem
 } from '@/components/layout'
+import { SidebarProvider } from '@/components/organisms/Sidebar'
 import { logger } from '@/config/logger'
 import { countBookmarks } from '@/features/bookmarks/server/api'
 import { getCertifications } from '@/features/catalog/server/api'
@@ -47,8 +50,9 @@ export default async function PublicLayout({
       )
     : null
   const savedHref = primaryCertSlug ? `/${primaryCertSlug}/bookmarks` : null
+  const sidebarOpen = (await cookies()).get('sidebar_state')?.value !== 'false'
 
-  const practiceItems: AppRailPracticeItem[] = [
+  const practiceItems: AppSidebarPracticeItem[] = [
     {
       label: 'Missed',
       count: primaryMastery?.missed ?? null,
@@ -68,11 +72,11 @@ export default async function PublicLayout({
   ]
 
   return (
-    <>
+    <SidebarProvider className="flex-col" defaultOpen={sidebarOpen}>
       <ErrorScreenProvider />
       <PageHeader />
-      <div className="flex">
-        <AppRail
+      <div className="flex flex-1">
+        <AppSidebar
           certifications={certifications.map((certification) => ({
             slug: certification.slug,
             name: certification.name,
@@ -89,6 +93,6 @@ export default async function PublicLayout({
         </main>
       </div>
       <BottomTabBar savedHref={savedHref} />
-    </>
+    </SidebarProvider>
   )
 }

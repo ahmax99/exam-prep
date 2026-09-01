@@ -1,4 +1,4 @@
-export * from './AppRail'
+export * from './AppSidebar'
 export * from './BottomTabBar'
 export * from './DynamicMarker'
 export * from './PageHeader'
