@@ -8,9 +8,9 @@ interface RunSummaryProps {
 function RunSummary({ headline, outcomes }: Readonly<RunSummaryProps>) {
   return (
     <section data-slot="run-summary">
-      <p className="text-xl leading-snug font-medium text-balance">
+      <h1 className="text-xl leading-snug font-medium text-balance">
         {headline}
-      </p>
+      </h1>
       <p className="text-muted-foreground mt-1 font-mono text-sm">
         {outcomes.score} / {outcomes.total} · {outcomes.percent}%
       </p>

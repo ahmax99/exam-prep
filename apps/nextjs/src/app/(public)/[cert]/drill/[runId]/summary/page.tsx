@@ -90,12 +90,12 @@ export default async function RunSummaryPage({
 
   // A missing certification (a bad slug already 404'd above) must not block
   // the summary itself — fall back to the raw slug in the back link.
-  const certResult = await catchAsyncError(getCertification(cert))
+  const certResult = await catchAsyncError(getCertification(parsedCert.data))
   const backLabel = certResult.match(
     (certification) => `Back to ${certification.name}`,
     (error) => {
       log.error(
-        { error, certSlug: cert },
+        { error, certSlug: parsedCert.data },
         'Failed to load certification name for back link'
       )
       return `Back to ${cert}`
