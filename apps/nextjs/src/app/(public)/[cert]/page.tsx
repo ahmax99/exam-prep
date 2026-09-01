@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
@@ -12,9 +11,12 @@ import {
 import { getCertification, getQuestionMix } from '@/features/catalog/server/api'
 import { ExamList } from '@/features/catalog/server/components/ExamList'
 import { TopicMasteryPanel } from '@/features/catalog/server/components/TopicMasteryPanel'
+import { recommendDrill } from '@/features/drill/lib/recommendation'
+import { RecommendedDrill } from '@/features/drill/server/components/RecommendedDrill'
 import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 import {
+  getDashboard,
   getRecentOutcomes,
   getTopicMastery,
   RECENT_OUTCOME_DAYS
@@ -98,7 +100,7 @@ export default async function CertificationPage({
     )
   }
 
-  const [mix, topics, outcomes] = await Promise.all([
+  const [mix, topics, outcomes, dashboard] = await Promise.all([
     catchAsyncError(getQuestionMix(cert, selectedExam.code)).match(
       (value) => value,
       (error) => {
@@ -119,8 +121,24 @@ export default async function CertificationPage({
         log.error({ error, certSlug: cert }, 'Failed to load recent outcomes')
         return { rightFirstTry: 0, selfGraded: 0, missed: 0 }
       }
+    ),
+    catchAsyncError(getDashboard()).match(
+      (value) => value,
+      (error) => {
+        log.error({ error, certSlug: cert }, 'Failed to load dashboard')
+        return []
+      }
     )
   ])
+
+  const mastery = dashboard.find((entry) => entry.slug === cert)
+  const recommendation = recommendDrill({
+    certSlug: cert,
+    missed: mastery?.missed ?? 0,
+    unseen: mastery?.unseen ?? 0,
+    examCode: selectedExam.code,
+    examQuestionCount: selectedExam.questionCount
+  })
 
   const mixSegments: DoughnutSegment[] = [
     {
@@ -165,16 +183,11 @@ export default async function CertificationPage({
           {selectedExam.topicCount} topics · {selectedExam.objectiveCount}{' '}
           objectives
         </p>
-        <Link
-          className="bg-foreground text-background flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-medium lg:w-fit"
-          data-slot="drill-all-action"
-          href={`/${cert}/drill?scopeKind=EXAM&scopeValue=${selectedExam.code}`}
-        >
-          Drill all {selectedExam.questionCount} →
-        </Link>
+        <RecommendedDrill certSlug={cert} recommendation={recommendation} />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-col gap-2">
+        <h2 className="text-lg font-medium">Or pick a scope</h2>
         <ExamList
           certSlug={cert}
           exams={certification.exams}
