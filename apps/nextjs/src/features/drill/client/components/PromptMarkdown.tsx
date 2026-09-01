@@ -1,3 +1,6 @@
+import { Fragment } from 'react'
+
+import { tokenizeInlineMarkdown } from '@/features/drill/lib/inlineMarkdown'
 import { cn } from '@/utils/mergeClass'
 
 interface PromptMarkdownProps {
@@ -5,26 +8,30 @@ interface PromptMarkdownProps {
   className?: string
 }
 
-const isCodeSpan = (segment: string) =>
-  segment.length >= 2 && segment.startsWith('`') && segment.endsWith('`')
-
 function PromptMarkdown({ text, className }: Readonly<PromptMarkdownProps>) {
-  const segments = text.split(/(`[^`]*`)/)
+  const tokens = tokenizeInlineMarkdown(text)
 
   return (
     <span className={cn(className)} data-slot="prompt-markdown">
-      {segments.map((segment, index) =>
-        isCodeSpan(segment) ? (
-          <code
-            key={`${index}-${segment}`}
-            className="bg-muted rounded px-1 py-0.5 font-mono text-[0.9em]"
-          >
-            {segment.slice(1, -1)}
-          </code>
+      {tokens.map((token, index) => {
+        const key = `${index}-${token.value}`
+        const content =
+          token.kind === 'code' ? (
+            <code className="bg-muted rounded px-1 py-0.5 font-mono text-[0.9em]">
+              {token.value}
+            </code>
+          ) : (
+            token.value
+          )
+
+        return token.bold ? (
+          <strong key={key} className="font-semibold">
+            {content}
+          </strong>
         ) : (
-          segment
+          <Fragment key={key}>{content}</Fragment>
         )
-      )}
+      })}
     </span>
   )
 }

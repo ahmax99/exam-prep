@@ -17,7 +17,7 @@ function BottomTabBar({ savedHref, runsHref }: Readonly<BottomTabBarProps>) {
   return (
     <nav
       aria-label="Primary"
-      className="bg-background border-border fixed inset-x-0 bottom-0 z-40 flex h-16 items-center justify-around border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
+      className="bg-background border-border h-bottom-nav pb-safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t lg:hidden"
       data-slot="bottom-tab-bar"
     >
       {tabs.map(({ label, icon: Icon, href }) => (

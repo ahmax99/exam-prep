@@ -37,7 +37,7 @@ function DrillBookmarksButton({
 
   return (
     <button
-      className="bg-foreground text-background fixed inset-x-4 bottom-20 z-30 flex min-h-11 items-center justify-center rounded-lg px-4 font-medium lg:static lg:inset-auto lg:w-fit"
+      className="bg-foreground text-background flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-medium lg:w-fit"
       data-slot="drill-all-bookmarks"
       type="button"
       onClick={onClick}
