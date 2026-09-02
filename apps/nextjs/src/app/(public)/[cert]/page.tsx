@@ -94,7 +94,9 @@ export default async function CertificationPage({
   if (!selectedExam) {
     return (
       <PageTemplate maxWidth="wide">
-        <h1 className="text-2xl font-semibold">{certification.name}</h1>
+        <h1 className="text-3xl leading-tight font-semibold">
+          {certification.name}
+        </h1>
         <p className="text-muted-foreground mt-4">No exams seeded yet.</p>
       </PageTemplate>
     )
@@ -140,6 +142,12 @@ export default async function CertificationPage({
     examQuestionCount: selectedExam.questionCount
   })
 
+  // Seeded titles already lead with their own code ("Exam 101 Mixed") — only
+  // prefix one that doesn't.
+  const examHeading = selectedExam.title.startsWith(`Exam ${selectedExam.code}`)
+    ? selectedExam.title
+    : `Exam ${selectedExam.code} — ${selectedExam.title}`
+
   const mixSegments: DoughnutSegment[] = [
     {
       label: 'fill in the blank',
@@ -173,12 +181,12 @@ export default async function CertificationPage({
 
   return (
     <PageTemplate maxWidth="wide">
-      <h1 className="text-2xl font-semibold">{certification.name}</h1>
+      <h1 className="text-3xl leading-tight font-semibold">
+        {certification.name}
+      </h1>
       <div className="mt-4 flex flex-col gap-2">
-        <h2 className="text-lg font-medium">
-          Exam {selectedExam.code} — {selectedExam.title}
-        </h2>
-        <p className="text-muted-foreground font-mono text-sm">
+        <h2 className="text-xl leading-snug font-medium">{examHeading}</h2>
+        <p className="text-muted-foreground text-sm">
           {selectedExam.questionCount} questions across{' '}
           {selectedExam.topicCount} topics · {selectedExam.objectiveCount}{' '}
           objectives
@@ -187,7 +195,7 @@ export default async function CertificationPage({
       </div>
 
       <div className="mt-6 flex flex-col gap-2">
-        <h2 className="text-lg font-medium">Or pick a scope</h2>
+        <h2 className="text-xl leading-snug font-medium">Or pick a scope</h2>
         <ExamList
           certSlug={cert}
           exams={certification.exams}

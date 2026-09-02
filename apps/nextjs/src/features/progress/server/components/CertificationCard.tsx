@@ -47,18 +47,18 @@ function CertificationCard({
       </div>
       <p className="font-mono text-3xl">{masteryPercent}%</p>
       <MasteryBar mastered={mastered} shaky={shaky} total={total} />
-      <dl className="text-muted-foreground grid grid-cols-3 gap-2 font-mono text-xs">
+      <dl className="text-muted-foreground grid grid-cols-3 gap-2 text-xs">
         <div>
-          <dt className="uppercase">Mastered</dt>
-          <dd className="text-foreground">{mastered}</dd>
+          <dt>Mastered</dt>
+          <dd className="text-foreground font-mono">{mastered}</dd>
         </div>
         <div>
-          <dt className="uppercase">Missed</dt>
-          <dd className="text-foreground">{missed}</dd>
+          <dt>Missed</dt>
+          <dd className="text-foreground font-mono">{missed}</dd>
         </div>
         <div>
-          <dt className="uppercase">Unseen</dt>
-          <dd className="text-foreground">{unseen}</dd>
+          <dt>Unseen</dt>
+          <dd className="text-foreground font-mono">{unseen}</dd>
         </div>
       </dl>
     </Link>
