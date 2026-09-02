@@ -436,6 +436,11 @@ reason), it gets its own issue: **#11**, a one-line, zero-dependency change to
 assume the dark palette renders — see
 [11-dark-mode-root](./2026-08-29-11-dark-mode-root.md).
 
+> **Superseded 2026-09-02** by issue #44 — see
+> [theme-toggle-system-preference](./2026-09-02-theme-toggle-system-preference.md).
+> The dark-only commitment this decision made is reversed: theming now
+> follows OS preference by default, with a light/dark/system toggle.
+
 ### R5 — Doughnut with a 1% slice
 
 Exam 101 has only 2 multiple-answer questions. At that share the arc is nearly

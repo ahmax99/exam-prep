@@ -1,9 +1,10 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import '../styles/globals.css'
-import { Toaster } from 'sonner'
 
 import { DynamicMarker } from '@/components/layout'
+import { ThemedToaster } from '@/features/theme/client/components/ThemedToaster'
+import { ThemeProvider } from '@/features/theme/client/providers/ThemeProvider'
 import { cn } from '@/utils/mergeClass'
 
 const geistSans = Geist({
@@ -25,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={cn('dark', geistSans.variable, geistMono.variable)}
+      className={cn(geistSans.variable, geistMono.variable)}
       data-scroll-behavior="smooth"
       lang="en"
       suppressHydrationWarning
@@ -37,9 +38,11 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        {children}
-        <Toaster position="bottom-right" richColors />
-        <DynamicMarker />
+        <ThemeProvider>
+          {children}
+          <ThemedToaster />
+          <DynamicMarker />
+        </ThemeProvider>
       </body>
     </html>
   )
