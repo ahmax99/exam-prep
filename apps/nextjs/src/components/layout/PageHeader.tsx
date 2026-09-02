@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { Logo } from '../molecules/Logo'
 import { SidebarTrigger } from '../organisms/Sidebar'
+import { ThemeToggle } from '../organisms/ThemeToggle'
 
 const PageHeader = () => {
   return (
@@ -12,6 +13,9 @@ const PageHeader = () => {
           <Link href="/">
             <Logo />
           </Link>
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
         </div>
       </nav>
     </header>

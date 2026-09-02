@@ -1,6 +1,9 @@
 # Spec: Apply the dark theme to the app root
 
-> Status: Draft · 2026-08-29
+> Status: Superseded 2026-09-02 by
+> [theme-toggle-system-preference](./2026-09-02-theme-toggle-system-preference.md)
+> (issue #44), which reverses the dark-only commitment this spec made.
+> Draft · 2026-08-29
 > Design of record: [docs/specs/2026-08-29-cert-drill-design.md](./2026-08-29-cert-drill-design.md)
 > Backlog issue: **#11** (no dependencies)
 

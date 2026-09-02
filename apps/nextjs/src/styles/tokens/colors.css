@@ -13,7 +13,7 @@
   --muted-foreground: #525252;
   --accent: #ebebeb;
   --accent-foreground: #000000;
-  --destructive: #e54b4f;
+  --destructive: #c62b30;
   --destructive-foreground: #ffffff;
   --success: #1a7f4f;
   --success-foreground: #ffffff;
@@ -27,7 +27,7 @@
   --chart-3: #a4a4a4;
   --chart-4: #e4e4e4;
   --chart-5: #747474;
-  --chart-correct: #24a969;
+  --chart-correct: #1f9760;
   --chart-self-graded: #a57218;
   --chart-missed: #b02a2f;
   --chart-fill-in: #a57218;
