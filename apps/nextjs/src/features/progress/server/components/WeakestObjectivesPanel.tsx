@@ -1,16 +1,18 @@
 import Link from 'next/link'
 
-import { MasteryBar } from '@/components/atoms'
+import { Empty, MasteryBar } from '@/components/atoms'
 import type { WeakestObjective } from '@/features/progress/server/api'
 
 interface WeakestObjectivesPanelProps {
   certSlug: string
   objectives: WeakestObjective[]
+  hasAttempts: boolean
 }
 
 function WeakestObjectivesPanel({
   certSlug,
-  objectives
+  objectives,
+  hasAttempts
 }: Readonly<WeakestObjectivesPanelProps>) {
   return (
     <section
@@ -19,16 +21,18 @@ function WeakestObjectivesPanel({
       data-slot="weakest-objectives-panel"
     >
       <h2 className="text-lg font-semibold">Weakest objectives</h2>
-      {objectives.length === 0 ? (
-        <div className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-lg border p-4">
-          <p>Every objective is untouched.</p>
+      {!hasAttempts || objectives.length === 0 ? (
+        <Empty
+          description="Answer some questions and the objectives you keep missing will rank here, weakest first."
+          title="Nothing ranked yet"
+        >
           <Link
             className="text-foreground min-h-11 w-fit content-center underline"
             href={`/${certSlug}/drill?scopeKind=CERT&scopeValue=${certSlug}`}
           >
             Start drilling
           </Link>
-        </div>
+        </Empty>
       ) : (
         <ul className="flex flex-col gap-2">
           {objectives.map((objective) => (
