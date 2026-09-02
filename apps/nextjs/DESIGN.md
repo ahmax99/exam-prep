@@ -284,8 +284,10 @@ crisp edges, instant feedback.
   with every surface.
 - **Do** keep body text at ≥4.5:1 contrast — Slate Text (#525252) is the
   lightest allowed body/muted color on light surfaces.
-- **Do** honor `prefers-reduced-motion` with a crossfade or instant alternative
-  for every animation.
+- **Do** rely on `src/styles/tokens/motion.css`'s blanket
+  `prefers-reduced-motion` rule, which already covers every animation by
+  default. Reach for a bespoke crossfade only when an animation carries
+  meaning rather than decoration.
 
 ### Don't:
 
