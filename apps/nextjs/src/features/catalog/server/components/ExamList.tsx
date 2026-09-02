@@ -40,12 +40,6 @@ const ExamList = ({
               >
                 <span className="font-mono text-sm">{exam.code}</span>
                 <span className="flex-1 truncate">{exam.title}</span>
-                <span
-                  aria-label={`${exam.questionCount} questions`}
-                  className="text-muted-foreground font-mono text-sm"
-                >
-                  {exam.questionCount}
-                </span>
               </Link>
               {exam.questionCount > 0 && (
                 <Link
