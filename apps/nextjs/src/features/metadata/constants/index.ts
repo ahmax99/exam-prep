@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 
-const TITLE = 'Next.js Boilerplate'
-const DESCRIPTION = 'A production-ready Next.js boilerplate'
+const TITLE = 'Exam Prep'
+const DESCRIPTION =
+  'A spaced-recall drill tool for certification exam prep. Pick a scope, answer a queue of questions, and watch per-objective mastery move.'
 
 export const metadata: Metadata = {
   title: TITLE,
