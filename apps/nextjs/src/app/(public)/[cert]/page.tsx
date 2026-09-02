@@ -138,6 +138,7 @@ export default async function CertificationPage({
     certSlug: cert,
     missed: mastery?.missed ?? 0,
     unseen: mastery?.unseen ?? 0,
+    questionCount: selectedExam.questionCount,
     examCode: selectedExam.code,
     examQuestionCount: selectedExam.questionCount
   })
