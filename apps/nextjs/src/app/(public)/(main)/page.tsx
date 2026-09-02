@@ -29,7 +29,7 @@ export default async function HomePage() {
 
   if (certifications === null) {
     return (
-      <PageTemplate maxWidth="wide">
+      <PageTemplate>
         <h1 className="text-3xl leading-tight font-semibold">
           Practice recall until the exam is boring
         </h1>
@@ -44,7 +44,7 @@ export default async function HomePage() {
 
   if (!primaryCertification) {
     return (
-      <PageTemplate maxWidth="wide">
+      <PageTemplate>
         <h1 className="text-3xl leading-tight font-semibold">
           Practice recall until the exam is boring
         </h1>
@@ -90,7 +90,7 @@ export default async function HomePage() {
   })
 
   return (
-    <PageTemplate maxWidth="wide">
+    <PageTemplate>
       <h1 className="text-3xl leading-tight font-semibold">
         Practice recall until the exam is boring
       </h1>
