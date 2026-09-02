@@ -55,6 +55,34 @@ const runStartRun = async (input: StartRunInput) => {
 export const startRun = (input: StartRunInput) =>
   catchAsyncError(runStartRun(input))
 
+const runStartOrResumeRun = async (
+  input: StartRunInput
+): Promise<{ id: string }> => {
+  const db = await getPrismaClient()
+
+  // A run with no attempts is not worth resuming: it holds no progress and its
+  // queue was frozen at creation, so a fresh one is strictly more current.
+  const resumable = await db.drillRun.findFirst({
+    where: {
+      // Runs don't record certSlug, so a second certification reusing an exam
+      // code would need that column before this lookup stays exact.
+      scopeKind: input.scopeKind,
+      scopeValue: input.scopeValue,
+      finishedAt: null,
+      attempts: { some: {} }
+    },
+    // Recency alone would hand back a newer empty run and strand the answers
+    // sitting in an older one, so attempt count outranks it.
+    orderBy: [{ attempts: { _count: 'desc' } }, { startedAt: 'desc' }],
+    select: { id: true }
+  })
+
+  return resumable ?? runStartRun(input)
+}
+
+export const startOrResumeRun = (input: StartRunInput) =>
+  catchAsyncError(runStartOrResumeRun(input))
+
 const runGetRun = async (id: string) => {
   const db = await getPrismaClient()
   const run = await db.drillRun.findUnique({ where: { id } })

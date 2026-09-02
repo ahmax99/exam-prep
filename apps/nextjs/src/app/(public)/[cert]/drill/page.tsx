@@ -6,7 +6,7 @@ import { logger } from '@/config/logger'
 import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
 import { getCertification } from '@/features/catalog/server/api'
 import { drillLauncherParamsSchema } from '@/features/drill/schemas/drillLauncherParams.schema'
-import { startRun } from '@/features/drill/server/api'
+import { startOrResumeRun, startRun } from '@/features/drill/server/api'
 import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 
@@ -74,7 +74,11 @@ export default async function DrillLauncherPage({
     return failureFallback
   }
 
-  const runResult = await startRun({ ...parsedScope.data, certSlug: cert })
+  // Re-entering a scope resumes the run already holding answers; `?fresh=1`
+  // opts out and queues the scope again from the start.
+  const { fresh, ...scope } = parsedScope.data
+  const enterRun = fresh ? startRun : startOrResumeRun
+  const runResult = await enterRun({ ...scope, certSlug: cert })
   if (runResult.isErr()) {
     // A scope kind whose required `scopeValue` the URL omitted — a malformed
     // link, not a transient failure a retry could fix.
