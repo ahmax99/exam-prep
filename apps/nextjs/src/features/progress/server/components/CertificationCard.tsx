@@ -9,6 +9,24 @@ interface CertificationCardProps {
   mastery: CertificationMastery | null
 }
 
+// The name/vendor row every branch below shares.
+const CardHeading = ({
+  certification,
+  muted
+}: Readonly<{
+  certification: CertificationSummary
+  muted: boolean
+}>) => (
+  <div className="flex items-baseline justify-between gap-2">
+    <span className={muted ? 'text-foreground font-medium' : 'font-medium'}>
+      {certification.name}
+    </span>
+    <span className={muted ? 'text-sm' : 'text-muted-foreground text-sm'}>
+      {certification.vendor}
+    </span>
+  </div>
+)
+
 function CertificationCard({
   certification,
   mastery
@@ -19,19 +37,29 @@ function CertificationCard({
         className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-lg border p-4"
         data-slot="certification-card"
       >
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-foreground font-medium">
-            {certification.name}
-          </span>
-          <span className="text-sm">{certification.vendor}</span>
-        </div>
-        <p className="font-mono text-3xl">—</p>
+        <CardHeading certification={certification} muted />
         <p className="text-sm">No questions imported yet</p>
       </div>
     )
   }
 
-  const { mastered, missed, unseen, masteryPercent, shaky, total } = mastery
+  const { mastered, missed, unseen, masteryPercent, shaky, total, attempted } =
+    mastery
+
+  if (attempted === 0) {
+    return (
+      <Link
+        className="border-border bg-card hover:border-foreground/30 flex min-h-11 flex-col gap-3 rounded-lg border p-4 transition-colors"
+        data-slot="certification-card"
+        href={`/${certification.slug}`}
+      >
+        <CardHeading certification={certification} muted={false} />
+        <p className="text-muted-foreground text-sm">
+          {total} questions · none attempted yet
+        </p>
+      </Link>
+    )
+  }
 
   return (
     <Link
@@ -39,12 +67,7 @@ function CertificationCard({
       data-slot="certification-card"
       href={`/${certification.slug}`}
     >
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="font-medium">{certification.name}</span>
-        <span className="text-muted-foreground text-sm">
-          {certification.vendor}
-        </span>
-      </div>
+      <CardHeading certification={certification} muted={false} />
       <p className="font-mono text-3xl">{masteryPercent}%</p>
       <MasteryBar mastered={mastered} shaky={shaky} total={total} />
       <dl className="text-muted-foreground grid grid-cols-3 gap-2 text-xs">

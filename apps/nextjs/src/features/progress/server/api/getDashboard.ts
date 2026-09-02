@@ -10,6 +10,7 @@ export interface CertificationMastery {
   shaky: number
   missed: number
   unseen: number
+  attempted: number
   total: number
   masteryPercent: number
 }
@@ -42,8 +43,11 @@ export const getDashboard = cache(async (): Promise<CertificationMastery[]> => {
 
   return rows.map((row) => {
     const unseen = row.total - row.mastered - row.shaky - row.missed
+    // MasteryState is exactly WRONG|SHAKY|MASTERED and a missing QuestionProgress
+    // row means "unseen", so this sum is the certification's attempt existence check.
+    const attempted = row.mastered + row.shaky + row.missed
     const masteryPercent =
       row.total === 0 ? 0 : Math.round((row.mastered / row.total) * 100)
-    return { ...row, unseen, masteryPercent }
+    return { ...row, unseen, attempted, masteryPercent }
   })
 })
