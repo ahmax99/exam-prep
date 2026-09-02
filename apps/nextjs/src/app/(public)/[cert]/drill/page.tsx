@@ -26,7 +26,7 @@ interface DrillLauncherPageProps {
 }
 
 const failureFallback = (
-  <PageTemplate maxWidth="wide">
+  <PageTemplate>
     <p className="text-muted-foreground">
       Something went wrong starting this drill. Try again.
     </p>
@@ -34,7 +34,7 @@ const failureFallback = (
 )
 
 const emptyScope = (certSlug: string) => (
-  <PageTemplate maxWidth="wide">
+  <PageTemplate>
     <div data-slot="drill-launcher-empty">
       <h1 className="text-2xl font-semibold">Nothing to drill</h1>
       <p className="text-muted-foreground mt-2 max-w-prose">

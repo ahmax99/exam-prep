@@ -10,6 +10,9 @@ export const dynamic = 'force-dynamic'
 
 const log = logger.child({ module: 'drill-page' })
 
+// Hoisted so the success and error branches can't drift apart.
+const drillMainClassName = 'px-4 py-6 lg:flex lg:min-h-dvh lg:justify-center'
+
 export const generateMetadata = () =>
   generatePageMetadata({
     title: 'Drill',
@@ -48,17 +51,19 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
 
       return (
         <main
-          className="mx-auto w-full max-w-[40rem] px-4 py-6"
+          className={drillMainClassName}
           data-slot="drill-page"
           id="main-content"
           tabIndex={-1}
         >
-          <DrillCard
-            certSlug={cert}
-            questions={drillQuestions}
-            runId={runId}
-            startIndex={startIndex}
-          />
+          <div className="mx-auto w-full max-w-[40rem] lg:my-auto xl:max-w-[67rem]">
+            <DrillCard
+              certSlug={cert}
+              questions={drillQuestions}
+              runId={runId}
+              startIndex={startIndex}
+            />
+          </div>
         </main>
       )
     },
@@ -70,15 +75,17 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
       log.error({ error, runId }, 'Failed to load drill run')
       return (
         <main
-          className="mx-auto w-full max-w-[40rem] px-4 py-6"
+          className={drillMainClassName}
           data-slot="drill-page"
           id="main-content"
           tabIndex={-1}
         >
-          <h1 className="sr-only">Drill</h1>
-          <p className="text-muted-foreground">
-            Something went wrong loading this run. Try refreshing.
-          </p>
+          <div className="mx-auto w-full max-w-[40rem] lg:my-auto">
+            <h1 className="sr-only">Drill</h1>
+            <p className="text-muted-foreground">
+              Something went wrong loading this run. Try refreshing.
+            </p>
+          </div>
         </main>
       )
     }

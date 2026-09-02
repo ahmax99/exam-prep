@@ -77,7 +77,7 @@ export default async function CertificationPage({
       'Failed to load certification'
     )
     return (
-      <PageTemplate maxWidth="wide">
+      <PageTemplate>
         <p className="text-muted-foreground">
           Something went wrong loading this certification. Try refreshing.
         </p>
@@ -93,7 +93,7 @@ export default async function CertificationPage({
 
   if (!selectedExam) {
     return (
-      <PageTemplate maxWidth="wide">
+      <PageTemplate>
         <h1 className="text-3xl leading-tight font-semibold">
           {certification.name}
         </h1>
@@ -180,7 +180,7 @@ export default async function CertificationPage({
   ]
 
   return (
-    <PageTemplate maxWidth="wide">
+    <PageTemplate>
       <h1 className="text-3xl leading-tight font-semibold">
         {certification.name}
       </h1>

@@ -16,6 +16,7 @@ import { submitAnswer } from '../lib/submitAnswer'
 import { buildVerdictAnnouncement } from '../lib/verdictAnnouncement'
 
 import { ChoiceOptions } from './ChoiceOptions'
+import { DrillContextRail } from './DrillContextRail'
 import { ExplanationPanel } from './ExplanationPanel'
 import { FillInField } from './FillInField'
 import { PromptMarkdown } from './PromptMarkdown'
@@ -224,125 +225,141 @@ function DrillCard({
     // to show itself to and would just be visual noise.
     <article
       ref={containerRef}
-      className="border-border bg-card rounded-lg border p-4 pb-24 outline-none md:p-6 md:pb-6"
+      className="border-border bg-card rounded-lg border p-4 pb-24 outline-none md:p-6 md:pb-6 xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start xl:gap-8"
       data-slot="drill-card"
       tabIndex={-1}
     >
-      <h1 className="sr-only">
-        Question {currentIndex + 1} of {questions.length}, objective{' '}
-        {question.objective}
-      </h1>
+      <div className="min-w-0">
+        <h1 className="sr-only">
+          Question {currentIndex + 1} of {questions.length}, objective{' '}
+          {question.objective}
+        </h1>
 
-      <header className="mb-4 flex items-center justify-between gap-4">
-        <div className="flex flex-1 items-center gap-3">
-          <span aria-hidden="true" className="font-mono text-sm">
-            {currentIndex + 1} / {questions.length}
-          </span>
-          <span
-            aria-hidden="true"
-            className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full"
-          >
+        <header className="mb-4 flex items-center justify-between gap-4 xl:justify-end">
+          <div className="flex flex-1 items-center gap-3 xl:hidden">
+            <span aria-hidden="true" className="font-mono text-sm">
+              {currentIndex + 1} / {questions.length}
+            </span>
             <span
-              className="bg-foreground block h-full rounded-full"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </span>
-        </div>
-        <Link className="text-muted-foreground text-sm" href={`/${certSlug}`}>
-          Exit
-        </Link>
-      </header>
+              aria-hidden="true"
+              className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full"
+            >
+              <span
+                className="bg-foreground block h-full rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </span>
+          </div>
+          <Link className="text-muted-foreground text-sm" href={`/${certSlug}`}>
+            Exit
+          </Link>
+        </header>
 
-      <QuestionMeta
-        initialBookmarked={question.isBookmarked}
-        objective={question.objective}
-        questionId={question.id}
-        timesSeen={question.timesSeen}
-        toggleRef={bookmarkToggleRef}
-        type={question.type}
-      />
-
-      <p className="my-4 text-base leading-relaxed">
-        <PromptMarkdown text={question.prompt} />
-      </p>
-
-      {question.type === 'FILL_IN' ? (
-        <FillInField
-          // Keyed on question id so React remounts the input (and its
-          // autoFocus) per fill-in question, instead of reusing the same
-          // DOM node whose focus was already spent on the previous one.
-          key={question.id}
-          isSubmitting={isSubmitting}
-          value={fillInValue}
-          verdict={verdict}
-          onChange={setFillInValue}
-          onSubmit={submitFillIn}
+        <QuestionMeta
+          initialBookmarked={question.isBookmarked}
+          objective={question.objective}
+          questionId={question.id}
+          timesSeen={question.timesSeen}
+          toggleRef={bookmarkToggleRef}
+          type={question.type}
         />
-      ) : (
-        <>
-          <ChoiceOptions
-            correctLetters={verdict?.correctLetters ?? null}
-            isAnswered={verdict !== null}
-            options={question.options}
-            selectedLetters={selectedLetters}
-            type={question.type}
-            onToggle={toggle}
+
+        {/* max-w-[75ch]: a hard ceiling on DESIGN.md's 65-75ch body measure,
+            independent of the grid math above — protects the prompt column
+            from ever exceeding it regardless of viewport or font metrics. */}
+        <p className="my-4 max-w-[75ch] text-base leading-relaxed">
+          <PromptMarkdown text={question.prompt} />
+        </p>
+
+        {question.type === 'FILL_IN' ? (
+          <FillInField
+            // Keyed on question id so React remounts the input (and its
+            // autoFocus) per fill-in question, instead of reusing the same
+            // DOM node whose focus was already spent on the previous one.
+            key={question.id}
+            isSubmitting={isSubmitting}
+            value={fillInValue}
+            verdict={verdict}
+            onChange={setFillInValue}
+            onSubmit={submitFillIn}
           />
-          {verdict && <ExplanationPanel explanation={verdict.explanation} />}
-        </>
-      )}
+        ) : (
+          <>
+            <ChoiceOptions
+              correctLetters={verdict?.correctLetters ?? null}
+              isAnswered={verdict !== null}
+              options={question.options}
+              selectedLetters={selectedLetters}
+              type={question.type}
+              onToggle={toggle}
+            />
+            {verdict && <ExplanationPanel explanation={verdict.explanation} />}
+          </>
+        )}
 
-      {/* Always mounted (content toggles empty/set) — a live region only
-          reliably announces a state change if it existed before the change;
-          mounting it alongside the verdict text drops the first announcement
-          on some screen readers. Covers both the submit verdict and the
-          self-grade outcome; see liveAnnouncement above. */}
-      <p aria-live="polite" className="sr-only" role="status">
-        {liveAnnouncement}
-      </p>
+        {/* Always mounted (content toggles empty/set) — a live region only
+            reliably announces a state change if it existed before the change;
+            mounting it alongside the verdict text drops the first announcement
+            on some screen readers. Covers both the submit verdict and the
+            self-grade outcome; see liveAnnouncement above. */}
+        <p aria-live="polite" className="sr-only" role="status">
+          {liveAnnouncement}
+        </p>
 
-      {(verdict?.verdict === 'no-match' || selfGradeOutcome !== null) && (
-        <SelfGradePanel
-          isSubmitting={isSelfGradeSubmitting}
-          outcome={selfGradeOutcome}
-          onHadIt={() => submitSelfGrade(true)}
-          onMissedIt={() => submitSelfGrade(false)}
-        />
-      )}
+        {(verdict?.verdict === 'no-match' || selfGradeOutcome !== null) && (
+          <SelfGradePanel
+            isSubmitting={isSelfGradeSubmitting}
+            outcome={selfGradeOutcome}
+            onHadIt={() => submitSelfGrade(true)}
+            onMissedIt={() => submitSelfGrade(false)}
+          />
+        )}
 
-      {!isBlocked && (
-        <div className="bg-background border-border fixed inset-x-0 bottom-0 flex items-center gap-3 border-t p-4 md:static md:mt-6 md:border-0 md:bg-transparent md:p-0">
-          {verdict ? (
-            <Button className="ml-auto" onClick={goNext}>
-              Next question
-              <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
-                ↵
-              </kbd>
-            </Button>
-          ) : (
-            <>
-              <Button variant="ghost" onClick={skip}>
-                Skip
+        {!isBlocked && (
+          <div className="bg-background border-border fixed inset-x-0 bottom-0 flex items-center gap-3 border-t p-4 md:static md:mt-6 md:border-0 md:bg-transparent md:p-0">
+            {verdict ? (
+              <Button className="ml-auto" onClick={goNext}>
+                Next question
                 <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
-                  S
+                  ↵
                 </kbd>
               </Button>
-              {question.type !== 'FILL_IN' && (
-                <Button
-                  className="ml-auto"
-                  disabled={selectedLetters.length === 0 || isSubmitting}
-                  onClick={submit}
-                >
-                  Submit
-                  <kbd className="text-primary-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
-                    ↵
+            ) : (
+              <>
+                <Button variant="ghost" onClick={skip}>
+                  Skip
+                  <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
+                    S
                   </kbd>
                 </Button>
-              )}
-            </>
-          )}
-        </div>
-      )}
+                {question.type !== 'FILL_IN' && (
+                  <Button
+                    className="ml-auto"
+                    disabled={selectedLetters.length === 0 || isSubmitting}
+                    onClick={submit}
+                  >
+                    Submit
+                    <kbd className="text-primary-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
+                      ↵
+                    </kbd>
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <DrillContextRail
+        currentIndex={currentIndex}
+        hasOptions={question.options.length > 0}
+        isAnswered={verdict !== null}
+        isSelfGrading={
+          verdict?.verdict === 'no-match' || selfGradeOutcome !== null
+        }
+        progressPercent={progressPercent}
+        questionCount={questions.length}
+      />
     </article>
   )
 }

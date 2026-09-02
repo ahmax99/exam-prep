@@ -25,7 +25,7 @@ interface RunsPageProps {
 }
 
 const failureFallback = (
-  <PageTemplate maxWidth="wide">
+  <PageTemplate>
     <p className="text-muted-foreground">
       Something went wrong loading this page. Try refreshing.
     </p>
@@ -62,7 +62,6 @@ export default async function RunsPage({ params }: Readonly<RunsPageProps>) {
   return (
     <PageTemplate
       back={{ href: `/${cert}`, label: `Back to ${certification.name}` }}
-      maxWidth="wide"
     >
       <div className="pb-16 lg:pb-0">
         <h1 className="text-2xl font-semibold">Runs</h1>

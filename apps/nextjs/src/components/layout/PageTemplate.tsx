@@ -10,7 +10,6 @@ interface PageTemplateProps {
     href: string
     label: string
   }
-  maxWidth?: 'regular' | 'wide'
   fullHeight?: boolean
   children: React.ReactNode
 }
@@ -18,7 +17,6 @@ interface PageTemplateProps {
 function PageTemplate({
   alignment = 'left',
   back,
-  maxWidth = 'regular',
   fullHeight = false,
   children
 }: Readonly<PageTemplateProps>) {
@@ -36,12 +34,7 @@ function PageTemplate({
   }
 
   return (
-    <article
-      className={cn(
-        'mx-auto my-6 px-4',
-        maxWidth === 'wide' ? 'max-w-3xl' : 'max-w-2xl'
-      )}
-    >
+    <article className="mx-auto my-6 w-full max-w-3xl px-4 lg:max-w-[80rem] lg:px-8">
       {back && (
         <nav aria-label="back" className="mb-10">
           <Link

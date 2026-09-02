@@ -20,7 +20,7 @@ function MasteryBar({
     <div
       aria-label={`${Math.round(masteredPercent)}% mastered`}
       className={cn(
-        'bg-muted flex h-2 overflow-hidden rounded-full',
+        'border-muted-foreground/75 bg-muted flex h-2 overflow-hidden rounded-full border',
         className
       )}
       data-slot="mastery-bar"
