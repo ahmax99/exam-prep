@@ -25,7 +25,7 @@ interface BookmarksPageProps {
 }
 
 const failureFallback = (
-  <PageTemplate maxWidth="wide">
+  <PageTemplate>
     <p className="text-muted-foreground">
       Something went wrong loading this page. Try refreshing.
     </p>
@@ -63,7 +63,7 @@ export default async function BookmarksPage({
   const mastered = items.filter((item) => item.state === 'MASTERED').length
 
   return (
-    <PageTemplate maxWidth="wide">
+    <PageTemplate>
       <h1 className="text-2xl font-semibold">Bookmarked questions</h1>
       <p className="text-muted-foreground mt-2 text-sm">
         {total} questions saved for revision · {mastered} already mastered

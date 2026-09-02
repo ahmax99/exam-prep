@@ -56,7 +56,7 @@ export default async function RunSummaryPage({
       'Failed to load run summary'
     )
     return (
-      <PageTemplate maxWidth="wide">
+      <PageTemplate>
         <p className="text-muted-foreground">
           Something went wrong loading this summary. Try refreshing.
         </p>
@@ -108,7 +108,7 @@ export default async function RunSummaryPage({
   )
 
   return (
-    <PageTemplate back={{ href: `/${cert}`, label: backLabel }} maxWidth="wide">
+    <PageTemplate back={{ href: `/${cert}`, label: backLabel }}>
       <div className="pb-24 md:pb-0">
         <RunSummary headline={headline} outcomes={summary.outcomes} />
         <SummaryActions
