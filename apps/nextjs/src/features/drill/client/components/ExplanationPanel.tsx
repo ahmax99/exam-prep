@@ -11,9 +11,6 @@ function ExplanationPanel({ explanation }: Readonly<ExplanationPanelProps>) {
       className="border-border bg-card mt-4 rounded-lg border p-4"
       data-slot="explanation-panel"
     >
-      <p className="text-muted-foreground mb-1 text-xs font-medium tracking-wide uppercase">
-        Explanation
-      </p>
       <PromptMarkdown text={explanation} />
     </section>
   )

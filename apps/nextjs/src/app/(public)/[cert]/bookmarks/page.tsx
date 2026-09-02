@@ -65,7 +65,7 @@ export default async function BookmarksPage({
   return (
     <PageTemplate maxWidth="wide">
       <h1 className="text-2xl font-semibold">Bookmarked questions</h1>
-      <p className="text-muted-foreground mt-2 font-mono text-sm">
+      <p className="text-muted-foreground mt-2 text-sm">
         {total} questions saved for revision · {mastered} already mastered
       </p>
 

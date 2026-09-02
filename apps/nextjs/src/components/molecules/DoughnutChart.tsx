@@ -90,9 +90,7 @@ const DoughnutChart = ({
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
           <span className="font-mono text-2xl">{total}</span>
-          <span className="text-muted-foreground font-mono text-[10px] uppercase">
-            {unit}
-          </span>
+          <span className="text-muted-foreground text-[10px]">{unit}</span>
         </div>
       </div>
       {total === 0 ? (
