@@ -10,7 +10,14 @@ export const drillLauncherParamsSchema = z.object({
   // `.catch` (as in certPageParamsSchema) keeps a stale or hand-edited
   // `?limit=` from 404-ing the launcher — it falls back to undefined, which
   // `startRun` reads as "every question in scope", not a smaller default.
-  limit: z.coerce.number().int().min(1).optional().catch(undefined)
+  limit: z.coerce.number().int().min(1).optional().catch(undefined),
+  // Escape hatch from auto-resume: `?fresh=1` forces a brand-new queue. Same
+  // `.catch` reasoning as `limit` — a junk value starts a run, not a 404.
+  fresh: z
+    .literal('1')
+    .optional()
+    .catch(undefined)
+    .transform((value) => value === '1')
 })
 
 export type DrillLauncherParams = z.infer<typeof drillLauncherParamsSchema>
