@@ -11,6 +11,7 @@ interface DrillKeyHandlers {
   onBookmark: () => void
   onSelfGradeHadIt?: () => void
   onSelfGradeMissedIt?: () => void
+  onPrevious?: () => void
 }
 
 const isTextEntryTarget = (target: EventTarget | null) =>
@@ -50,16 +51,14 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
         return
       }
 
-      if (!/^[a-z]$/i.test(event.key)) return
-      const letter = event.key.toUpperCase()
-
-      // B is reserved for the bookmark toggle even when the question has a
-      // lettered "B" option (plan Decision 4: the key always means bookmark).
-      if (letter === 'B') {
+      if (event.key === 'Backspace') {
         event.preventDefault()
-        current.onBookmark()
+        current.onPrevious?.()
         return
       }
+
+      if (!/^[a-z]$/i.test(event.key)) return
+      const letter = event.key.toUpperCase()
 
       if (current.optionLetters.includes(letter)) {
         event.preventDefault()
@@ -68,6 +67,12 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       }
 
       switch (letter) {
+        case 'B':
+          // B only bookmarks when the question has no lettered B option —
+          // otherwise the visible option wins.
+          event.preventDefault()
+          current.onBookmark()
+          break
         case 'S':
           event.preventDefault()
           current.onSkip()

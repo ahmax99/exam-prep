@@ -6,7 +6,8 @@ interface DrillContextRailProps {
   progressPercent: number
   isAnswered: boolean
   isSelfGrading: boolean
-  hasOptions: boolean
+  optionLetters: string[]
+  canGoPrevious: boolean
 }
 
 // Purely presentational: no state, no handlers, no focusable elements — it
@@ -18,7 +19,8 @@ function DrillContextRail({
   progressPercent,
   isAnswered,
   isSelfGrading,
-  hasOptions
+  optionLetters,
+  canGoPrevious
 }: Readonly<DrillContextRailProps>) {
   return (
     <aside
@@ -42,7 +44,7 @@ function DrillContextRail({
       <div className="mt-8">
         <p className="text-muted-foreground text-sm">Shortcuts</p>
         <dl className="mt-2 flex flex-col gap-1.5 text-sm">
-          {hasOptions && !isAnswered && (
+          {optionLetters.length > 0 && (
             <div className="flex items-center gap-2">
               <dt>
                 <kbd className="font-mono text-xs">A–Z</kbd>
@@ -58,18 +60,28 @@ function DrillContextRail({
               {isAnswered ? 'Next question' : 'Submit'}
             </dd>
           </div>
+          {canGoPrevious && (
+            <div className="flex items-center gap-2">
+              <dt>
+                <kbd className="font-mono text-xs">⌫</kbd>
+              </dt>
+              <dd className="text-muted-foreground">Previous question</dd>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <dt>
               <kbd className="font-mono text-xs">S</kbd>
             </dt>
             <dd className="text-muted-foreground">Skip</dd>
           </div>
-          <div className="flex items-center gap-2">
-            <dt>
-              <kbd className="font-mono text-xs">B</kbd>
-            </dt>
-            <dd className="text-muted-foreground">Bookmark</dd>
-          </div>
+          {!optionLetters.includes('B') && (
+            <div className="flex items-center gap-2">
+              <dt>
+                <kbd className="font-mono text-xs">B</kbd>
+              </dt>
+              <dd className="text-muted-foreground">Bookmark</dd>
+            </div>
+          )}
           {isSelfGrading && (
             <>
               <div className="flex items-center gap-2">

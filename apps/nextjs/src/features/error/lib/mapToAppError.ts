@@ -20,6 +20,13 @@ const stringifyUnknownError = (error: unknown) => {
   }
 }
 
+// The raw text stays reachable for debugging but never reaches a toast or a
+// response body — `message` is user-facing everywhere AppError is rendered.
+const withCause = (appError: AppError, cause: unknown) => {
+  appError.cause = cause
+  return appError
+}
+
 export const mapToAppError = (error: unknown) => {
   switch (true) {
     case error instanceof AppError:
@@ -29,8 +36,11 @@ export const mapToAppError = (error: unknown) => {
         STATUS_TO_CODE[error.response.status] ?? 'INTERNAL_ERROR'
       )
     case error instanceof Error:
-      return new AppError('INTERNAL_ERROR', error.message)
+      return withCause(new AppError('INTERNAL_ERROR'), error)
     default:
-      return new AppError('INTERNAL_ERROR', stringifyUnknownError(error))
+      return withCause(
+        new AppError('INTERNAL_ERROR'),
+        stringifyUnknownError(error)
+      )
   }
 }
