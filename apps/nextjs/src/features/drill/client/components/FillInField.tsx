@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from 'react'
 
-import { Button } from '@/components/atoms'
 import type { AnswerVerdict } from '@/features/drill/schemas/answerVerdict.schema'
 import { cn } from '@/utils/mergeClass'
 
@@ -13,21 +12,19 @@ import { PromptMarkdown } from './PromptMarkdown'
 interface FillInFieldProps {
   value: string
   verdict: AnswerVerdict | null
-  isSubmitting: boolean
   onChange: (value: string) => void
   onSubmit: () => void
 }
 
 const verdictLabels: Record<AnswerVerdict['verdict'], string> = {
-  matched: 'Matched',
-  'no-match': 'No match — did you have it?',
+  matched: 'Matched — we recognized your answer.',
+  'no-match': "We couldn't match your answer automatically — did you have it?",
   wrong: 'Incorrect'
 }
 
 function FillInField({
   value,
   verdict,
-  isSubmitting,
   onChange,
   onSubmit
 }: Readonly<FillInFieldProps>) {
@@ -61,7 +58,28 @@ function FillInField({
 
   return (
     <div data-slot="fill-in-field-container">
-      <div className="flex items-center gap-3">
+      {verdict && (
+        <p className="text-sm font-medium" data-slot="fill-in-verdict">
+          {verdictLabels[verdict.verdict]}
+        </p>
+      )}
+
+      {verdict && verdict.verdict !== 'matched' && verdict.answerDisplay && (
+        <div className="mt-2">
+          <p className="text-muted-foreground text-sm">Correct answer</p>
+          <p
+            className="mt-1 font-mono text-lg font-medium"
+            data-slot="fill-in-correct-answer"
+          >
+            <PromptMarkdown text={verdict.answerDisplay} />
+          </p>
+        </div>
+      )}
+
+      <div className="mt-2">
+        {verdict !== null && (
+          <p className="text-muted-foreground text-sm">Your answer</p>
+        )}
         <input
           ref={inputRef}
           aria-label="Your answer"
@@ -70,6 +88,7 @@ function FillInField({
           autoCorrect="off"
           autoFocus
           className={cn(
+            'mt-1',
             fillInFieldVariants({ state: verdict?.verdict ?? 'idle' })
           )}
           data-slot="fill-in-field"
@@ -80,25 +99,7 @@ function FillInField({
           onChange={(event) => onChange(event.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <Button
-          disabled={verdict !== null || value.trim() === '' || isSubmitting}
-          onClick={onSubmit}
-        >
-          Submit
-        </Button>
       </div>
-
-      {verdict?.verdict !== 'matched' && verdict?.answerDisplay && (
-        <p className="text-muted-foreground mt-2 text-sm">
-          <PromptMarkdown text={verdict.answerDisplay} />
-        </p>
-      )}
-
-      {verdict && (
-        <p className="mt-2 text-sm font-medium">
-          {verdictLabels[verdict.verdict]}
-        </p>
-      )}
 
       {verdict && <ExplanationPanel explanation={verdict.explanation} />}
     </div>
