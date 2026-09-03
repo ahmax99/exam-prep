@@ -123,34 +123,23 @@ function DrillCard({
     setSelfGradeOutcome(null)
   }
 
+  const isFillIn = question?.type === 'FILL_IN'
+  const canSubmit = isFillIn
+    ? fillInValue.trim() !== ''
+    : selectedLetters.length > 0
+
   const submit = () => {
-    if (!question || selectedLetters.length === 0 || isSubmittingRef.current)
-      return
+    if (!question || !canSubmit || isSubmittingRef.current) return
     isSubmittingRef.current = true
     setIsSubmitting(true)
-    const response =
-      question.type === 'SINGLE_ANSWER'
+    // Raw, untrimmed value — the client never normalizes a fill-in answer.
+    const response = isFillIn
+      ? fillInValue
+      : question.type === 'SINGLE_ANSWER'
         ? (selectedLetters[0] ?? '')
         : selectedLetters
 
     submitAnswer({ runId, questionId: question.id, response })
-      .match(
-        (result) => setVerdict(result),
-        (error) => toast.error(error.message)
-      )
-      .finally(() => {
-        isSubmittingRef.current = false
-        setIsSubmitting(false)
-      })
-  }
-
-  const submitFillIn = () => {
-    if (!question || fillInValue.trim() === '' || isSubmittingRef.current)
-      return
-    isSubmittingRef.current = true
-    setIsSubmitting(true)
-    // Raw, untrimmed value — the client never normalizes a fill-in answer.
-    submitAnswer({ runId, questionId: question.id, response: fillInValue })
       .match(
         (result) => setVerdict(result),
         (error) => toast.error(error.message)
@@ -277,11 +266,10 @@ function DrillCard({
             // autoFocus) per fill-in question, instead of reusing the same
             // DOM node whose focus was already spent on the previous one.
             key={question.id}
-            isSubmitting={isSubmitting}
             value={fillInValue}
             verdict={verdict}
             onChange={setFillInValue}
-            onSubmit={submitFillIn}
+            onSubmit={submit}
           />
         ) : (
           <>
@@ -315,39 +303,38 @@ function DrillCard({
           />
         )}
 
-        {!isBlocked && (
-          <div className="bg-background border-border fixed inset-x-0 bottom-0 flex items-center gap-3 border-t p-4 md:static md:mt-6 md:border-0 md:bg-transparent md:p-0">
-            {verdict ? (
-              <Button className="ml-auto" onClick={goNext}>
-                Next question
+        <div
+          className="bg-background border-border fixed inset-x-0 bottom-0 flex items-center gap-3 border-t p-4 md:static md:mt-6 md:border-0 md:bg-transparent md:p-0"
+          data-slot="drill-action-bar"
+        >
+          {verdict ? (
+            <Button className="ml-auto" disabled={isBlocked} onClick={goNext}>
+              Next question
+              <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
+                ↵
+              </kbd>
+            </Button>
+          ) : (
+            <>
+              <Button disabled={isBlocked} variant="ghost" onClick={skip}>
+                Skip
                 <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
+                  S
+                </kbd>
+              </Button>
+              <Button
+                className="ml-auto"
+                disabled={!canSubmit || isSubmitting}
+                onClick={submit}
+              >
+                Submit
+                <kbd className="text-primary-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
                   ↵
                 </kbd>
               </Button>
-            ) : (
-              <>
-                <Button variant="ghost" onClick={skip}>
-                  Skip
-                  <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
-                    S
-                  </kbd>
-                </Button>
-                {question.type !== 'FILL_IN' && (
-                  <Button
-                    className="ml-auto"
-                    disabled={selectedLetters.length === 0 || isSubmitting}
-                    onClick={submit}
-                  >
-                    Submit
-                    <kbd className="text-primary-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
-                      ↵
-                    </kbd>
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
       </div>
 
       <DrillContextRail
