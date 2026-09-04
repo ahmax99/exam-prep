@@ -45,3 +45,38 @@ export const buildVerdictAnnouncement = (
       return verdict satisfies never
   }
 }
+
+interface LiveAnnouncementInput {
+  question: AnnouncementQuestion | undefined
+  verdict: AnswerVerdict | null
+  selfGradeOutcome: 'had-it' | 'missed-it' | null
+  selectedLetters: string[]
+  hasNavigated: boolean
+  position: string
+}
+
+const SELF_GRADE_ANNOUNCEMENTS: Record<'had-it' | 'missed-it', string> = {
+  'had-it': 'Recorded: had it.',
+  'missed-it': 'Recorded: missed it.'
+}
+
+/**
+ * What the card's live region says right now, or `''` for silence.
+ *
+ * Priority is deliberate: self-grading rewrites the verdict (see runSelfGrade),
+ * so once an outcome exists it is the freshest fact and wins over restating the
+ * verdict. Position is announced only after a real navigation, never on mount.
+ */
+export const buildLiveAnnouncement = ({
+  question,
+  verdict,
+  selfGradeOutcome,
+  selectedLetters,
+  hasNavigated,
+  position
+}: LiveAnnouncementInput): string => {
+  if (selfGradeOutcome) return SELF_GRADE_ANNOUNCEMENTS[selfGradeOutcome]
+  if (verdict && question)
+    return buildVerdictAnnouncement(question, verdict, selectedLetters)
+  return hasNavigated ? position : ''
+}

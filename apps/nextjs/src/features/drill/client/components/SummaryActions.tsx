@@ -14,14 +14,12 @@ interface SummaryActionsProps {
   runId: string
   certSlug: string
   missCount: number
-  skippedCount: number
 }
 
 function SummaryActions({
   runId,
   certSlug,
-  missCount,
-  skippedCount
+  missCount
 }: Readonly<SummaryActionsProps>) {
   const router = useRouter()
   // A plain ref, not state: two keydowns can arrive before React flushes an
@@ -66,20 +64,6 @@ function SummaryActions({
 
   return (
     <div className="mt-6" data-slot="summary-actions">
-      {skippedCount > 0 && (
-        <p className="text-muted-foreground mb-3 text-sm">
-          {skippedCount} skipped —{' '}
-          <button
-            className="text-foreground underline underline-offset-2"
-            type="button"
-            onClick={retry}
-          >
-            retry same set to pick them up
-          </button>
-          .
-        </p>
-      )}
-
       <div className="flex gap-3">
         <Button
           aria-label="Drill weak spots"

@@ -15,6 +15,7 @@ import { getRunHistory, getRunSummary } from '@/features/drill/server/api'
 import { MissReview } from '@/features/drill/server/components/MissReview'
 import { RunHistoryTable } from '@/features/drill/server/components/RunHistoryTable'
 import { RunSummary } from '@/features/drill/server/components/RunSummary'
+import { SkippedReview } from '@/features/drill/server/components/SkippedReview'
 import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 
@@ -114,7 +115,12 @@ export default async function RunSummaryPage({
         certSlug={cert}
         missCount={summary.misses.length}
         runId={runId}
-        skippedCount={summary.outcomes.skipped}
+      />
+      <SkippedReview
+        certSlug={cert}
+        runId={runId}
+        skipped={summary.skipped}
+        total={summary.outcomes.total}
       />
       <MissReview misses={summary.misses} />
 
