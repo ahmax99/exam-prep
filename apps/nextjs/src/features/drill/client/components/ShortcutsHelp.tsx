@@ -10,16 +10,14 @@ import {
   SheetHeader,
   SheetTitle
 } from '@/components/molecules/Sheet'
+import type { Shortcut } from '@/features/drill/lib/shortcuts'
 
 import { ShortcutsList } from './ShortcutsList'
 
 interface ShortcutsHelpProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  optionLetters: string[]
-  canGoPrevious: boolean
-  isSelfGrading: boolean
-  isAnswered: boolean
+  shortcuts: Shortcut[]
 }
 
 // The only documentation for the drill's keyboard model that isn't a
@@ -29,10 +27,7 @@ interface ShortcutsHelpProps {
 function ShortcutsHelp({
   isOpen,
   onOpenChange,
-  optionLetters,
-  canGoPrevious,
-  isSelfGrading,
-  isAnswered
+  shortcuts
 }: Readonly<ShortcutsHelpProps>) {
   return (
     <>
@@ -55,12 +50,7 @@ function ShortcutsHelp({
             </SheetDescription>
           </SheetHeader>
           <div className="px-4 pb-4">
-            <ShortcutsList
-              canGoPrevious={canGoPrevious}
-              isAnswered={isAnswered}
-              isSelfGrading={isSelfGrading}
-              optionLetters={optionLetters}
-            />
+            <ShortcutsList shortcuts={shortcuts} />
             <p className="text-muted-foreground mt-4 text-sm">
               <span className="text-foreground font-medium">Mastered</span> —
               two correct answers in a row.{' '}

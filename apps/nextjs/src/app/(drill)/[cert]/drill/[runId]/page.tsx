@@ -2,7 +2,10 @@ import { notFound, redirect } from 'next/navigation'
 
 import { logger } from '@/config/logger'
 import { DrillCard } from '@/features/drill/client/components/DrillCard'
-import { idSchema } from '@/features/drill/schemas/run.schema'
+import {
+  drillRunSearchParamsSchema,
+  idSchema
+} from '@/features/drill/schemas/run.schema'
 import { getRun } from '@/features/drill/server/api'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 
@@ -23,23 +26,49 @@ export const generateMetadata = () =>
 
 interface DrillRunPageProps {
   params: Promise<{ cert: string; runId: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-export default async function DrillRunPage({ params }: DrillRunPageProps) {
+export default async function DrillRunPage({
+  params,
+  searchParams
+}: DrillRunPageProps) {
   const { cert, runId } = await params
   const parsedRunId = idSchema.safeParse(runId)
   if (!parsedRunId.success) notFound()
 
+  const parsedSearch = drillRunSearchParamsSchema.safeParse(await searchParams)
+  const requestedQuestionId = parsedSearch.success
+    ? parsedSearch.data.q
+    : undefined
+
   const result = await getRun(parsedRunId.data)
 
   return result.match(
-    ({ questions, answeredQuestionIds }) => {
+    ({ run, questions, answeredQuestionIds }) => {
       const answered = new Set(answeredQuestionIds)
-      const startIndex = questions.findIndex(
-        (question) => !answered.has(question.id)
+      // A `?q=` that names a question already answered (in another tab, say)
+      // or absent from this run degrades to the normal resume point.
+      const requestedIndex = questions.findIndex(
+        (question) =>
+          question.id === requestedQuestionId && !answered.has(question.id)
       )
+      const startIndex =
+        requestedIndex === -1
+          ? questions.findIndex((question) => !answered.has(question.id))
+          : requestedIndex
 
       if (startIndex === -1) redirect(`/${cert}/drill/${runId}/summary`)
+
+      // How far the run had been walked before this render — everything
+      // before it with no attempt was skipped. A finished run was walked to
+      // its end; for a live one the server can't tell "skipped" from "not
+      // reached yet", so its last answer is the only defensible frontier.
+      const lastAnsweredIndex = questions.reduce(
+        (last, question, index) => (answered.has(question.id) ? index : last),
+        -1
+      )
+      const frontier = run.finishedAt ? questions.length : lastAnsweredIndex + 1
 
       const drillQuestions = questions.map((question) => ({
         id: question.id,
@@ -63,6 +92,7 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
             <DrillCard
               answeredQuestionIds={answeredQuestionIds}
               certSlug={cert}
+              frontier={frontier}
               questions={drillQuestions}
               runId={runId}
               startIndex={startIndex}

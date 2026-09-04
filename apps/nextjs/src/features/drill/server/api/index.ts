@@ -557,6 +557,31 @@ const runGetRunSummary = async ({
       (a, b) => run.questionIds.indexOf(a.id) - run.questionIds.indexOf(b.id)
     )
 
+  // Already in run order, so the list reads the way the run was walked.
+  const answeredIds = new Set(attempts.map((attempt) => attempt.questionId))
+  const skippedIds = run.questionIds.filter(
+    (questionId) => !answeredIds.has(questionId)
+  )
+
+  // Prompt and objective only — a skipped question was never answered, so
+  // none of the reveal fields `misses` carries may come along with it.
+  const skippedQuestions = await db.question.findMany({
+    where: { id: { in: skippedIds } },
+    select: { id: true, objective: true, prompt: true }
+  })
+  const skippedById = new Map(
+    skippedQuestions.map((question) => [question.id, question])
+  )
+  const positionOf = new Map(
+    run.questionIds.map((questionId, index) => [questionId, index + 1])
+  )
+  const skipped = skippedIds.flatMap((questionId) => {
+    const question = skippedById.get(questionId)
+    return question
+      ? [{ ...question, position: positionOf.get(questionId) ?? 0 }]
+      : []
+  })
+
   return {
     run: {
       id: run.id,
@@ -566,7 +591,8 @@ const runGetRunSummary = async ({
       finishedAt: run.finishedAt
     },
     outcomes,
-    misses
+    misses,
+    skipped
   }
 }
 

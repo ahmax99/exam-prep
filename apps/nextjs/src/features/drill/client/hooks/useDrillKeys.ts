@@ -8,6 +8,7 @@ interface DrillKeyHandlers {
   onLetter: (letter: string) => void
   onPrimary: () => void
   onSkip: () => void
+  onSkippedList: () => void
   onBookmark: () => void
   onSelfGradeHadIt?: () => void
   onSelfGradeMissedIt?: () => void
@@ -83,6 +84,11 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
         case 'S':
           event.preventDefault()
           current.onSkip()
+          break
+        case 'L':
+          // Same precedence rule as B: a visible L option owns the key.
+          event.preventDefault()
+          current.onSkippedList()
           break
         case 'Y':
           event.preventDefault()

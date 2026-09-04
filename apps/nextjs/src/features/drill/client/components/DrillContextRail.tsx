@@ -1,15 +1,14 @@
 'use client'
 
+import type { Shortcut } from '@/features/drill/lib/shortcuts'
+
 import { ShortcutsList } from './ShortcutsList'
 
 interface DrillContextRailProps {
   currentIndex: number
   questionCount: number
   progressPercent: number
-  isAnswered: boolean
-  isSelfGrading: boolean
-  optionLetters: string[]
-  canGoPrevious: boolean
+  shortcuts: Shortcut[]
 }
 
 // Purely presentational: no state, no handlers, no focusable elements — it
@@ -19,10 +18,7 @@ function DrillContextRail({
   currentIndex,
   questionCount,
   progressPercent,
-  isAnswered,
-  isSelfGrading,
-  optionLetters,
-  canGoPrevious
+  shortcuts
 }: Readonly<DrillContextRailProps>) {
   return (
     <aside
@@ -57,12 +53,7 @@ function DrillContextRail({
       <div className="mt-8">
         <p className="text-muted-foreground text-sm">Shortcuts</p>
         <div className="mt-2">
-          <ShortcutsList
-            canGoPrevious={canGoPrevious}
-            isAnswered={isAnswered}
-            isSelfGrading={isSelfGrading}
-            optionLetters={optionLetters}
-          />
+          <ShortcutsList shortcuts={shortcuts} />
         </div>
       </div>
     </aside>
