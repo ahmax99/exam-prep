@@ -1,5 +1,5 @@
 <meta charset="utf-8" />
-<title>Boilerplate Template — Codebase Atlas</title>
+<title>Exam Prep — Codebase Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -694,8 +694,8 @@
 <div id="app">
   <div id="topbar">
     <div id="brand">
-      <b>Boilerplate Template</b
-      ><span>Turborepo · Bun · Next.js BFF + Elysia API</span>
+      <b>Exam Prep</b
+      ><span>Turborepo · Bun · Next.js App Router · Postgres</span>
     </div>
     <div id="stats"></div>
     <button id="themeBtn" type="button">Theme</button>
@@ -735,18 +735,18 @@
 
   /* =======================================================================
      ALL NUMBERS BELOW COME FROM A SCAN OF THE REPOSITORY WORKING TREE.
-     Line counts: `find <dir> -type f | xargs cat | wc -l` (tracked files for
-     infra/.github/.claude; source files for apps/ and shared/).
-     Counts exclude node_modules, build output, and the git-ignored generated
-     Prisma client. Measured on the `main` branch at commit c7d2297.
+     Line counts: `find <dir> -type f | xargs wc -l` for apps/ source, and
+     `git ls-files <dir> | xargs wc -l` for infra/, .github/ and .claude/
+     (tracked files only). Counts exclude node_modules, build output, and the
+     git-ignored generated Prisma client.
+     Measured on the `main` branch at commit cd97ea3, 2026-09-04.
      ======================================================================= */
 
   const GROUPS = [
     { id: 'ui', name: 'Browser surfaces', color: '#6366f1' },
     { id: 'features', name: 'Feature modules', color: '#8b5cf6' },
-    { id: 'bff', name: 'BFF boundary', color: '#06b6d4' },
-    { id: 'api', name: 'Elysia API', color: '#10b981' },
-    { id: 'shared', name: 'Shared packages', color: '#f59e0b' },
+    { id: 'api', name: 'Route handlers', color: '#06b6d4' },
+    { id: 'data', name: 'Data model', color: '#10b981' },
     { id: 'storage', name: 'Data stores', color: '#64748b' },
     { id: 'infra', name: 'Infrastructure', color: '#f97316' },
     { id: 'ci', name: 'Delivery pipeline', color: '#f43f5e' },
@@ -761,19 +761,19 @@
       code: 'PG',
       name: 'Pages & layouts',
       group: 'ui',
-      loc: 577,
-      files: 18,
+      loc: 1055,
+      files: 10,
       gx: 2,
       gy: 0,
       w: 3,
       d: 2,
-      what: 'These are the screens a visitor actually sees: the home page, the posts list, a single post, the contact form, the account pages and the create-post form. Each screen is a server-rendered file that gathers its own data before any HTML is sent.',
-      how: 'Next.js App Router with two route groups — one for pages that need a session, one for open pages. Cache Components is on, so a page opts into dynamic rendering by reading request data first rather than by setting a segment flag.',
+      what: 'The seven screens a learner actually sees: the dashboard listing every certification, a certification overview with its topics and weak spots, the drill screen itself, the run summary, the list of past runs, the bookmarked questions, and the launcher that turns a link into a live drill.',
+      how: 'Next.js App Router with two route groups — one wraps pages in the normal shell, the other strips the shell away so the drill screen owns the whole viewport. Cache Components is off, so a page opts into dynamic rendering with a segment flag or by reading request data.',
       children: [
-        { n: 'page.tsx screens', l: 9 },
-        { n: 'layout.tsx shells', l: 3 },
-        { n: 'loading.tsx skeletons', l: 4 },
-        { n: 'global-error.tsx', l: 1 }
+        { n: 'shell screens', l: 890 },
+        { n: 'drill screen', l: 97 },
+        { n: 'root layout', l: 49 },
+        { n: 'global error boundary', l: 19 }
       ]
     },
 
@@ -782,20 +782,19 @@
       code: 'CP',
       name: 'Component library',
       group: 'ui',
-      loc: 1217,
-      files: 29,
+      loc: 1616,
+      files: 23,
       gx: 6,
       gy: 0,
       w: 3,
       d: 2,
-      what: 'The shared visual vocabulary every screen draws from — buttons, inputs, cards, tabs, dialogs, avatars, page shells and marketing sections. Anything used by more than one feature lives here.',
+      what: 'The shared visual vocabulary every screen draws from — buttons, dialogs, menus, sheets, tooltips, the mastery bar, the sidebar, the bottom tab bar and the page shells. Anything used by more than one feature lives here.',
       how: 'Atomic design in four layers. Atoms never import molecules or organisms, and molecules only import atoms. Variants are built with class-variance-authority, and every root element carries a data-slot attribute so parents can style children by selector.',
       children: [
-        { n: 'molecules', l: 429 },
-        { n: 'organisms', l: 326 },
-        { n: 'atoms', l: 233 },
-        { n: 'layout', l: 160 },
-        { n: 'common', l: 69 }
+        { n: 'molecules', l: 612 },
+        { n: 'organisms', l: 552 },
+        { n: 'layout', l: 273 },
+        { n: 'atoms', l: 179 }
       ]
     },
 
@@ -804,675 +803,298 @@
       code: 'ST',
       name: 'Design tokens',
       group: 'ui',
-      loc: 354,
+      loc: 438,
       files: 12,
       gx: 10,
       gy: 0,
       w: 2,
       d: 2,
-      what: 'The raw design decisions of the product — colour, type scale, spacing, shadows, borders, animation timings and scrollbar styling — written once as CSS custom properties instead of being scattered through components.',
-      how: 'Tailwind CSS 4 with a token layer split by concern. Colour carries the largest share, defining both the light and dark palettes.',
+      what: 'One place that decides what every colour, size, radius and motion in the product is. Nothing else hardcodes a hex value. It also holds the three verdict colours the drill depends on — one for right, one for shaky, one for wrong — plus the single accent reserved for the one action a screen most wants you to take.',
+      how: 'A layer of CSS custom properties mapped into Tailwind through an inline theme block, split into files by concern: colour, type, spacing, motion and the browser-drawn surfaces most projects leave at their defaults.',
       children: [
-        { n: 'colors.css', l: 113 },
-        { n: 'shadows.css', l: 54 },
-        { n: 'container.css', l: 35 },
-        { n: 'scrollbars.css', l: 33 },
-        { n: 'typography.css', l: 29 },
-        { n: 'animations.css', l: 25 }
-      ]
-    },
-
-    {
-      id: 'feat-error',
-      code: 'ER',
-      name: 'Error handling (web)',
-      group: 'ui',
-      loc: 257,
-      files: 12,
-      gx: 13,
-      gy: 0,
-      w: 2,
-      d: 2,
-      what: 'Turns anything that goes wrong in the browser or on the server into one predictable outcome: a typed error object, a toast or full-screen message for the person, and a report sent to the monitoring service.',
-      how: 'A frontend mirror of the backend error pipeline. Failures are caught as values rather than thrown across layers, mapped to a shared AppError shape, and surfaced through a React context and a small store.',
-      children: [
-        { n: 'ErrorScreenProvider', l: 57 },
-        { n: 'mapToAppError', l: 38 },
-        { n: 'handleError', l: 34 },
-        { n: 'useErrorHandler', l: 26 },
-        { n: 'monitoring config', l: 25 }
+        { n: 'colour', l: 155 },
+        { n: 'elevation & shape', l: 68 },
+        { n: 'layout & spacing', l: 58 },
+        { n: 'browser surfaces', l: 56 },
+        { n: 'typography', l: 50 },
+        { n: 'motion', l: 37 },
+        { n: 'entry files', l: 14 }
       ]
     },
 
     /* ---------------- feature modules ---------------- */
     {
-      id: 'feat-auth',
-      code: 'AU',
-      name: 'Auth (sign in / out)',
+      id: 'feat-drill',
+      code: 'DR',
+      name: 'Drill engine',
       group: 'features',
-      loc: 583,
-      files: 19,
+      loc: 3114,
+      files: 41,
+      gx: 4,
+      gy: 3,
+      w: 4,
+      d: 3,
+      what: 'The heart of the product, and by a wide margin the largest thing in it. It decides which questions you should see next, shows them one at a time, judges what you typed or picked, records the attempt, and moves the mastery of that question up or down as a result. It also runs the summary you land on when a run ends.',
+      how: 'Split by execution context: server code builds and grades runs, client code owns the card, its keyboard shortcuts and its live announcements, a pure lib holds the queue ordering, the grader and the mastery transition, and schemas validate every request at the door. Failures come back as values rather than thrown exceptions.',
+      children: [
+        { n: 'client (card, hooks, callers)', l: 1662 },
+        { n: 'server (run lifecycle)', l: 918 },
+        { n: 'lib (queue, grade, mastery)', l: 433 },
+        { n: 'schemas & constants', l: 101 }
+      ]
+    },
+
+    {
+      id: 'feat-catalog',
+      code: 'CA',
+      name: 'Catalog',
+      group: 'features',
+      loc: 263,
+      files: 7,
       gx: 0,
       gy: 3,
       w: 3,
       d: 2,
-      what: 'Everything about proving who someone is: starting a login, handling the redirect back, storing the session, reading the current user, assigning a default role and signing out. It is the largest feature module in the web app.',
-      how: 'OpenID Connect against the managed identity provider using PKCE. Two separate encrypted HttpOnly cookies hold state — one short-lived cookie for the in-flight login, one for the finished session, which stores only a refresh token.',
-      children: [
-        { n: 'server/ (services + api)', l: 315 },
-        { n: 'client/ (components)', l: 113 },
-        { n: 'lib/ (client, routes, CASL)', l: 65 },
-        { n: 'utils/ (PKCE, redirect)', l: 35 },
-        { n: 'constants/', l: 33 },
-        { n: 'schemas/', l: 22 }
-      ]
+      what: 'Knows what certifications and exams exist and what lives under them. It answers "which exams does this certification have", "which topics does this exam cover", and "does this slug in the address bar name a real certification at all".',
+      how: 'Server-only read functions that query the database directly and return plain shapes. The schema underneath is deliberately generic — nothing here is specialised to the one certification that currently has questions loaded.'
     },
 
     {
-      id: 'feat-post',
-      code: 'PO',
-      name: 'Posts',
+      id: 'feat-progress',
+      code: 'PR',
+      name: 'Mastery & progress',
       group: 'features',
-      loc: 418,
-      files: 9,
-      gx: 4,
-      gy: 3,
-      w: 2,
-      d: 2,
-      what: 'The main content type. Covers listing posts, showing one post, and the create form with its optional image upload, plus deleting a post you own.',
-      how: 'Split by execution context. Server files fetch through the backend client; client files own the form, its validation and the two-step image upload. The form schema is Zod and the wire types come from the shared package.',
-      children: [
-        { n: 'PostForm (client)', l: 140 },
-        { n: 'PostDetail (server)', l: 60 },
-        { n: 'PostsList (server)', l: 57 },
-        { n: 'usePostActions', l: 55 },
-        { n: 'client/api', l: 38 },
-        { n: 'DeletePostButton', l: 35 }
-      ]
-    },
-
-    {
-      id: 'feat-account',
-      code: 'AC',
-      name: 'Account',
-      group: 'features',
-      loc: 399,
+      loc: 382,
       files: 8,
-      gx: 7,
-      gy: 3,
-      w: 2,
+      gx: 0,
+      gy: 6,
+      w: 3,
       d: 2,
-      what: 'The signed-in person managing their own profile — viewing it, editing their name and picture, and deleting the account entirely.',
-      how: 'Same client/server split as posts, reusing the same presigned-upload pattern for the profile image. Destructive actions are wrapped in a confirmation dialog.',
-      children: [
-        { n: 'AccountForm', l: 115 },
-        { n: 'AccountManagement', l: 96 },
-        { n: 'useAccountActions', l: 69 },
-        { n: 'client/api', l: 36 },
-        { n: 'UserInfo (server)', l: 34 }
-      ]
+      what: 'Turns thousands of individual attempts into the two things a learner wants to know: how far along am I, and what am I worst at. It produces the mastery bars on the dashboard and the ranked list of weakest objectives on a certification page.',
+      how: 'Grouped aggregate queries over the per-question mastery table, rolled up per certification and per exam objective. The result is a count of mastered, shaky, missed and never-seen questions — not a score that resets each session.'
     },
 
     {
-      id: 'feat-comment',
-      code: 'CM',
-      name: 'Comments',
+      id: 'feat-bookmarks',
+      code: 'BM',
+      name: 'Bookmarks',
       group: 'features',
-      loc: 272,
-      files: 7,
-      gx: 10,
+      loc: 461,
+      files: 10,
+      gx: 9,
       gy: 3,
-      w: 2,
+      w: 3,
       d: 2,
-      what: 'Replies attached to a post — rendering the thread beneath a post, adding a comment, and removing one you wrote.',
-      how: 'The thread itself is a server component so it renders with the post; the form and delete button are client components that call the BFF and then refresh the route.',
-      children: [
-        { n: 'CommentSection (server)', l: 91 },
-        { n: 'CommentForm (client)', l: 83 },
-        { n: 'useCommentActions', l: 33 },
-        { n: 'DeleteCommentButton', l: 30 }
-      ]
+      what: 'Lets a question be flagged mid-drill and revisited later. The bookmarked set is also a drill scope of its own, so "drill everything I starred" is one button rather than a manual list.',
+      how: 'A single toggle handler behind two HTTP verbs — one to add, one to remove — with the client caller updating optimistically and rolling back if the write fails.'
     },
 
     {
-      id: 'feat-mailing',
-      code: 'ML',
-      name: 'Contact & email',
+      id: 'feat-media',
+      code: 'MD',
+      name: 'Question images',
       group: 'features',
-      loc: 320,
-      files: 8,
+      loc: 60,
+      files: 3,
       gx: 13,
       gy: 3,
       w: 2,
       d: 2,
-      what: 'The public contact form. A submitted message sends two emails at once — a notification to the site owner and a confirmation back to the sender.',
-      how: 'This is the one feature that does not cross the BFF route layer: the form calls a Server Action directly. The action re-validates the input with Zod on the server, then renders both emails as React components and hands them to a transactional email service.',
-      children: [
-        { n: 'ContactForm (client)', l: 102 },
-        { n: 'confirmation email', l: 61 },
-        { n: 'notification email', l: 49 },
-        { n: 'sendContactEmail action', l: 34 },
-        { n: 'sendEmail util', l: 24 }
-      ]
-    },
-
-    /* ---------------- BFF ---------------- */
-    {
-      id: 'bff-routes',
-      code: 'BR',
-      name: 'BFF route handlers',
-      group: 'bff',
-      loc: 214,
-      files: 12,
-      gx: 2,
-      gy: 6,
-      w: 3,
-      d: 2,
-      what: 'The only doors the browser may knock on. Twelve small endpoints covering posts, comments, account, images, upload URLs, login, callback, logout and runtime config. The browser never reaches the API directly.',
-      how: 'Deliberately thin Next.js route handlers: read the request, call one feature server function, return JSON. Every handler is wrapped in a logging decorator so each hop is traceable.',
-      children: [
-        { n: 'posts (3 handlers)', l: 65 },
-        { n: 'auth (3 handlers)', l: 44 },
-        { n: 'comments (2 handlers)', l: 41 },
-        { n: 'account (2 handlers)', l: 34 },
-        { n: 'images', l: 20 },
-        { n: 'config', l: 10 }
-      ]
+      what: 'Some questions carry a diagram or a screenshot. This fetches that image from object storage and streams it back to the browser. It only ever reads — nothing in this product uploads a file.',
+      how: 'A read-only proxy in front of the storage bucket. The browser never gets storage credentials or a direct link; it asks the app for a path, and the app validates that path before fetching anything.'
     },
 
     {
-      id: 'bff-clients',
-      code: 'BC',
-      name: 'Backend clients',
-      group: 'bff',
-      loc: 198,
-      files: 6,
-      gx: 6,
-      gy: 6,
-      w: 2,
-      d: 2,
-      what: 'The single place the web app is allowed to call the API from. One client for open reads, one for authenticated calls that attaches the caller identity token and, in production, cryptographically signs the request.',
-      how: 'Two HTTP clients built on ky with retry and timeout policy. Hook order matters and is documented in the file: the token hook must run before the signing hook, because signing returns a fresh request and ends the hook chain.',
-      children: [
-        { n: 'requestLogging', l: 73 },
-        { n: 'serverApiClient', l: 71 },
-        { n: 'request signing', l: 25 },
-        { n: 'CASL setup', l: 12 },
-        { n: 'browser apiClient', l: 10 },
-        { n: 'identity helper', l: 7 }
-      ]
-    },
-
-    {
-      id: 'fe-runtime',
-      code: 'FR',
-      name: 'Web runtime & config',
-      group: 'bff',
-      loc: 204,
-      files: 9,
+      id: 'feat-error',
+      code: 'ER',
+      name: 'Error handling',
+      group: 'features',
+      loc: 213,
+      files: 8,
       gx: 9,
       gy: 6,
-      w: 2,
+      w: 3,
       d: 2,
-      what: 'The plumbing the app boots with: environment validation, the logger, page metadata generation, monitoring startup, and the middleware that redirects an unauthenticated visitor away from a protected page.',
-      how: 'Every environment variable is a server-only runtime value, validated at startup. No build-time public variables exist, so one built image can be promoted from one environment to the next unchanged. The middleware only checks that a session cookie is present — real verification happens in the API.',
-      children: [
-        { n: 'metadata generation', l: 59 },
-        { n: 'middleware', l: 37 },
-        { n: 'logger', l: 34 },
-        { n: 'monitoring bootstrap', l: 48 },
-        { n: 'env validation', l: 22 }
-      ]
+      what: 'The one place that decides what a failure looks like. Every expected problem — a bad request, a missing record, a database that did not answer — is turned into the same shape, with a code the rest of the app can branch on and a message safe to show a person.',
+      how: 'Two small wrappers convert a thrown exception into a result value: one for genuinely exceptional async work, one for expected parsing and validation failures. A single wrapper around each route handler logs the failure and renders the response, so no handler writes its own try-and-catch ladder.'
     },
 
-    /* ---------------- Elysia API ---------------- */
     {
-      id: 'be-runtime',
+      id: 'feat-shell',
+      code: 'SH',
+      name: 'Theme & page metadata',
+      group: 'features',
+      loc: 90,
+      files: 4,
+      gx: 13,
+      gy: 6,
+      w: 2,
+      d: 2,
+      what: 'Two small things the whole app leans on: remembering whether you prefer the light or dark appearance, and producing the title and description on every page.',
+      how: 'A theme provider that writes the choice to the document before first paint, so the page never flashes the wrong appearance, and one helper that builds page metadata from a title and description.'
+    },
+
+    /* ---------------- route handlers ---------------- */
+    {
+      id: 'api-routes',
       code: 'RT',
-      name: 'API runtime',
+      name: 'Route handlers',
       group: 'api',
-      loc: 172,
-      files: 6,
-      gx: 1,
-      gy: 9,
-      w: 2,
-      d: 2,
-      what: 'How the API starts up and how its endpoints are assembled. It loads its database credentials, mounts logging and security headers, then attaches every feature route under one versioned prefix and publishes an OpenAPI document.',
-      how: 'A small composition file plus a route aggregator. In production the database URL is pulled from the managed secret store at boot; locally it comes from an environment file. Environment values are schema-validated before anything else runs.',
-      children: [
-        { n: 'route aggregator + OpenAPI', l: 30 },
-        { n: 'app composition', l: 35 },
-        { n: 'logger plugin', l: 43 },
-        { n: 'secret loading', l: 39 },
-        { n: 'env validation', l: 17 }
-      ]
-    },
-
-    {
-      id: 'mod-auth',
-      code: 'AZ',
-      name: 'Identity & permissions',
-      group: 'api',
-      loc: 94,
-      files: 3,
+      loc: 224,
+      files: 7,
       gx: 4,
+      gy: 7,
+      w: 4,
+      d: 2,
+      what: 'The eight doors the browser is allowed to knock on: start a run, submit an answer, record a self-grade, finish a run, retry a run, add a bookmark, remove a bookmark, and read a question image. Everything else the browser sees was rendered on the server before it arrived.',
+      how: 'Deliberately thin. Each handler validates the URL and body against a schema, calls one feature function, and returns its result as JSON. The logging-and-error wrapper around each one means a handler can simply raise a known failure and let the wrapper turn it into a response.',
+      children: [
+        { n: 'drill run operations', l: 132 },
+        { n: 'bookmark toggle', l: 62 },
+        { n: 'image read', l: 30 }
+      ]
+    },
+
+    {
+      id: 'runtime',
+      code: 'RN',
+      name: 'App runtime & config',
+      group: 'api',
+      loc: 201,
+      files: 7,
+      gx: 0,
       gy: 9,
-      w: 2,
-      d: 2,
-      what: 'Decides who a caller is and what they are allowed to do. It verifies the identity token on every protected endpoint and turns the result into a permission set the services can query.',
-      how: 'A plugin exposing a route flag that other controllers switch on. It reads a bearer token and falls back to a dedicated header, because server-side calls spend the standard header on request signing. Permissions are CASL rules; an anonymous caller still gets a read-only public set.',
-      children: [
-        { n: 'auth plugin', l: 48 },
-        { n: 'permission builder', l: 28 },
-        { n: 'token verification', l: 18 }
-      ]
-    },
-
-    {
-      id: 'mod-posts',
-      code: 'PS',
-      name: 'Posts module',
-      group: 'api',
-      loc: 207,
-      files: 3,
-      gx: 7,
-      gy: 9,
-      w: 2,
-      d: 2,
-      what: 'Six endpoints for posts: list, read one, create, update, soft-delete, and issue an upload URL for a post image. Deleting never removes the row — it stamps a deleted timestamp.',
-      how: 'The repository triad. A plugin injects the service, a thin controller declares routes and validates every body, query and path parameter against the shared schemas, and the service holds all the logic and returns a result value rather than throwing.',
-      children: [
-        { n: 'controller (6 routes)', l: 123 },
-        { n: 'service', l: 73 },
-        { n: 'plugin', l: 11 }
-      ]
-    },
-
-    {
-      id: 'mod-users',
-      code: 'US',
-      name: 'Users module',
-      group: 'api',
-      loc: 275,
-      files: 3,
-      gx: 10,
-      gy: 9,
-      w: 2,
-      d: 2,
-      what: 'Seven endpoints covering the user record: list, read one, read yourself, create on first login, update, delete, and issue an upload URL for a profile picture. The largest module in the API.',
-      how: 'Same triad as posts. Creating a user is written to be safe to repeat, so a replayed login returns the existing record instead of failing. Every endpoint requires a verified caller.',
-      children: [
-        { n: 'controller (7 routes)', l: 137 },
-        { n: 'service', l: 129 },
-        { n: 'plugin', l: 9 }
-      ]
-    },
-
-    {
-      id: 'mod-comments',
-      code: 'CO',
-      name: 'Comments module',
-      group: 'api',
-      loc: 136,
-      files: 3,
-      gx: 1,
-      gy: 12,
-      w: 2,
-      d: 2,
-      what: 'Three endpoints: list the comments on a post, add one, and soft-delete one. Reading is open; writing and deleting are not.',
-      how: 'Triad again. The list query filters through the caller permission set rather than trusting an identifier from the request, so a caller can never widen their own view by changing a parameter.',
-      children: [
-        { n: 'controller (3 routes)', l: 76 },
-        { n: 'service', l: 51 },
-        { n: 'plugin', l: 9 }
-      ]
-    },
-
-    {
-      id: 'mod-media',
-      code: 'MD',
-      name: 'Media & uploads',
-      group: 'api',
-      loc: 141,
-      files: 4,
-      gx: 4,
-      gy: 12,
-      w: 2,
-      d: 2,
-      what: 'Two jobs. It hands out short-lived upload links so a browser can send a file straight to object storage without the file passing through the API, and it serves stored images back out through a single proxy endpoint.',
-      how: 'Upload links are presigned with an expiry. Before signing, the service checks the caller permission set and sanitises the filename, then namespaces the object key by folder and timestamp.',
-      children: [
-        { n: 'image controller', l: 60 },
-        { n: 'upload service', l: 44 },
-        { n: 'image service', l: 30 },
-        { n: 'image plugin', l: 7 }
-      ]
-    },
-
-    {
-      id: 'be-error',
-      code: 'EH',
-      name: 'Error pipeline',
-      group: 'api',
-      loc: 100,
-      files: 5,
-      gx: 7,
-      gy: 12,
-      w: 2,
-      d: 2,
-      what: 'One place that decides what a failure looks like to a caller. A service signals a problem by its kind — not found, forbidden, unauthorised — and this layer turns that into the right status code and a safe message, with no internal detail leaking out.',
-      how: 'Promises are wrapped so a rejection becomes a value instead of an exception. Two wrappers exist by intent: one reports to the monitoring service for genuinely exceptional faults, one stays quiet for expected failures such as bad input. A single handler at the edge converts the result into a response.',
-      children: [
-        { n: 'catchError utilities', l: 36 },
-        { n: 'error handler plugin', l: 28 },
-        { n: 'AppError', l: 20 },
-        { n: 'handleApiError', l: 13 },
-        { n: 'capture', l: 3 }
-      ]
-    },
-
-    {
-      id: 'be-lib',
-      code: 'LB',
-      name: 'API utilities',
-      group: 'api',
-      loc: 96,
-      files: 6,
-      gx: 10,
-      gy: 12,
-      w: 2,
-      d: 2,
-      what: 'Small shared helpers the modules lean on: the permission-to-query bridge, a guard that refuses an action the caller lacks rights for, the storage and identity SDK clients, slug generation and filename sanitising.',
-      how: 'The permission bridge is the important one — it converts a CASL rule set into a database filter, so authorisation is expressed once and enforced inside the query rather than checked after the rows come back.',
-      children: [
-        { n: 'authorizeResource', l: 46 },
-        { n: 'CASL-to-query bridge', l: 21 },
-        { n: 'slug generation', l: 8 },
-        { n: 'filename sanitising', l: 7 },
-        { n: 'SDK clients', l: 14 }
-      ]
-    },
-
-    /* ---------------- shared packages ---------------- */
-    {
-      id: 'shared-config',
-      code: 'SC',
-      name: 'Shared schemas',
-      group: 'shared',
-      loc: 155,
-      files: 8,
-      gx: 4,
-      gy: 15,
       w: 3,
       d: 2,
-      what: 'The contract both applications agree on. Every request and response shape, the list of error kinds, and the role-group names live here once, so the web app and the API can never drift apart on what a post or a user looks like.',
-      how: 'Zod models exported as a workspace package. The API validates incoming requests against them at the route boundary; the web app imports the same models for form validation and the same inferred types for its function signatures.',
-      children: [
-        { n: 'post model', l: 46 },
-        { n: 'user model', l: 32 },
-        { n: 'comment model', l: 28 },
-        { n: 'error definitions', l: 21 },
-        { n: 'email schema', l: 17 },
-        { n: 'role groups', l: 4 }
-      ]
+      what: 'The plumbing every other block borrows: the database connection, the storage client, the structured logger, the request-logging wrapper, and the validated set of environment values the app refuses to start without.',
+      how: 'Environment values are parsed once at startup and are server-only by design — none is inlined into the browser bundle, so one build can run in any environment. The database URL is resolved from a managed secret when deployed and from the local environment otherwise, then cached.'
     },
 
+    /* ---------------- data model ---------------- */
     {
-      id: 'shared-neon',
+      id: 'prisma',
       code: 'DB',
-      name: 'Database client',
-      group: 'shared',
-      loc: 111,
+      name: 'Schema & seeding',
+      group: 'data',
+      loc: 635,
       files: 4,
-      gx: 8,
-      gy: 15,
+      gx: 4,
+      gy: 10,
       w: 3,
       d: 2,
-      what: 'The one way either application talks to the database. It defines the three tables and exports a single ready-to-use client, so nothing else in the repository has to know how the connection is made.',
-      how: 'Prisma against serverless Postgres over a WebSocket adapter, exported as a shared singleton. The generated client is not committed — building the package regenerates it from the schema.',
+      what: 'Defines the eight tables the product stores and the script that loads real question banks into them. Certifications hold exams, exams hold questions, questions hold options, and three more tables record what you answered, how well you know each question, and what you starred.',
+      how: 'A single declarative schema compiled into a typed client, with migrations applied automatically before each deploy. The seeding script validates every bank file against a schema before writing a row, so a malformed bank fails loudly instead of landing half-loaded.',
       children: [
-        { n: 'schema (3 models)', l: 58 },
-        { n: 'client singleton', l: 39 },
-        { n: 'prisma config', l: 12 },
-        { n: 'index', l: 2 }
+        { n: 'seed script', l: 352 },
+        { n: 'schema', l: 131 },
+        { n: 'migrations', l: 152 }
       ]
     },
 
     /* ---------------- data stores (slabs) ---------------- */
     {
       id: 'db-postgres',
-      code: 'PQ',
-      name: 'Postgres (serverless)',
+      code: 'PS',
+      name: 'Postgres database',
       group: 'storage',
       loc: 0,
       files: 0,
-      gx: 6,
-      gy: 18,
-      w: 4,
+      gx: 8,
+      gy: 10,
+      w: 3,
       d: 2,
       slab: true,
-      metric: '3 tables · 1 migration',
-      what: 'The system of record. Three tables — users, posts and comments — with posts and comments each pointing at their author, and both carrying a deleted-at column so removal is reversible.',
-      how: 'Serverless Postgres reached through the shared Prisma client. Foreign keys cascade from a user to their content, and indexes cover the columns actually filtered on: the identity subject, email, slug, author and post.',
+      metric: '8 tables · 3 enums · 1 migration',
       children: [
-        { n: 'users', l: '8 cols' },
-        { n: 'posts', l: '10 cols' },
-        { n: 'comments', l: '8 cols' }
-      ]
+        { n: 'certifications → exams', l: 'catalog' },
+        { n: 'questions → options', l: 'the bank' },
+        { n: 'question progress', l: 'mastery' },
+        { n: 'runs → attempts', l: 'history' },
+        { n: 'bookmarks', l: 'starred' }
+      ],
+      what: 'The single source of truth for everything that persists: the question banks, every attempt ever made, the mastery state of each question, and the runs those attempts belong to. Mastery survives across runs and sessions — that is the whole point.',
+      how: 'A managed serverless Postgres database reached over a WebSocket driver rather than a long-lived TCP pool, because the compute in front of it is short-lived. Its connection string is never committed; it is read from a managed secret at runtime.'
     },
 
     {
-      id: 's3-buckets',
-      code: 'OB',
+      id: 'obj-storage',
+      code: 'OS',
       name: 'Object storage',
       group: 'storage',
       loc: 0,
       files: 0,
-      gx: 11,
-      gy: 18,
-      w: 3,
+      gx: 12,
+      gy: 10,
+      w: 2,
       d: 2,
       slab: true,
-      metric: '4 buckets',
-      what: 'Four separate buckets, each with one job: files people upload, the built static assets the CDN serves, request logs, and a small holding page shown while the site is deliberately offline.',
-      how: 'Uploads arrive straight from the browser using a short-lived signed link, never through the API. The buckets are provisioned by one reusable infrastructure module and are protected against accidental deletion.',
+      metric: '1 bucket · read-only',
       children: [
-        { n: 'uploads', l: 'signed PUT' },
-        { n: 'static assets', l: 'CDN origin' },
-        { n: 'access logs', l: 'audit' },
-        { n: 'maintenance page', l: 'failover' }
-      ]
+        { n: 'question images', l: 'GetObject' },
+        { n: 'public access', l: 'blocked' }
+      ],
+      what: 'Holds the images some questions display. It is the only stored asset this product has — there is no user upload path of any kind.',
+      how: 'A private bucket with public access blocked and encryption on. Only the running app can read it, through a role scoped to that one bucket, and only ever with a read operation.'
     },
 
     /* ---------------- infrastructure ---------------- */
     {
-      id: 'tf-root',
-      code: 'TR',
-      name: 'Root deployment module',
+      id: 'infra-root',
+      code: 'IR',
+      name: 'Terraform root',
       group: 'infra',
-      loc: 1063,
-      files: 15,
-      gx: 17,
-      gy: 0,
+      loc: 511,
+      files: 21,
+      gx: 19,
+      gy: 6,
       w: 3,
       d: 2,
-      what: 'The wiring diagram for the whole deployment. It declares eighteen building blocks and connects them — the CDN in front, the two application functions behind it, identity, storage, alarms and the deployment machinery.',
-      how: 'One root module for every environment, switched by a backend configuration file rather than duplicated directories. Values that a person must supply come in as variables; values the code can decide for itself live in a map keyed on the environment name.',
-      children: [
-        { n: 'main.tf (18 modules)', l: 559 },
-        { n: 'variables.tf', l: 121 },
-        { n: 'outputs.tf', l: 91 },
-        { n: 'locals.tf', l: 66 },
-        { n: 'providers.tf', l: 34 }
-      ]
+      what: 'The one description of everything the product needs to exist in the cloud: the hosting app, the roles it runs as, the storage bucket, the database secret and the DNS records. Reading this file tells you what is deployed without opening a console.',
+      how: 'One root configuration switched between environments by a backend config file rather than duplicated into per-environment directories. State lives in versioned remote storage with native locking. There is no default on any variable, so an unset value shows up in the plan instead of silently falling through.'
     },
 
     {
-      id: 'tf-edge',
-      code: 'ED',
-      name: 'Edge, CDN & DNS',
+      id: 'infra-modules',
+      code: 'IM',
+      name: 'Terraform modules',
       group: 'infra',
-      loc: 1193,
+      loc: 709,
       files: 24,
-      gx: 21,
-      gy: 0,
-      w: 3,
-      d: 3,
-      what: 'Everything a request meets before it reaches the application: DNS, the certificate, the content delivery network, the web firewall, and two small functions that run at the edge itself. The largest infrastructure area.',
-      how: 'The delivery network routes by path — built assets to storage, API calls to the API function, everything else to the web application. One edge function shapes the incoming request; the other signs it so the origin can verify it came from the network and not directly from the internet.',
-      children: [
-        { n: 'cloudfront', l: 473 },
-        { n: 'lambda-edge', l: 371 },
-        { n: 'waf', l: 242 },
-        { n: 'acm (certificates)', l: 68 },
-        { n: 'route53 (dns)', l: 39 }
-      ]
-    },
-
-    {
-      id: 'tf-compute',
-      code: 'CU',
-      name: 'Compute & release',
-      group: 'infra',
-      loc: 574,
-      files: 8,
-      gx: 17,
-      gy: 4,
+      gx: 19,
+      gy: 9,
       w: 3,
       d: 2,
-      what: 'The two serverless functions that run the applications as container images, and the release mechanism that moves traffic onto a new version safely.',
-      how: 'Each application is packaged as a container image and run as a function with a stable alias in front of numbered versions. Releases shift traffic gradually between versions and roll back automatically if alarms fire, so a bad deploy does not require a human to notice first.',
+      what: 'Six single-purpose building blocks the root configuration wires together — the hosting app, the two service roles it assumes, the storage buckets, the database secret, the DNS records, and the web firewall in front of it all.',
+      how: 'Each module owns one concern and communicates only through its inputs and outputs, never by reaching across to another module. Destructive capability is deliberately absent: nothing here can empty a bucket or shorten a secret recovery window, so an ordinary apply is structurally unable to delete data.',
       children: [
-        { n: 'lambda', l: 355 },
-        { n: 'codedeploy', l: 219 }
-      ]
-    },
-
-    {
-      id: 'tf-identity',
-      code: 'ID',
-      name: 'Identity & access',
-      group: 'infra',
-      loc: 680,
-      files: 12,
-      gx: 21,
-      gy: 4,
-      w: 3,
-      d: 2,
-      what: 'Who may sign in, and what each machine role is permitted to touch. It defines the user pool and its hosted login, the narrow role the delivery pipeline assumes, and the exact permissions each function is granted.',
-      how: 'The pipeline authenticates by short-lived federated tokens, so no long-lived keys exist anywhere in the repository. The deploy role is scoped to the specific resources this configuration owns, and the user pool is protected against deletion.',
-      children: [
-        { n: 'cognito', l: 346 },
-        { n: 'github-deploy-role', l: 175 },
-        { n: 'lambda-permissions', l: 159 }
-      ]
-    },
-
-    {
-      id: 'tf-storage',
-      code: 'SO',
-      name: 'Storage, secrets & alarms',
-      group: 'infra',
-      loc: 438,
-      files: 13,
-      gx: 17,
-      gy: 8,
-      w: 3,
-      d: 2,
-      what: 'The buckets, the managed secret holding the database credentials, and the alarms that watch both functions for errors and latency.',
-      how: 'One reusable bucket module is instantiated four times rather than four near-identical modules being written. Secrets are stored by reference — the applications read them at run time, and no secret value is ever written into a committed file.',
-      children: [
-        { n: 's3', l: 283 },
-        { n: 'monitoring', l: 94 },
-        { n: 'secret-manager', l: 61 }
-      ]
-    },
-
-    {
-      id: 'tf-bootstrap',
-      code: 'BS',
-      name: 'State bootstrap',
-      group: 'infra',
-      loc: 219,
-      files: 8,
-      gx: 21,
-      gy: 8,
-      w: 2,
-      d: 2,
-      what: 'The chicken-and-egg step: it creates the bucket that stores the deployment state for everything else. It is run once, and it keeps its own state entirely separate from the main configuration.',
-      how: 'A tiny second root module. State locking uses the storage service natively, so there is no separate lock table to maintain.',
-      children: [
-        { n: 'bootstrap module', l: 124 },
-        { n: 'backend + config files', l: 95 }
+        { n: 's3', l: 256 },
+        { n: 'amplify', l: 157 },
+        { n: 'iam', l: 113 },
+        { n: 'waf', l: 91 },
+        { n: 'secret-manager', l: 61 },
+        { n: 'route53', l: 31 }
       ]
     },
 
     /* ---------------- delivery ---------------- */
     {
-      id: 'gh-workflows',
-      code: 'WF',
-      name: 'CI/CD workflows',
+      id: 'ci',
+      code: 'CI',
+      name: 'Delivery pipeline',
       group: 'ci',
-      loc: 1611,
-      files: 11,
-      gx: 15,
-      gy: 12,
-      w: 3,
-      d: 2,
-      what: 'Eleven automated jobs that run on a push, a pull request or a tag. They deploy, plan infrastructure changes, scan for vulnerabilities and leaked secrets, check code quality, enforce commit format, cut releases, and tear an environment down.',
-      how: 'Deployment is one workflow with thirteen dependent jobs, so infrastructure is applied before the applications that rely on it. Production is gated behind a required reviewer, and teardown is manual-only and demands a typed confirmation.',
-      children: [
-        { n: 'deploy.yml (13 jobs)', l: 597 },
-        { n: 'destroy.yml', l: 205 },
-        { n: 'security.yml', l: 193 },
-        { n: 'neon-workflow.yml', l: 130 },
-        { n: 'toggle-maintenance.yml', l: 127 },
-        { n: 'terraform-plan.yml', l: 108 }
-      ]
-    },
-
-    {
-      id: 'gh-automation',
-      code: 'AS',
-      name: 'Pipeline scripts',
-      group: 'ci',
-      loc: 1173,
-      files: 23,
+      loc: 1056,
+      files: 16,
       gx: 19,
-      gy: 12,
+      gy: 1,
       w: 3,
       d: 2,
-      what: 'The actual work the workflows delegate to: building and pushing images, releasing a new function version, deciding which applications a change even affects, posting a plan back onto a pull request, and the guarded steps that a teardown needs.',
-      how: 'Shell scripts and reusable composite steps kept out of the workflow files, so the logic can be read and changed on its own. Anything that can destroy data lives only in these teardown scripts — a routine deploy is structurally incapable of reaching it.',
+      what: 'What happens between pressing merge and the change being live. Nine workflows cover the infrastructure plan posted on every pull request, the reviewer-gated apply, code-quality and dependency scanning, secret detection, a React-specific health scan, commit-message linting, and a manual teardown that is the only way to destroy the environment.',
+      how: 'Cloud access is by short-lived identity federation, not stored keys, split into two privilege tiers — a read-only role for the pull-request plan and an admin role for the apply. Applies are serialised so a teardown can never race a deploy, and the teardown is dispatch-only behind a typed confirmation and a required reviewer.',
       children: [
-        { n: 'deploy-lambda.sh', l: 143 },
-        { n: 'detect-affected.sh', l: 93 },
-        { n: 'composite actions (7)', l: 378 },
-        { n: 'teardown scripts (5)', l: 166 },
-        { n: 'terraform helpers', l: 151 }
-      ]
-    },
-
-    /* ---------------- harness & docs ---------------- */
-    {
-      id: 'claude-harness',
-      code: 'AH',
-      name: 'Agent harness',
-      group: 'harness',
-      loc: 7489,
-      files: 77,
-      gx: 1,
-      gy: 18,
-      w: 3,
-      d: 2,
-      what: 'The configuration that lets coding agents work in this repository safely: the coding rules they must follow, the review agents that grade a change, the step-by-step commands for specifying, planning, building and testing a feature, and hooks that block dangerous shell commands or reads of secret files.',
-      how: 'Plain markdown and shell. Most of the volume is the skills library, much of which is vendored plugin content rather than rules written for this repository — the repository-specific part is the rules, agents, commands and hooks, which together come to 2,208 lines.',
-      children: [
-        { n: 'skills (largely vendored)', l: 5281 },
-        { n: 'commands', l: 737 },
-        { n: 'agents', l: 577 },
-        { n: 'hooks', l: 525 },
-        { n: 'rules', l: 369 }
+        { n: 'workflows', l: 820 },
+        { n: 'teardown & comment scripts', l: 160 },
+        { n: 'composite actions', l: 66 },
+        { n: 'dependency update config', l: 10 }
       ]
     },
 
@@ -1480,497 +1102,427 @@
       id: 'docs',
       code: 'DC',
       name: 'Documentation',
-      group: 'harness',
-      loc: 1387,
-      files: 6,
-      gx: 1,
-      gy: 21,
+      group: 'ci',
+      loc: 706,
+      files: 5,
+      gx: 8,
+      gy: 13,
       w: 3,
       d: 2,
-      what: 'Six documents aimed at a person rather than a machine: an operations runbook, the deployment architecture with diagrams, how authentication actually works step by step, how environments differ, repository settings, and how the agent-assisted workflow is meant to be used.',
-      how: 'Markdown with mermaid diagrams. The authentication document is the one to read before touching anything in the login flow; the architecture document before changing how the system is deployed.',
+      what: 'The written record a person needs and the code cannot carry: how the cloud architecture fits together, what the deployment environment guarantees and what it deliberately does not, the step-by-step bring-up from an empty account, the current repository settings, and how to build a feature with an agent.',
+      how: 'Markdown next to the code it describes, with diagrams written as text rather than exported images so they diff like anything else. Each fact is stated in exactly one file and linked from the others.'
+    },
+
+    {
+      id: 'harness',
+      code: 'HN',
+      name: 'Agent harness',
+      group: 'harness',
+      loc: 9445,
+      files: 82,
+      gx: 13,
+      gy: 13,
+      w: 4,
+      d: 3,
+      what: 'The largest body of text in the repository, and none of it ships. It is the instruction set an AI agent reads before touching this codebase: where things live, how code is written here, what good looks like, and a pipeline of commands that take a feature from a written specification through a plan, an implementation and a scored review.',
+      how: 'Rules split by concern so each is stated exactly once, commands that orchestrate specialised reviewer agents, and hooks that run automatically — formatting edited files, blocking secret-bearing reads and destructive shell commands, and refusing to end a turn that left a type error behind. Generator and reviewer are deliberately separate agents, because self-evaluation is unreliable.',
       children: [
-        { n: 'runbook.md', l: 456 },
-        { n: 'architecture.md', l: 272 },
-        { n: 'deployment-environments.md', l: 226 },
-        { n: 'authentication.md', l: 224 },
-        { n: 'ai-driven-development.md', l: 126 },
-        { n: 'github-repo-settings.md', l: 83 }
+        { n: 'skills', l: 7170 },
+        { n: 'commands', l: 734 },
+        { n: 'reviewer agents', l: 561 },
+        { n: 'hooks', l: 508 },
+        { n: 'rules', l: 342 },
+        { n: 'settings', l: 130 }
       ]
     }
   ]
 
-  /* Off-map systems this repository does not contain but does depend on. */
   const EXTERNALS = [
     {
       id: 'x-user',
-      name: 'Person in a browser',
+      name: 'Person studying for an exam',
       gx: 2,
       gy: -4,
       anchor: 'pages'
     },
     {
-      id: 'x-idp',
-      name: 'Managed identity provider',
-      gx: -4,
-      gy: 2,
-      anchor: 'feat-auth'
+      id: 'x-host',
+      name: 'Managed hosting platform (delivery network + server rendering)',
+      gx: -5,
+      gy: -1,
+      anchor: 'pages'
     },
     {
-      id: 'x-mail',
-      name: 'Transactional email service',
-      gx: 17,
-      gy: -3,
-      anchor: 'feat-mailing'
-    },
-    {
-      id: 'x-monitor',
-      name: 'Error monitoring service',
-      gx: 15,
-      gy: 8,
-      anchor: 'feat-error'
-    },
-    {
-      id: 'x-registry',
-      name: 'Container image registry',
+      id: 'x-vcs',
+      name: 'Source host & automation runners',
       gx: 24,
-      gy: 15,
-      anchor: 'gh-automation'
+      gy: -2,
+      anchor: 'ci'
+    },
+    {
+      id: 'x-cloud',
+      name: 'Cloud provider account',
+      gx: 25,
+      gy: 8,
+      anchor: 'infra-modules'
     }
   ]
 
   const EDGES = [
     /* browser surfaces */
     { f: 'x-user', t: 'pages', flow: 1, pay: 'HTTPS page request' },
+    { f: 'x-host', t: 'pages', pay: 'renders the page on demand' },
     { f: 'pages', t: 'components', pay: 'atoms, molecules, organisms' },
-    { f: 'components', t: 'styles', pay: 'colour, spacing and type tokens' },
+    { f: 'components', t: 'styles', pay: 'colour, type and motion tokens' },
+    { f: 'pages', t: 'feat-shell', pay: 'appearance and page metadata' },
+
+    /* pages into the features that answer them */
     {
       f: 'pages',
-      t: 'feat-auth',
+      t: 'feat-drill',
       flow: 1,
-      pay: 'who is signed in, and may they?'
+      pay: 'build a queue, then show the card'
     },
-    { f: 'pages', t: 'feat-post', flow: 1, pay: 'post list and post detail' },
-    { f: 'pages', t: 'feat-account', pay: 'profile view and edit form' },
-    { f: 'pages', t: 'feat-comment', pay: 'comment thread for a post' },
-    { f: 'pages', t: 'feat-mailing', pay: 'contact form' },
+    {
+      f: 'pages',
+      t: 'feat-catalog',
+      flow: 1,
+      pay: 'which certifications and exams exist'
+    },
+    {
+      f: 'pages',
+      t: 'feat-progress',
+      flow: 1,
+      pay: 'mastery counts and weakest objectives'
+    },
+    { f: 'pages', t: 'feat-bookmarks', pay: 'the starred question list' },
 
-    /* features across the BFF boundary */
+    /* the browser talking back through the eight doors */
     {
-      f: 'feat-post',
-      t: 'bff-routes',
+      f: 'feat-drill',
+      t: 'api-routes',
       flow: 1,
-      pay: 'create post, request upload link'
+      pay: 'answer, self-grade, finish, retry'
     },
-    {
-      f: 'feat-account',
-      t: 'bff-routes',
-      flow: 1,
-      pay: 'update profile, delete account'
-    },
-    {
-      f: 'feat-comment',
-      t: 'bff-routes',
-      flow: 1,
-      pay: 'add comment, delete comment'
-    },
-    {
-      f: 'feat-auth',
-      t: 'bff-routes',
-      flow: 1,
-      pay: 'start login, handle callback, log out'
-    },
-    {
-      f: 'feat-mailing',
-      t: 'x-mail',
-      flow: 1,
-      pay: 'notification and confirmation emails'
-    },
-    { f: 'feat-error', t: 'x-monitor', dashed: 1, pay: 'captured exceptions' },
+    { f: 'feat-bookmarks', t: 'api-routes', flow: 1, pay: 'star / unstar' },
+    { f: 'components', t: 'api-routes', pay: 'question image requests' },
 
-    { f: 'bff-routes', t: 'bff-clients', flow: 1, pay: 'one call per handler' },
+    /* handlers back into feature logic */
     {
-      f: 'fe-runtime',
-      t: 'bff-routes',
-      dashed: 1,
-      pay: 'redirect if no session cookie'
-    },
-    {
-      f: 'feat-auth',
-      t: 'x-idp',
+      f: 'api-routes',
+      t: 'feat-drill',
       flow: 1,
-      pay: 'authorisation code exchange (PKCE)'
+      pay: 'validated run operations'
     },
-    { f: 'feat-auth', t: 'fe-runtime', pay: 'protected route list' },
+    { f: 'api-routes', t: 'feat-bookmarks', pay: 'validated toggle' },
+    { f: 'api-routes', t: 'feat-media', flow: 1, pay: 'validated image path' },
+    { f: 'api-routes', t: 'feat-error', pay: 'one failure shape for all' },
+    { f: 'api-routes', t: 'runtime', pay: 'request logging wrapper' },
+    { f: 'feat-drill', t: 'feat-error', pay: 'failures returned as values' },
 
-    /* BFF to API */
-    {
-      f: 'bff-clients',
-      t: 'be-runtime',
-      flow: 1,
-      pay: 'signed request + identity token'
-    },
-    { f: 'be-runtime', t: 'mod-posts', pay: 'mounts /posts' },
-    { f: 'be-runtime', t: 'mod-users', pay: 'mounts /users' },
-    { f: 'be-runtime', t: 'mod-comments', pay: 'mounts /comments' },
-    { f: 'be-runtime', t: 'mod-media', pay: 'mounts /images' },
+    /* features to the data layer */
+    { f: 'feat-drill', t: 'runtime', flow: 1, pay: 'database client, logger' },
+    { f: 'feat-catalog', t: 'runtime', pay: 'database client' },
+    { f: 'feat-progress', t: 'runtime', pay: 'database client' },
+    { f: 'feat-bookmarks', t: 'runtime', pay: 'database client' },
+    { f: 'feat-media', t: 'runtime', pay: 'object storage client' },
+    { f: 'runtime', t: 'prisma', pay: 'the generated typed client' },
 
-    /* API internals */
+    /* stores */
     {
-      f: 'mod-posts',
-      t: 'mod-auth',
-      flow: 1,
-      pay: 'verify caller, build permissions'
-    },
-    {
-      f: 'mod-users',
-      t: 'mod-auth',
-      flow: 1,
-      pay: 'verify caller, build permissions'
-    },
-    {
-      f: 'mod-comments',
-      t: 'mod-auth',
-      pay: 'verify caller, build permissions'
-    },
-    { f: 'mod-posts', t: 'mod-media', pay: 'presigned upload link' },
-    { f: 'mod-users', t: 'mod-media', pay: 'presigned upload link' },
-    {
-      f: 'mod-auth',
-      t: 'x-idp',
-      dashed: 1,
-      pay: 'public keys for token verification'
-    },
-    {
-      f: 'mod-posts',
-      t: 'be-error',
-      pay: 'result value, never a thrown error'
-    },
-    {
-      f: 'mod-users',
-      t: 'be-error',
-      pay: 'result value, never a thrown error'
-    },
-    {
-      f: 'mod-comments',
-      t: 'be-error',
-      pay: 'result value, never a thrown error'
-    },
-    { f: 'mod-auth', t: 'be-lib', pay: 'permissions as a query filter' },
-    {
-      f: 'mod-media',
-      t: 'be-lib',
-      pay: 'permission guard, filename sanitising'
-    },
-
-    /* shared + storage */
-    { f: 'mod-posts', t: 'shared-config', pay: 'request and response schemas' },
-    { f: 'mod-users', t: 'shared-config', pay: 'request and response schemas' },
-    {
-      f: 'mod-comments',
-      t: 'shared-config',
-      pay: 'request and response schemas'
-    },
-    { f: 'feat-post', t: 'shared-config', pay: 'same schemas, same types' },
-    {
-      f: 'mod-posts',
-      t: 'shared-neon',
-      flow: 1,
-      pay: 'permission-filtered queries'
-    },
-    {
-      f: 'mod-users',
-      t: 'shared-neon',
-      flow: 1,
-      pay: 'permission-filtered queries'
-    },
-    {
-      f: 'mod-comments',
-      t: 'shared-neon',
-      flow: 1,
-      pay: 'permission-filtered queries'
-    },
-    {
-      f: 'shared-neon',
+      f: 'prisma',
       t: 'db-postgres',
       flow: 1,
-      pay: 'SQL over a pooled connection'
+      pay: 'migrations and seeded question banks'
     },
     {
-      f: 'mod-media',
-      t: 's3-buckets',
+      f: 'runtime',
+      t: 'db-postgres',
       flow: 1,
-      pay: 'signed upload link, image reads'
+      pay: 'queries and write transactions'
     },
+    { f: 'runtime', t: 'obj-storage', flow: 1, pay: 'read one image object' },
 
     /* infrastructure */
-    { f: 'tf-root', t: 'tf-edge', pay: 'certificate, function URLs, firewall' },
-    { f: 'tf-root', t: 'tf-compute', pay: 'image URI, environment, alarms' },
-    { f: 'tf-root', t: 'tf-identity', pay: 'resource ARNs to scope roles to' },
-    { f: 'tf-root', t: 'tf-storage', pay: 'bucket names, secret name' },
-    { f: 'tf-edge', t: 'tf-compute', pay: 'routes traffic to both functions' },
     {
-      f: 'tf-compute',
-      t: 'tf-identity',
-      pay: 'execution role and permissions'
-    },
-    { f: 'tf-compute', t: 'tf-storage', pay: 'reads database credentials' },
-    {
-      f: 'tf-bootstrap',
-      t: 'tf-root',
+      f: 'infra-root',
+      t: 'infra-modules',
       dashed: 1,
-      pay: 'creates the state bucket first'
+      pay: 'inputs and outputs'
     },
     {
-      f: 'tf-storage',
-      t: 's3-buckets',
+      f: 'infra-modules',
+      t: 'db-postgres',
       dashed: 1,
-      pay: 'provisions the four buckets'
+      pay: 'stores the connection string as a secret'
     },
     {
-      f: 'tf-identity',
-      t: 'x-idp',
+      f: 'infra-modules',
+      t: 'obj-storage',
       dashed: 1,
-      pay: 'provisions the user pool'
+      pay: 'creates the bucket, blocks public access'
     },
+    { f: 'infra-modules', t: 'x-cloud', dashed: 1, pay: 'applies the plan' },
 
     /* delivery */
     {
-      f: 'gh-workflows',
-      t: 'gh-automation',
-      flow: 1,
-      pay: 'delegates each step'
-    },
-    {
-      f: 'gh-automation',
-      t: 'x-registry',
-      flow: 1,
-      pay: 'pushes container images'
-    },
-    {
-      f: 'gh-automation',
-      t: 'tf-compute',
-      flow: 1,
-      pay: 'new image, then shift traffic'
-    },
-    {
-      f: 'gh-workflows',
-      t: 'tf-root',
-      flow: 1,
-      pay: 'plan on a pull request, apply on merge'
-    },
-    {
-      f: 'gh-workflows',
-      t: 'shared-neon',
+      f: 'x-vcs',
+      t: 'ci',
       dashed: 1,
-      pay: 'runs pending migrations'
+      pay: 'a push, a pull request, a manual dispatch'
     },
     {
-      f: 'claude-harness',
-      t: 'docs',
+      f: 'ci',
+      t: 'infra-root',
       dashed: 1,
-      pay: 'rules point at the human docs'
+      pay: 'plan on a pull request, apply on main'
     },
     {
-      f: 'claude-harness',
-      t: 'gh-workflows',
+      f: 'x-host',
+      t: 'prisma',
       dashed: 1,
-      pay: 'local gates mirror the CI gates'
+      pay: 'applies pending migrations before each build'
+    },
+    { f: 'ci', t: 'docs', dashed: 1, pay: 'settings recorded, not guessed' },
+
+    /* harness */
+    { f: 'harness', t: 'docs', dashed: 1, pay: 'specs and plans' },
+    {
+      f: 'harness',
+      t: 'ci',
+      dashed: 1,
+      pay: 'the same gates, run locally first'
     }
   ]
 
   const TRACES = [
     {
-      id: 'create-post',
-      name: 'Publish a post with an image',
+      id: 'drill',
+      name: 'Start a drill and answer a question',
       steps: [
         [
           'pages',
-          'Someone opens the create-post screen. Before any HTML is produced the server component asks who they are and checks that this person may create a post — if not, it redirects away rather than rendering a form they cannot use.'
+          'Someone opens the dashboard. Before any HTML is sent, the server component asks what certifications exist and how far along each one is.'
         ],
         [
-          'feat-auth',
-          'Answering "who is this" means reading the session cookie, taking the identity token from it, and asking the API for the matching user record.'
+          'feat-progress',
+          'The answer is a roll-up of every attempt ever recorded, grouped per certification into four counts: mastered, shaky, missed, and never seen. Those four numbers draw the bar on each card.'
         ],
         [
-          'feat-post',
-          'The form itself is a client component. The person fills in a title and body, picks an image, and presses submit — which calls one action that owns the whole sequence.'
+          'pages',
+          'The page also asks for a recommendation, and renders it as the single most prominent thing on the screen — a panel whose whole surface is the link, with the number of queued questions set at display size.'
         ],
         [
-          'feat-post',
-          'Because a file was chosen, the upload runs first. The browser asks the app for a link that will let it write that one file.'
+          'feat-drill',
+          'Pressing it navigates to a launcher page carrying the scope in the address — a whole exam, one objective, the questions you have missed, or the ones you have never seen.'
         ],
         [
-          'bff-routes',
-          'A route handler reads the filename and content type from the query and forwards them. This is the only door open to the browser — it cannot reach the API itself.'
+          'feat-catalog',
+          'The launcher first checks the certification in the address is real. An unknown one becomes a genuine not-found rather than an empty queue that would read as "nothing to drill".'
         ],
         [
-          'bff-clients',
-          'The authenticated client attaches the identity token in a dedicated header and, in production, signs the request so the origin can prove it came from the network edge.'
+          'feat-drill',
+          'Re-entering the same scope resumes the run that already holds your answers rather than starting over. Only an explicit "fresh" flag queues the scope again from the beginning.'
         ],
         [
-          'mod-posts',
-          'The API validates the query against the shared schema and refuses the call outright unless a verified caller is attached.'
-        ],
-        [
-          'mod-media',
-          'The upload service checks that this caller may create a post, cleans the filename, and signs a link that expires shortly.'
-        ],
-        [
-          's3-buckets',
-          'The browser sends the file straight to the uploads bucket. The image never travels through either application.'
-        ],
-        [
-          'feat-post',
-          'With the stored object key in hand, the client posts the form contents plus that key.'
-        ],
-        [
-          'mod-posts',
-          'The controller validates the body, resolves the signed-in identity to a real user row, and generates a slug from the title when none was supplied.'
-        ],
-        [
-          'shared-neon',
-          'The service writes the row through the shared database client, having already narrowed what it may write by the caller permission set.'
+          'feat-drill',
+          'Building a queue turns the scope into a database filter, then orders the candidates deliberately: questions you got wrong first, then ones you have never seen, then shaky ones, and only if that is still short of the limit, ones you have already mastered.'
         ],
         [
           'db-postgres',
-          'The post lands in Postgres and the browser is redirected to the posts list, where the new entry is now visible.'
+          'The run is written with its question list frozen at creation time, so the queue you are working through cannot shift underneath you mid-drill.'
+        ],
+        [
+          'pages',
+          'The launcher redirects to the run. This screen deliberately sits in its own route group with no sidebar or tab bar — the question should own the viewport.'
+        ],
+        [
+          'feat-drill',
+          'The card renders one question, anchored to the top rather than vertically centred, because centring would re-position the prompt on every advance as each one is a different height. Keyboard shortcuts are live from the first render.'
+        ],
+        [
+          'api-routes',
+          'Answering posts to one of the eight doors. The handler validates the run id and the body against a schema before any logic runs, and does nothing else itself.'
+        ],
+        [
+          'feat-drill',
+          'Grading is a pure function. A choice question is judged by set equality, so a multiple-answer question is only right when the chosen set matches exactly. A typed answer is normalised and looked up among the accepted variants.'
+        ],
+        [
+          'db-postgres',
+          'The attempt and the new mastery state are written in one transaction, so a recorded answer can never disagree with the mastery it caused. Two consecutive corrects promote a question to mastered; any wrong answer resets it.'
+        ],
+        [
+          'feat-drill',
+          'The verdict comes back and is announced to screen readers through a live region, not just shown in colour — the outcome must be perceivable without seeing the green or the red.'
         ]
       ]
     },
     {
-      id: 'sign-in',
-      name: 'Sign in with the identity provider',
+      id: 'selfgrade',
+      name: 'Type an answer the grader cannot judge',
       steps: [
         [
-          'fe-runtime',
-          'Someone requests a page that needs a session. The middleware sees no session cookie, and redirects to the login page carrying the address they were trying to reach.'
+          'feat-drill',
+          'A fill-in question is the mechanism this product exists to provide: you type the answer from memory instead of recognising it among four options. The empty field is therefore the largest element on the screen.'
+        ],
+        [
+          'api-routes',
+          'Submitting posts the typed text to the same answer door, validated against the same schema as any other answer.'
+        ],
+        [
+          'feat-drill',
+          'The grader normalises what you typed and compares it against every accepted variant the question carries.'
+        ],
+        [
+          'feat-drill',
+          'When no variant matches, the verdict is not "wrong" — it is "no match". The grader is admitting it cannot judge this, which is a different claim.'
+        ],
+        [
+          'feat-drill',
+          'The real answer is revealed and you are asked to judge yourself. Both buttons are styled identically on purpose: making "I had it" the prettier one would bias the call, and the honesty of that call is the only thing mastery tracking is built on.'
+        ],
+        [
+          'api-routes',
+          'Your verdict posts to the self-grade door, which validates it and hands it straight to the run logic.'
+        ],
+        [
+          'feat-drill',
+          'The attempt is recorded with a flag marking it self-graded, so a later reader can tell which outcomes the machine decided and which you did.'
+        ],
+        [
+          'db-postgres',
+          'Attempt and mastery are written in the same single transaction as any other answer. Nothing about this path is a special case downstream.'
+        ],
+        [
+          'feat-progress',
+          'That one judgement moves the mastery of a single question, which moves the objective it belongs to, which moves the certification bar on the dashboard.'
+        ],
+        [
+          'feat-drill',
+          'The card advances. The answered field shrinks back to reference size and hands the emphasis to the verdict — it is now a record of what you typed, not the thing you are doing.'
+        ]
+      ]
+    },
+    {
+      id: 'summary',
+      name: 'Finish a run and act on what it says',
+      steps: [
+        [
+          'feat-drill',
+          'The last question in the queue is answered. The card offers to finish rather than finishing on your behalf, so a run is never closed by accident.'
+        ],
+        [
+          'api-routes',
+          'Finishing posts to its own door. The handler validates the run id and calls one function.'
+        ],
+        [
+          'db-postgres',
+          'The run is stamped as finished. The attempts it holds were already written as they happened, so nothing is saved in bulk at the end and a crash mid-run loses nothing.'
+        ],
+        ['pages', 'You land on the summary screen for that run.'],
+        [
+          'feat-drill',
+          'The summary reads back the run and its attempts together: how many were right, which questions were missed, and which objectives those missed questions belong to.'
+        ],
+        [
+          'feat-bookmarks',
+          'Anything you starred mid-drill is shown alongside, so the decision to revisit a question is made while the reason is still fresh.'
+        ],
+        [
+          'feat-drill',
+          'Two follow-on actions are offered, and both start a new run rather than reopening this one: retry exactly these questions, or drill everything across the certification you have ever missed.'
+        ],
+        [
+          'api-routes',
+          'Retrying posts to the retry door, which builds a fresh run from the same question list.'
+        ],
+        [
+          'feat-progress',
+          'Meanwhile the dashboard has already moved. Mastery is stored per question, not per run, so the bars reflect every attempt you have ever made rather than this session alone.'
         ],
         [
           'pages',
-          'The login page renders almost nothing — just a client component whose only job is to start the flow.'
-        ],
-        [
-          'feat-auth',
-          'That component immediately sends the browser to the login endpoint, preserving the address to return to afterwards.'
-        ],
-        [
-          'bff-routes',
-          'The endpoint hands off to the login service and will end by issuing a redirect.'
-        ],
-        [
-          'feat-auth',
-          'The service generates a one-time secret, its hash, a state value and a nonce — the ingredients that make an intercepted authorisation code useless to anybody else.'
-        ],
-        [
-          'feat-auth',
-          'Those transient values are sealed into a short-lived encrypted cookie, kept deliberately separate from the real session cookie.'
-        ],
-        [
-          'x-idp',
-          'The browser is sent to the hosted login page. The application never sees the password.'
-        ],
-        [
-          'bff-routes',
-          'After a successful login the provider redirects back with a code and the state value.'
-        ],
-        [
-          'feat-auth',
-          'The callback re-opens the transient cookie and rejects the attempt if the state does not match, or the one-time secret or nonce is missing.'
-        ],
-        [
-          'feat-auth',
-          'The code is exchanged for tokens. Only the refresh token is written into the session cookie — the access and identity tokens are never persisted in the browser.'
-        ],
-        [
-          'mod-users',
-          'The API is asked to create the user. This is written to be safe to repeat, so a returning visitor simply gets their existing record back.'
-        ],
-        [
-          'shared-neon',
-          'The record is read or written through the shared database client.'
-        ],
-        [
-          'feat-auth',
-          'The default role group is assigned, and the browser is finally sent to whichever page it originally wanted.'
+          'The certification page now ranks its weakest objectives differently than it did an hour ago. That re-ranking is the entire feedback loop this product runs on.'
         ]
       ]
     },
     {
       id: 'ship',
-      name: 'Ship a release to production',
+      name: 'Ship a change to production',
       steps: [
         [
-          'gh-workflows',
-          'A version tag is pushed. The deployment workflow wakes up — thirteen jobs whose dependencies encode the safe order.'
+          'harness',
+          'Work starts as written intent: a specification with testable acceptance criteria, expanded into an ordered plan before any code is written.'
         ],
         [
-          'gh-automation',
-          'The first job works out which applications the change actually touched, so unaffected ones are never rebuilt or redeployed.'
+          'harness',
+          'An implementing agent works the plan step by step, type-checking and formatting after each one, and a separate reviewing agent scores the result — because self-evaluation is unreliable.'
         ],
         [
-          'gh-automation',
-          'Each affected application is built as a container image and pushed to the registry.'
+          'ci',
+          'Locally, hooks have already run on the way to the commit: formatting, linting, secret detection on the staged change, and commit-message linting.'
         ],
         [
-          'x-registry',
-          'The images wait in the registry, addressed by digest, ready for a function to point at them.'
+          'ci',
+          'The pull request opens. Code quality, dependency vulnerabilities, secret scanning and a React-specific health check all run; new errors in that health check block the merge.'
         ],
         [
-          'gh-workflows',
-          'Applying to production stops and waits for a named reviewer to approve. Nothing below happens until a person says so.'
+          'infra-root',
+          'If the change touched infrastructure, a read-only role produces a plan and posts it as a comment. That plan is the review artefact — the reviewer reads it before approving anything.'
         ],
         [
-          'tf-root',
-          'Infrastructure is applied against production, holding a lock so no other run can touch the same state at the same time.'
+          'ci',
+          'On merge, two independent things happen and neither waits on the other. There is no ordering edge between them by design.'
         ],
         [
-          'tf-identity',
-          'The pipeline is doing this as a short-lived federated role scoped to only these resources. There are no long-lived keys anywhere in the repository.'
+          'infra-modules',
+          'The first: an infrastructure apply, gated behind a required reviewer and serialised so it can never race a teardown. Cloud access is a short-lived federated identity, never a stored key.'
         ],
         [
-          'gh-automation',
-          'With infrastructure settled, each function is pointed at its new image and a new numbered version is published.'
+          'x-host',
+          'The second: the hosting platform sees the push through its own webhook and starts a build, entirely outside the automation runners.'
         ],
         [
-          'tf-compute',
-          'Traffic is shifted onto the new version gradually rather than all at once, and rolls back on its own if the alarms fire.'
+          'prisma',
+          'Pending database migrations are applied before the build, never after — so the schema always lands before the code expecting it. Every migration must be safe for the previous release to run against.'
         ],
         [
-          'tf-edge',
-          'The delivery network keeps serving throughout, routing built assets to storage, API paths to the API function and everything else to the web application.'
+          'pages',
+          'The build goes live and immediately owns all traffic. There is no canary, no gradual shift, and no automatic rollback.'
         ],
         [
-          'tf-storage',
-          'The alarms watch error rate and latency on the version that just went live — the same alarms that can reverse the release.'
+          'docs',
+          'Which is why recovery is written down rather than automated: redeploying a previous build is a human action, and the runbook says exactly how.'
         ]
       ]
     }
   ]
 
   const OVERVIEW_WHAT = [
-    'This repository is a production-shaped starting point for a web product, not a demo. It contains a small blogging domain — users, posts and comments, with images — built the way a real system is built: a public website, a separate API behind it, one shared definition of every data shape, a full deployment described as code, and a delivery pipeline that can put it live and take it down again.',
-    'The domain itself is deliberately small so the surrounding structure is visible. Three tables. Seventeen API operations. Twelve doors the browser is allowed to knock on. Everything else in the city — the edge, identity, storage, alarms, the release machinery — is the part you would otherwise have to build yourself.',
-    'The rule that shapes almost every block here is that the browser never talks to the API. It talks to the website, and the website talks to the API on its behalf, attaching the caller identity and signing the request. That single boundary is why the front of the city has a layer of small, thin doors rather than a direct road to the core.'
+    'This repository is a drill tool for certification exam preparation, built for one person: pick a scope, work a queue of questions, get judged immediately, and watch the mastery of each individual question move as a result. It is a real tool with a real question bank behind it, not a demo of one.',
+    'The idea it is organised around is recall over recognition. A large share of the questions are fill-in rather than multiple choice — you type the answer from memory, and when the grader cannot decide whether what you typed counts, it says so and asks you to judge yourself rather than guessing on your behalf. That is closer to what a real exam demands than picking the least wrong of four options.',
+    'Mastery is tracked per exam objective rather than per deck or per exam, which is what makes "drill my weak spots" a real button instead of a slogan. Two consecutive correct answers promote a question; one wrong answer sends it back. Nothing resets between sessions.',
+    'There is deliberately no sign-in, no accounts and no authorisation layer anywhere in the city. That is a decision, not a gap — a personal tool that trusts its single user does not need the machinery, and the absence of it is why the front of the map is only eight small doors rather than a gate.'
   ].join(' ')
 
   const OVERVIEW_HOW = [
-    'A Turborepo monorepo on Bun, with two applications and three shared packages. The website is Next.js with the App Router and Cache Components; the API is Elysia running on Bun and deployed as a container image.',
-    'Two patterns recur everywhere. In the API, each resource is a plugin, a thin controller and a service — the controller only validates and delegates, and the service returns a failure as a value rather than throwing it across layers, so error handling collects at one edge instead of being repeated at every call site. In authorisation, the caller permission set is converted into a database filter, so a list query cannot return a row the caller was never allowed to see, no matter what identifier arrives in the request.',
-    'Deployment is one configuration switched by environment rather than duplicated per environment, and destructive capability is kept out of it entirely: emptying storage, relaxing deletion protection and force-deleting secrets exist only in a manual teardown workflow, so an ordinary apply is structurally unable to delete data.',
-    'One honest gap: there is no test runner in this repository, and no test files. Verification comes from type checking, linting, security and quality scanning in the pipeline, and browser-level checks — not from unit tests.'
+    'A Turborepo monorepo on Bun with a single application: a Next.js App Router app that is also the only server. Server components and route handlers reach the database and object storage directly — there is no separate backend service to forward to, and no browser code ever holds a credential for either.',
+    'Two patterns recur. Failures are values rather than thrown exceptions: two small wrappers convert a throw into a result, and one wrapper around each route handler collects the error path at a single edge instead of repeating it at every call site. And every external input — a URL parameter, a request body, an environment variable, a question bank file — is validated against a schema at the boundary, never deeper in.',
+    'Deployment is one configuration switched by environment rather than duplicated per environment, and destructive capability is kept out of it entirely: emptying storage and force-deleting secrets exist only in a manual, reviewer-gated teardown, so an ordinary apply is structurally unable to delete data. A build reaches all traffic at once — there is no canary and no automatic rollback, which is an accepted trade written down rather than an oversight.',
+    'Two honest gaps. There is no test runner and no test file in this repository; verification comes from type checking, linting, security and quality scanning, and browser-level checks. And there is no alerting of any kind — nothing pages a human when the app errors.'
   ].join(' ')
 
   const STATS = [
-    { v: '452', k: 'tracked files' },
-    { v: '6,076', k: 'lines of TypeScript' },
-    { v: '4,167', k: 'lines of infra config' },
-    { v: '2,784', k: 'lines of pipeline' },
-    { v: '17', k: 'API operations' },
-    { v: '12', k: 'BFF handlers' },
-    { v: '3', k: 'data models' },
-    { v: '13', k: 'infra modules' },
-    { v: '2', k: 'deployed services' },
+    { v: '356', k: 'tracked files' },
+    { v: '8,032', k: 'lines of TypeScript' },
+    { v: '1,220', k: 'lines of infra config' },
+    { v: '1,056', k: 'lines of pipeline' },
+    { v: '9,445', k: 'lines of agent harness' },
+    { v: '8', k: 'route operations' },
+    { v: '7', k: 'page screens' },
+    { v: '8', k: 'data models' },
+    { v: '6', k: 'infra modules' },
     { v: '0', k: 'test files' }
   ]
 
@@ -2266,15 +1818,14 @@
   /* ---- zone captions ---- */
   /* Captions sit in the empty margin beside each cluster, never over a block. */
   const ZONES = [
-    { t: 'browser', at: [0, -3] },
-    { t: 'features', at: [-4, 5] },
-    { t: 'bff boundary', at: [-3, 8] },
-    { t: 'elysia api', at: [-3.5, 11.5] },
-    { t: 'shared', at: [13, 17] },
-    { t: 'data stores', at: [14.5, 21.5] },
-    { t: 'harness', at: [-2.5, 20] },
-    { t: 'infrastructure', at: [27, 6] },
-    { t: 'delivery', at: [24.5, 15] }
+    { t: 'browser', at: [0, -4] },
+    { t: 'features', at: [-3, 5] },
+    { t: 'route handlers', at: [-3, 10] },
+    { t: 'data', at: [1, 13.5] },
+    { t: 'stores', at: [16, 11] },
+    { t: 'infrastructure', at: [23, 11] },
+    { t: 'delivery', at: [24, 3] },
+    { t: 'harness', at: [14, 18] }
   ]
   const drawZones = () => {
     ZONES.forEach((z) => {
@@ -2423,11 +1974,11 @@
     document.getElementById('info').innerHTML = `
       <div class="pad sect" id="infoHead">
         <div class="eyebrow">Codebase atlas</div>
-        <h2>Boilerplate Template</h2>
+        <h2>Exam Prep</h2>
         <div id="chips">
           <span class="chip">Turborepo</span><span class="chip">Bun</span>
-          <span class="chip">Next.js BFF</span><span class="chip">Elysia API</span>
-          <span class="chip">Terraform</span>
+          <span class="chip">Next.js App Router</span><span class="chip">Prisma</span>
+          <span class="chip">Postgres</span><span class="chip">Terraform</span>
         </div>
       </div>
       <div class="pad sect"><h3>What it does</h3><p>${esc(OVERVIEW_WHAT)}</p></div>

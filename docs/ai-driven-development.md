@@ -1,6 +1,6 @@
 # AI-Driven & Spec-Driven Development
 
-This boilerplate ships with a [Claude Code](https://claude.com/claude-code) harness so you can build features _with_ an AI agent instead of just chatting at it.
+This repo ships with a [Claude Code](https://claude.com/claude-code) harness so you can build features _with_ an AI agent instead of just chatting at it.
 
 You don't need to read the harness internals to use it. Just learn the pipeline below and the order to run it in.
 
@@ -30,17 +30,17 @@ understanding) that the next step reads, so the agent never loses the thread:
   acceptance-criteria) and scores the work against the plan.
 - **Ship** — once QA is green, the `superpowers:finishing-a-development-branch` skill walks you through the merge / PR / cleanup decision.
 
-Why bother instead of one big prompt? Because "make it work" isn't checkable, but _"returns 400 when the upload request omits a content type"_ is. Acceptance criteria are what let the agent — and you — know the feature is actually done.
+Why bother instead of one big prompt? Because "make it work" isn't checkable, but _"returns 400 when the start-run request omits a scope value for an OBJECTIVE scope"_ is. Acceptance criteria are what let the agent — and you — know the feature is actually done.
 
 ## Quick start
 
 Open Claude Code in the repo root and build your first feature:
 
 ```text
-1.  /spec add a "favorite a post" feature for logged-in users
-        → review docs/specs/2026-06-13-favorite-a-post.md, edit anything off.
+1.  /spec add a "drill only the questions I flagged as hard" scope
+        → review docs/specs/2026-06-13-hard-flag-scope.md, edit anything off.
 
-2.  /plan docs/specs/2026-06-13-favorite-a-post.md
+2.  /plan docs/specs/2026-06-13-hard-flag-scope.md
         → review the ordered steps and acceptance criteria.
 
 3.  /implement
@@ -66,7 +66,7 @@ Everything above is you driving the pipeline by hand, one command at a time. `ba
 /run-backlog
 ```
 
-It's built as a Claude Code skill (`.claude/skills/backlog-runner/`) using the `loop-maker` skill's discovery → verification → human-gate pattern, so the same "you approve the risky parts" guarantee from the manual pipeline still holds — just at issue granularity instead of command granularity. The design rationale (why GitHub labels for state, why a separate deterministic verifier script judges `/qa`'s report instead of the model grading itself, why there's no wall-clock budget) lives in the design spec: `docs/superpowers/specs/2026-07-09-backlog-runner-agent-loop-design.md`. Gate and budget specifics live in `.claude/skills/backlog-runner/HUMAN-GATES.md`, not here.
+It's built as a Claude Code skill (`.claude/skills/backlog-runner/`) using the `loop-maker` skill's discovery → verification → human-gate pattern, so the same "you approve the risky parts" guarantee from the manual pipeline still holds — just at issue granularity instead of command granularity. The design rationale (why GitHub labels for state, why a separate deterministic verifier script judges `/qa`'s report instead of the model grading itself, why there's no wall-clock budget) lives with the skill itself, in `.claude/skills/backlog-runner/SKILL.md`. Gate and budget specifics live in `.claude/skills/backlog-runner/HUMAN-GATES.md`, not here.
 
 ## Quality commands (use any time)
 
@@ -80,7 +80,7 @@ These don't need a spec or plan — run them on whatever you've changed:
 
 ## Plugin skills that supercharge each phase
 
-The project commands above are _codebase-specific_ orchestrators. This template also enables general-purpose Claude Code plugins that handle the _meta-work around_ implementation and slot into the same pipeline: brainstorming a fuzzy idea (`superpowers:brainstorming`), exploring existing code before planning (`feature-dev`), building distinctive UI (`impeccable` + the project `app-design` skill), browser-level verification (`playwright` — this repo has no unit-test runner), current library docs (`context7`), Terraform best practice (`terraform-skill` + the `terraform` MCP server), and structured shipping (`superpowers:finishing-a-development-branch`). You rarely invoke them by name; the agent reaches for them when the situation fits.
+The project commands above are _codebase-specific_ orchestrators. This repo also enables general-purpose Claude Code plugins that handle the _meta-work around_ implementation and slot into the same pipeline: brainstorming a fuzzy idea (`superpowers:brainstorming`), exploring existing code before planning (`feature-dev`), building distinctive UI (`impeccable` + the project `app-design` skill), browser-level verification (`playwright` — this repo has no unit-test runner), current library docs (`context7`), Terraform best practice (`terraform-skill` + the `terraform` MCP server), and structured shipping (`superpowers:finishing-a-development-branch`). You rarely invoke them by name; the agent reaches for them when the situation fits.
 
 The full phase-by-phase mapping — which plugin fits where, and what wins on conflict — lives in **`.claude/rules/harness.md`** ("Where each plugin fits"). That file is the single source of truth the agent loads every session; this doc deliberately doesn't duplicate the table, so update it there.
 
@@ -98,7 +98,7 @@ The agent isn't guessing how this codebase works — it reads a set of rule file
 | File                            | What it encodes                                                                                                        |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `CLAUDE.md`                     | Entry point: commands, the hard rules, and imports of the rules below.                                                 |
-| `.claude/rules/architecture.md` | _Where things live_ — the Next.js feature-folder split, server-only data access, the shared packages.                  |
+| `.claude/rules/architecture.md` | _Where things live_ — the route groups, the feature-folder split, server-only data access, the data model.             |
 | `.claude/rules/conventions.md`  | _How to write code here_ — validation at the boundary, the neverthrow `Result` flow, exports.                          |
 | `.claude/rules/principles.md`   | _Why_ — clean-code + _A Philosophy of Software Design_. (Tech-stack docs win on conflict.)                             |
 | `.claude/rules/code-review.md`  | The checklist the reviewers grade against.                                                                             |
@@ -114,12 +114,12 @@ docs/specs/                  ← specs from /spec  (committed; the "what & why")
 .claude/plans/.current       ← pointer to the active plan
 ```
 
-Specs are committed because they document intent for the whole team. Plans are git-ignored working notes — use `/plan list` to see them and `/plan switch <prefix>` to change which one is active.
+Specs are committed because they document intent past the session that produced them. Plans are git-ignored working notes — use `/plan list` to see them and `/plan switch <prefix>` to change which one is active.
 
 ## Tips
 
 - **Edit the spec and plan freely.** They're just Markdown. Fix a wrong assumption before `/implement` rather than after.
-- **Make acceptance criteria concrete.** "Validates input" is weak; "returns 422 with a Zod error when `title` is empty" is gradable.
+- **Make acceptance criteria concrete.** "Validates input" is weak; "returns 400 when `scopeKind` is `OBJECTIVE` and `scopeValue` is empty" is gradable.
 - **Let `/qa` be skeptical.** The reviewers are tuned to push back. A FAIL is cheaper to fix now than in review.
 - **One feature per pipeline.** Keep specs and plans focused — small, shippable slices review better and the agent stays accurate.
 

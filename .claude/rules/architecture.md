@@ -16,7 +16,8 @@ Next.js App Router. Browser code never talks to Postgres or S3 directly — it r
 
 **Routing groups** under `src/app/`:
 
-- `(public)/` — all current pages live here (there is no session concept, so nothing is gated).
+- `(public)/` — the shell pages: the dashboard, a certification overview, the drill launcher, a run summary, past runs, bookmarks. There is no session concept, so nothing is gated — the group name is about layout, not access.
+- `(drill)/` — the drill screen itself, in its own group so it renders without the sidebar and tab bar. The question owns the viewport; that is the only reason the group exists.
 - `api/` — route handlers. These are thin: they call a feature's `server/api` function and `NextResponse.json` the result.
 
 **Feature modules** under `src/features/<name>/` are split by execution context:
@@ -25,13 +26,16 @@ Next.js App Router. Browser code never talks to Postgres or S3 directly — it r
 - `client/` — `'use client'` components, hooks, and client-side API callers.
 - `schemas/` — Zod; `lib/`, `utils/`, `constants/`, `providers/`.
 
+The eight features today: **drill** (the queue builder, the grader, the mastery transition, the card — by far the largest module in the app), **progress** (mastery roll-ups per certification and per objective), **catalog** (certifications, exams, topics), **bookmarks**, **media** (a read-only S3 image proxy — nothing uploads), **error**, **metadata** (page titles) and **theme**. Pure decision logic that neither layer owns — queue ordering, grading, the mastery state machine — lives in `drill/lib/` as plain functions, not in `server/api`.
+
 **Component system** (`src/components/`): Atomic-design layers for cross-feature shared UI:
 
 - `atoms/` — primitives (Button, Separator, Skeleton…); CVA for variants; root element marked `data-slot="<name>"`.
 - `molecules/` — composites of atoms (AlertDialog, Logo…); may expose named subcomponents (e.g. `Card` + `CardHeader` + `CardContent` from one file, when a molecule needs one).
-- `organisms/` — complex interactive components combining molecules; may own local state and handlers. Currently empty — every prior organism (forms, auth-gated actions) was deleted with the features that used them; the layer stays as the designated home for the next one.
-- `layout/` — page structure blocks (`PageTemplate`, `PageHeader`, `DynamicMarker`).
-- `common/` — marketing/cross-page sections (`HeroSection`).
+- `organisms/` — complex interactive components combining molecules; may own local state and handlers (`Sidebar`, `ThemeToggle`).
+- `layout/` — page structure blocks (`PageTemplate`, `PageHeader`, `AppSidebar`, `BottomTabBar`, `DynamicMarker`).
+
+There is no `common/` layer — the marketing sections that justified one were deleted with the boilerplate content they belonged to. Don't reintroduce it for a single component.
 
 Atoms never import from molecules or organisms. Molecules import atoms only. Feature-specific UI belongs in `features/<name>/client/components/` or `features/<name>/server/components/`, not in `src/components/`.
 
@@ -47,7 +51,9 @@ UI is shadcn/ui + Tailwind CSS 4. Import alias is `@/*` → `src/*`.
 
 `src/lib/prisma.ts` exports `getPrismaClient()`, an async accessor that resolves `DATABASE_URL` (from Secrets Manager in deployed environments, `env.DATABASE_URL` locally) once and caches the real client using the Neon serverless adapter (WebSocket via `ws`) — `server/api` code awaits it, it isn't a synchronous singleton. Schema is `apps/nextjs/prisma/schema.prisma`; generated client is git-ignored and produced by `db:generate` (the app's own `prebuild`, so building regenerates it).
 
-`schema.prisma` currently has zero models and nothing calls `getPrismaClient()` — this is deliberate scaffolding (like the empty `organisms/` layer above), kept wired end-to-end (schema, client, migrations, `db:*` scripts) so the first real feature only has to add a model and a caller, not stand up the database layer from scratch.
+`schema.prisma` holds eight models and three enums. `Certification` → `Exam` → `Question` → `QuestionOption` is the catalog; `QuestionProgress` carries the per-question `MasteryState` (`WRONG` → `SHAKY` → `MASTERED`, two consecutive corrects to promote); `DrillRun` → `Attempt` is the history; `Bookmark` is the starred set. The catalog side is deliberately cert-agnostic — more certifications are planned, so don't let assumptions about the one currently seeded leak into shared code.
+
+Question banks are seeded from JSON in the repo-root `data/` directory, which is **git-ignored** — the bank content is not committed. `prisma/seed.ts` validates every file against a Zod schema before writing a row, so a malformed bank fails loudly rather than landing half-loaded. There is no question-editing surface in the UI and none is planned.
 
 Add new validation/schemas/config directly in `apps/nextjs` (there's only one consumer, so there's no cross-app sync problem a shared package would solve). If a second app is ever added back, that's the point to extract shared code into a `shared/` package — not before.
 

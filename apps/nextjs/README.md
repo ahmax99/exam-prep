@@ -1,68 +1,91 @@
-# Next.js Boilerplate
+# Exam Prep — Next.js app
 
-Modern full-stack Next.js application with file uploads.
+The only server in this repo. Server Components and route handlers reach Postgres (via Prisma)
+and S3 (via the AWS SDK) directly — there is no separate backend service to forward to.
 
 ## Setup
 
-1. Copy the environment file:
+1. Copy `.env.example` to `.env` in this directory.
 
-```bash
-cp .env.example .env
-```
-
-2. Configure environment variables in `.env`:
+2. Fill it in:
 
 ```env
-# AWS Configuration
-AWS_REGION="us-east-1"
-S3_BUCKET_NAME=""
-
-# Database (Neon PostgreSQL)
+# Database (Neon PostgreSQL) — required locally
 DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
-# Application
+# Object storage for question images — required
+S3_BUCKET_NAME=""
+
+# Optional; shown with their defaults
+AWS_REGION="ap-northeast-1"
 BASE_URL="http://localhost:3000"
 ```
 
-> **Build once, deploy many.** These are plain runtime environment variables, not `NEXT_PUBLIC_*` — they're read from `process.env` when the container starts, never baked into the JS bundle at build time. The same built Docker image can be promoted from dev to prod unchanged; only the container's runtime env differs between environments.
+`DATABASE_URL_SECRET_NAME` replaces `DATABASE_URL` in deployed environments, where the
+connection string is resolved from AWS Secrets Manager at runtime instead of the environment.
+
+> **Build once, run anywhere.** Every variable here is **server-only**, read from
+> `process.env` at runtime. There is deliberately no `NEXT_PUBLIC_*` variable in this app —
+> Next.js inlines those into the JS bundle at build time, which would permanently bake one
+> environment's values into that build. Client code that needs to reach this app uses
+> same-origin relative paths (`/api/...`), never an absolute base URL from env.
+
+3. Set up the database:
+
+```bash
+bun run db:generate   # prisma generate (also runs automatically as prebuild)
+bun run db:migrate    # prisma migrate dev
+bun run db:seed       # load question banks from the repo-root data/ directory
+```
+
+`db:seed` reads JSON banks from the repo-root `data/` directory, which is git-ignored — the
+question content is not committed, so a fresh clone starts with an empty catalog until you
+supply banks. Every file is validated against a schema before a row is written.
 
 ## Development
 
-Start the development server:
-
 ```bash
-bun run dev
+bun run dev           # http://localhost:3000 (Turbopack)
+bun run build         # production build
+bun run start         # serve the production build
+bun run check-types   # tsc --noEmit
+bun run doctor        # react-doctor health scan
 ```
 
-The application runs at `http://localhost:3000`
+Linting and formatting run from the repo root (`bun run check-format`), not here — oxlint and
+oxfmt are configured once for the whole workspace.
 
-Build for production:
-
-```bash
-bun run build
-```
-
-Start production server:
-
-```bash
-bun run start
-```
-
-Type checking:
-
-```bash
-bun run check-types
-```
+Other database scripts: `db:deploy` (apply migrations without prompting), `db:push`,
+`db:pull`, `db:reset`.
 
 ## Project Structure
 
 ```
+prisma/
+├── schema.prisma     # 8 models, 3 enums
+├── migrations/
+└── seed.ts           # validates and loads question banks
+
 src/
-├── app/              # Next.js App Router pages
-├── components/       # Reusable UI components
-├── features/         # Feature-specific modules
-├── hooks/           # Custom React hooks
-├── lib/             # Utility libraries and configurations
-├── styles/          # Global styles and Tailwind config
-└── utils/           # Helper functions
+├── app/              # App Router
+│   ├── (public)/     # normal shell: dashboard, certification, runs, bookmarks, summary
+│   ├── (drill)/      # no shell — the drill screen owns the viewport
+│   └── api/          # 8 thin route handlers
+├── components/       # atoms → molecules → organisms, plus layout
+├── features/         # drill, progress, catalog, bookmarks, media, error, metadata, theme
+├── config/           # validated env, logger
+├── lib/              # prisma client, s3 client, request logging
+├── styles/           # design tokens (CSS custom properties → Tailwind)
+└── utils/
 ```
+
+Each feature is split by execution context: `server/` (Server Components and route-handler
+logic), `client/` (`'use client'` components and callers), and `schemas/` (Zod). Feature-owned
+UI stays in the feature; only cross-feature UI belongs in `src/components/`.
+
+## Design system
+
+`DESIGN.md` and `PRODUCT.md` in this directory are the design-system and product-context
+records used by the `impeccable` skill, with the machine-readable sidecar in
+`.impeccable/design.json`. Read `DESIGN.md` before changing tokens or adding a component
+variant — it carries the named rules the UI is held to.
