@@ -15,31 +15,32 @@ const TopicMasteryPanel = ({
   return (
     <section
       aria-label="Topics"
-      className="mt-6 flex flex-col gap-3"
+      className="mt-12"
       data-slot="topic-mastery-panel"
     >
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="border-border flex items-baseline justify-between gap-4 border-b pb-2">
         <h2 className="text-xl leading-snug font-medium">Topics</h2>
         {/* Names the counter column: the number is mastered-only, not answered. */}
-        <p className="text-muted-foreground shrink-0 pr-3 text-sm font-medium">
-          Mastered
-        </p>
+        <p className="text-muted-foreground shrink-0 text-sm">Mastered</p>
       </div>
+
       {topics.length === 0 ? (
-        <div className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-lg border p-4">
-          <p>No topics for this exam yet.</p>
-        </div>
+        <p className="text-muted-foreground mt-4 text-sm">
+          No topics for this exam yet.
+        </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        // Same ruled treatment as the weakest-objectives readout, so the two
+        // ranked lists in this app read as one instrument.
+        <ul className="divide-border divide-y">
           {topics.map((topic) => (
             <li key={topic.topic}>
               <Link
-                className="border-border bg-card hover:border-foreground/30 flex min-h-11 items-center gap-4 rounded-lg border p-3"
+                className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 items-center gap-4 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
                 href={`/${certSlug}/drill?scopeKind=TOPIC&scopeValue=${encodeURIComponent(topic.topic)}`}
               >
                 <span className="flex-1 truncate text-sm">{topic.topic}</span>
                 <MasteryBar
-                  className="w-24"
+                  className="hidden w-28 sm:flex"
                   mastered={topic.mastered}
                   shaky={topic.shaky}
                   total={topic.total}
@@ -47,6 +48,7 @@ const TopicMasteryPanel = ({
                 <span
                   aria-label={`${topic.mastered} of ${topic.total} mastered`}
                   className="w-16 shrink-0 text-right font-mono text-sm"
+                  data-numeric
                 >
                   {topic.mastered}/{topic.total}
                 </span>

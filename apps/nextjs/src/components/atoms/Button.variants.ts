@@ -6,6 +6,9 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/80',
+        // The accent is rationed to one peak action per surface; every
+        // ordinary action stays Ink (`default`).
+        brand: 'bg-brand text-brand-foreground hover:bg-brand/90',
         outline:
           'border-border bg-background hover:bg-muted hover:text-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 aria-expanded:bg-muted aria-expanded:text-foreground shadow-xs',
         secondary:

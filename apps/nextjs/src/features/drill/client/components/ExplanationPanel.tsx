@@ -6,9 +6,11 @@ interface ExplanationPanelProps {
 
 function ExplanationPanel({ explanation }: Readonly<ExplanationPanelProps>) {
   return (
+    // A recessed well, not a bordered card: the drill card is already `bg-card`,
+    // so a second card on the same ground was a nested card drawn as a box.
     <section
       aria-label="Explanation"
-      className="border-border bg-card mt-4 rounded-lg border p-4"
+      className="bg-muted/70 mt-6 max-w-[70ch] rounded-lg p-4 text-sm leading-relaxed"
       data-slot="explanation-panel"
     >
       <PromptMarkdown text={explanation} />

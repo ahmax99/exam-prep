@@ -11,7 +11,9 @@ export const dynamic = 'force-dynamic'
 const log = logger.child({ module: 'drill-page' })
 
 // Hoisted so the success and error branches can't drift apart.
-const drillMainClassName = 'px-4 py-6 lg:flex lg:min-h-dvh lg:justify-center'
+// Anchored to the top rather than vertically centered: centering re-positions
+// the question on every advance, because each prompt is a different height.
+const drillMainClassName = 'px-4 py-6 lg:px-8 lg:py-14'
 
 export const generateMetadata = () =>
   generatePageMetadata({
@@ -57,7 +59,7 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
           id="main-content"
           tabIndex={-1}
         >
-          <div className="mx-auto w-full max-w-[40rem] lg:my-auto xl:max-w-[67rem]">
+          <div className="mx-auto w-full max-w-[40rem] xl:max-w-[67rem]">
             <DrillCard
               answeredQuestionIds={answeredQuestionIds}
               certSlug={cert}
@@ -82,7 +84,7 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
           id="main-content"
           tabIndex={-1}
         >
-          <div className="mx-auto w-full max-w-[40rem] lg:my-auto">
+          <div className="mx-auto w-full max-w-[40rem]">
             <h1 className="sr-only">Drill</h1>
             <p className="text-muted-foreground">
               Something went wrong loading this run. Try refreshing.

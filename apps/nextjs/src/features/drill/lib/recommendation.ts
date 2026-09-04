@@ -12,13 +12,14 @@ export interface DrillRecommendation {
   headline: string
 }
 
-// Placeholder copy — flagged for #39's voice pass.
+// Second person, imperative: this surface's job is to start a run, so the
+// headline names the move rather than describing the bucket.
 const HEADLINES: Record<
   Exclude<RecommendedScopeKind, 'EXAM' | 'CERT'>,
   string
 > = {
-  MISSED: 'Questions you got wrong',
-  UNSEEN: 'Questions you have never seen'
+  MISSED: 'Start with what you missed',
+  UNSEEN: 'Cover new ground'
 }
 
 // Decides what a certification's primary "Drill" action should target:
@@ -54,13 +55,13 @@ export const recommendDrill = (input: {
       scopeKind: 'EXAM',
       scopeValue: input.examCode,
       available: input.examQuestionCount,
-      headline: `Everything in ${input.examCode}`
+      headline: `Work through exam ${input.examCode}`
     }
 
   return {
     scopeKind: 'CERT',
     scopeValue: input.certSlug,
     available: input.questionCount,
-    headline: 'Everything in this certification'
+    headline: 'Work through everything'
   }
 }

@@ -3,11 +3,15 @@ import Link from 'next/link'
 import { MasteryBar } from '@/components/atoms'
 import type { CertificationSummary } from '@/features/catalog/server/api'
 import type { CertificationMastery } from '@/features/progress/server/api'
+import { cn } from '@/utils/mergeClass'
 
 interface CertificationCardProps {
   certification: CertificationSummary
   mastery: CertificationMastery | null
 }
+
+const cardClassName =
+  'border-border bg-card hover:border-foreground/30 focus-visible:ring-ring/50 flex min-h-11 flex-col gap-4 rounded-xl border p-5 transition-colors focus-visible:ring-[3px] focus-visible:outline-none'
 
 // The name/vendor row every branch below shares.
 const CardHeading = ({
@@ -17,13 +21,38 @@ const CardHeading = ({
   certification: CertificationSummary
   muted: boolean
 }>) => (
-  <div className="flex items-baseline justify-between gap-2">
+  // Stacks below sm: at 390px a long certification name and the vendor fought
+  // for the same line and the name wrapped under it.
+  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
     <span className={muted ? 'text-foreground font-medium' : 'font-medium'}>
       {certification.name}
     </span>
-    <span className={muted ? 'text-sm' : 'text-muted-foreground text-sm'}>
+    <span className="text-muted-foreground text-sm sm:shrink-0">
       {certification.vendor}
     </span>
+  </div>
+)
+
+// `swatch` keys a stat to the bar segment above it; the label still carries
+// the meaning on its own, so the color is supplementary, never the only cue.
+const Stat = ({
+  label,
+  value,
+  swatch
+}: Readonly<{ label: string; value: number; swatch?: string }>) => (
+  <div className="flex flex-col gap-0.5">
+    <dt className="text-muted-foreground flex items-center gap-1.5 text-xs">
+      {swatch && (
+        <span
+          aria-hidden="true"
+          className={cn('size-1.5 shrink-0 rounded-full', swatch)}
+        />
+      )}
+      {label}
+    </dt>
+    <dd className="font-mono text-sm" data-numeric>
+      {value}
+    </dd>
   </div>
 )
 
@@ -34,7 +63,7 @@ function CertificationCard({
   if (!mastery || mastery.total === 0) {
     return (
       <div
-        className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-lg border p-4"
+        className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-xl border p-5"
         data-slot="certification-card"
       >
         <CardHeading certification={certification} muted />
@@ -49,13 +78,16 @@ function CertificationCard({
   if (attempted === 0) {
     return (
       <Link
-        className="border-border bg-card hover:border-foreground/30 flex min-h-11 flex-col gap-3 rounded-lg border p-4 transition-colors"
+        className={cardClassName}
         data-slot="certification-card"
         href={`/${certification.slug}`}
       >
         <CardHeading certification={certification} muted={false} />
         <p className="text-muted-foreground text-sm">
-          {total} questions · none attempted yet
+          <span className="font-mono" data-numeric>
+            {total}
+          </span>{' '}
+          questions · none attempted yet
         </p>
       </Link>
     )
@@ -63,26 +95,36 @@ function CertificationCard({
 
   return (
     <Link
-      className="border-border bg-card hover:border-foreground/30 flex min-h-11 flex-col gap-3 rounded-lg border p-4 transition-colors"
+      className={cardClassName}
       data-slot="certification-card"
       href={`/${certification.slug}`}
     >
       <CardHeading certification={certification} muted={false} />
-      <p className="font-mono text-3xl">{masteryPercent}%</p>
-      <MasteryBar mastered={mastered} shaky={shaky} total={total} />
-      <dl className="text-muted-foreground grid grid-cols-3 gap-2 text-xs">
-        <div>
-          <dt>Mastered</dt>
-          <dd className="text-foreground font-mono">{mastered}</dd>
-        </div>
-        <div>
-          <dt>Missed</dt>
-          <dd className="text-foreground font-mono">{missed}</dd>
-        </div>
-        <div>
-          <dt>Unseen</dt>
-          <dd className="text-foreground font-mono">{unseen}</dd>
-        </div>
+
+      {/* The percentage reads against the bar it summarizes, rather than
+          standing alone as a hero number that says nothing actionable. */}
+      <div className="flex items-center gap-4">
+        <span
+          className="font-mono text-2xl leading-none font-medium"
+          data-numeric
+        >
+          {masteryPercent}%
+        </span>
+        <MasteryBar
+          className="flex-1"
+          mastered={mastered}
+          shaky={shaky}
+          total={total}
+        />
+      </div>
+
+      {/* Shaky is listed because the bar draws it: without it the amber
+          segment sat next to a "0% mastered" label explaining nothing. */}
+      <dl className="border-border grid grid-cols-2 gap-4 border-t pt-3 sm:grid-cols-4">
+        <Stat label="Mastered" swatch="bg-success" value={mastered} />
+        <Stat label="Shaky" swatch="bg-warning" value={shaky} />
+        <Stat label="Missed" value={missed} />
+        <Stat label="Unseen" value={unseen} />
       </dl>
     </Link>
   )

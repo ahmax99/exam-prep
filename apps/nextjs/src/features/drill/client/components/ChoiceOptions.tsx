@@ -3,7 +3,10 @@
 import type { QuestionType } from '@/lib/prisma'
 import { cn } from '@/utils/mergeClass'
 
-import { choiceOptionVariants } from './ChoiceOptions.variants'
+import {
+  choiceLetterVariants,
+  choiceOptionVariants
+} from './ChoiceOptions.variants'
 import { PromptMarkdown } from './PromptMarkdown'
 
 interface ChoiceOption {
@@ -70,17 +73,21 @@ function ChoiceOptions({
               type={isSingle ? 'radio' : 'checkbox'}
               onChange={() => onToggle(letter)}
             />
-            <span className="text-muted-foreground font-mono">{letter}</span>
-            <span className="flex-1">
+            {/* Stays in the accessible name on purpose: the shortcut legend
+                tells the user to press this letter. */}
+            <span className={cn(choiceLetterVariants({ state }))}>
+              {letter}
+            </span>
+            <span className="min-w-0 flex-1 text-base leading-relaxed">
               <PromptMarkdown text={text} />
             </span>
             {state === 'correct' && (
-              <span className="text-success text-sm font-medium">
+              <span className="text-success shrink-0 text-sm font-medium">
                 Correct answer
               </span>
             )}
             {state === 'incorrect' && (
-              <span className="text-destructive text-sm font-medium">
+              <span className="text-destructive shrink-0 text-sm font-medium">
                 Your answer
               </span>
             )}

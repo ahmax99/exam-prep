@@ -23,7 +23,7 @@ function SelfGradePanel({
   if (outcome !== null) {
     return (
       <p
-        className="text-muted-foreground mt-4 text-sm"
+        className="text-muted-foreground mt-6 text-sm"
         data-slot="self-grade-panel"
       >
         {outcomeMessages[outcome]}
@@ -32,19 +32,27 @@ function SelfGradePanel({
   }
 
   return (
-    <div className="mt-4" data-slot="self-grade-panel">
+    <div
+      className="border-warning/40 bg-warning/5 mt-6 rounded-lg border p-4"
+      data-slot="self-grade-panel"
+    >
+      <p className="text-base font-medium">Did you have it?</p>
       <p
-        className="text-muted-foreground text-sm"
+        className="text-muted-foreground mt-1 max-w-[60ch] text-sm"
         data-slot="self-grade-stakes"
       >
         This is recorded to your mastery tracking for this question and
         can&apos;t be changed afterwards.
       </p>
-      <div className="mt-3 flex items-center gap-3">
+      {/* Both answers carry identical weight on purpose: making "I had it"
+          the prettier button would bias the self-grade, and the honesty of
+          that call is the only thing mastery tracking is built on. */}
+      <div className="mt-4 flex items-center gap-3">
         <Button
-          className="min-h-11 flex-1 md:flex-none"
+          className="min-h-11 flex-1"
           disabled={isSubmitting}
-          variant="ghost"
+          size="lg"
+          variant="outline"
           onClick={onMissedIt}
         >
           I missed it
@@ -53,12 +61,14 @@ function SelfGradePanel({
           </kbd>
         </Button>
         <Button
-          className="min-h-11 flex-1 md:flex-none"
+          className="min-h-11 flex-1"
           disabled={isSubmitting}
+          size="lg"
+          variant="outline"
           onClick={onHadIt}
         >
           I had it
-          <kbd className="text-primary-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
+          <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
             Y
           </kbd>
         </Button>

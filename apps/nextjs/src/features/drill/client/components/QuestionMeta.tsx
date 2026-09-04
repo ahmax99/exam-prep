@@ -47,15 +47,30 @@ function QuestionMeta({
 }: Readonly<QuestionMetaProps>) {
   return (
     <div
-      className="text-muted-foreground flex items-center gap-2 text-sm"
+      className="text-muted-foreground flex items-start gap-3 text-sm"
       data-slot="question-meta"
     >
-      <span>
-        <span className="font-mono">{objective}</span> {topic}
-      </span>
-      <span>{TYPE_LABELS[type]}</span>
-      {timesSeen >= 1 && <span>{ordinal(timesSeen + 1)} time seen</span>}
-      <span className="ml-auto">
+      {/* Each fact is atomic and middot-separated, matching the separator the
+          catalog pages already use: at 390px the old bare-space run-on wrapped
+          mid-fact ("Fill / in", "12th time / seen") and read as one broken
+          sentence, and the objective code ran straight into the topic. */}
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="text-foreground font-mono whitespace-nowrap">
+          {objective}
+        </span>
+        <span className="min-w-0 truncate">{topic}</span>
+        <span aria-hidden="true">·</span>
+        <span className="whitespace-nowrap">{TYPE_LABELS[type]}</span>
+        {timesSeen >= 1 && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span className="whitespace-nowrap">
+              {ordinal(timesSeen + 1)} time seen
+            </span>
+          </>
+        )}
+      </div>
+      <span className="shrink-0">
         <BookmarkToggle
           key={questionId}
           initialBookmarked={initialBookmarked}
