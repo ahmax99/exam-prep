@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { masteryChipVariants } from '@/features/bookmarks/client/components/BookmarkRow.variants'
 import { removeBookmark } from '@/features/bookmarks/client/lib/removeBookmark'
+import { setBookmark } from '@/features/bookmarks/client/lib/setBookmark'
 import type { BookmarkListItem } from '@/features/bookmarks/server/api'
 import { PromptMarkdown } from '@/features/drill/client/components/PromptMarkdown'
 import type { QuestionType } from '@/lib/prisma'
@@ -25,13 +26,27 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
   const router = useRouter()
   const [isRemoving, setIsRemoving] = useState(false)
 
+  const undoRemove = () => {
+    // The row is unmounted by the refresh below, so this closure must not
+    // touch component state — only the captured item and the router.
+    setBookmark({ questionId: item.questionId, note: item.note }).match(
+      () => router.refresh(),
+      (error) => toast.error(error.message)
+    )
+  }
+
   const onRemove = () => {
     if (isRemoving) return
     setIsRemoving(true)
 
     removeBookmark(item.questionId)
       .match(
-        () => router.refresh(),
+        () => {
+          router.refresh()
+          toast.success('Bookmark removed', {
+            action: { label: 'Undo', onClick: undoRemove }
+          })
+        },
         (error) => toast.error(error.message)
       )
       .finally(() => {

@@ -38,26 +38,52 @@ interface DrillCardProps {
   certSlug: string
   questions: DrillQuestion[]
   startIndex: number
+  answeredQuestionIds: string[]
+}
+
+interface QuestionState {
+  selectedLetters: string[]
+  fillInValue: string
+  verdict: AnswerVerdict | null
+  selfGradeOutcome: 'had-it' | 'missed-it' | null
+}
+
+const EMPTY_QUESTION_STATE: QuestionState = {
+  selectedLetters: [],
+  fillInValue: '',
+  verdict: null,
+  selfGradeOutcome: null
+}
+
+type FailedSubmit =
+  | { kind: 'answer'; questionId: string; response: string | string[] }
+  | { kind: 'self-grade'; questionId: string; hadIt: boolean }
+
+const SUBMIT_ERROR_MESSAGES: Record<FailedSubmit['kind'], string> = {
+  answer: "We couldn't save your answer. Nothing was recorded — try again.",
+  'self-grade': "We couldn't record how you graded yourself. Try again."
 }
 
 function DrillCard({
   runId,
   certSlug,
   questions,
-  startIndex
+  startIndex,
+  answeredQuestionIds
 }: Readonly<DrillCardProps>) {
   const router = useRouter()
   // startIndex is read once: a route param change (new runId) remounts this
   // whole page tree, so the prop never changes under a live instance.
   const [currentIndex, setCurrentIndex] = useState(startIndex)
-  const [selectedLetters, setSelectedLetters] = useState<string[]>([])
-  const [verdict, setVerdict] = useState<AnswerVerdict | null>(null)
+  // Keyed by question id, not index: a run's questionIds are unique and
+  // frozen, so the id is the stable identity across backward navigation.
+  const [stateById, setStateById] = useState<Record<string, QuestionState>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [fillInValue, setFillInValue] = useState('')
-  const [selfGradeOutcome, setSelfGradeOutcome] = useState<
-    'had-it' | 'missed-it' | null
-  >(null)
   const [isSelfGradeSubmitting, setIsSelfGradeSubmitting] = useState(false)
+  const [failedSubmit, setFailedSubmit] = useState<FailedSubmit | null>(null)
+  // Suppresses the live-region announcement on mount; only a real
+  // forward/backward navigation should announce anything.
+  const [hasNavigated, setHasNavigated] = useState(false)
   // A plain ref, not `isSubmitting` state: two keydown events arriving before
   // React flushes a state update must still see the in-flight request.
   const isSubmittingRef = useRef(false)
@@ -68,6 +94,40 @@ function DrillCard({
   const containerRef = useRef<HTMLElement>(null)
 
   const question = questions[currentIndex]
+  const { selectedLetters, fillInValue, verdict, selfGradeOutcome } =
+    stateById[question?.id ?? ''] ?? EMPTY_QUESTION_STATE
+
+  // Attempts written before this card mounted (a resumed run): the server has
+  // them, the client never received their verdicts, and getRun deliberately
+  // withholds the reveal fields — so these are review-only with no detail.
+  // No useMemo: React Compiler (reactCompiler: true) auto-memoizes this.
+  const answeredBeforeMount = new Set(answeredQuestionIds)
+  const isAnswered =
+    verdict !== null ||
+    (question ? answeredBeforeMount.has(question.id) : false)
+  const isAnsweredWithoutDetail = isAnswered && verdict === null
+
+  // Blocks "Next question" until a no-match verdict's self-grade is recorded.
+  const isBlocked = verdict?.verdict === 'no-match' && selfGradeOutcome === null
+  const canGoPrevious = currentIndex > 0 && !isBlocked
+
+  // The one expression both the key handler and the legend read, so a
+  // shortcut can never be advertised without being bound (and vice versa).
+  const activeOptionLetters = isAnswered
+    ? []
+    : (question?.options.map((o) => o.letter) ?? [])
+
+  const patchQuestionState = (
+    questionId: string,
+    patch: Partial<QuestionState>
+  ) =>
+    setStateById((current) => ({
+      ...current,
+      [questionId]: {
+        ...(current[questionId] ?? EMPTY_QUESTION_STATE),
+        ...patch
+      }
+    }))
 
   // Keeps keyboard control anchored in the card so useDrillKeys' focus-
   // containment gate doesn't silently swallow every shortcut: mount, a
@@ -90,7 +150,7 @@ function DrillCard({
     containerRef.current?.focus({ preventScroll: true })
   }, [verdict, selfGradeOutcome, question])
 
-  // Self-grading updates verdict too (see submitSelfGrade), so once outcome
+  // Self-grading updates verdict too (see runSelfGrade), so once outcome
   // is set that's the freshest fact — it wins over restating the verdict.
   const liveAnnouncement = selfGradeOutcome
     ? selfGradeOutcome === 'had-it'
@@ -98,29 +158,53 @@ function DrillCard({
       : 'Recorded: missed it.'
     : verdict && question
       ? buildVerdictAnnouncement(question, verdict, selectedLetters)
-      : ''
+      : hasNavigated
+        ? `Question ${currentIndex + 1} of ${questions.length}.`
+        : ''
 
   const toggle = (letter: string) => {
     if (verdict !== null || !question) return
-    setSelectedLetters((current) =>
+    const next =
       question.type === 'SINGLE_ANSWER'
         ? [letter]
-        : current.includes(letter)
-          ? current.filter((selected) => selected !== letter)
-          : [...current, letter]
-    )
+        : selectedLetters.includes(letter)
+          ? selectedLetters.filter((selected) => selected !== letter)
+          : [...selectedLetters, letter]
+    patchQuestionState(question.id, { selectedLetters: next })
   }
 
   const goNext = () => {
+    setHasNavigated(true)
     if (currentIndex + 1 >= questions.length) {
       router.push(`/${certSlug}/drill/${runId}/summary`)
       return
     }
     setCurrentIndex((current) => current + 1)
-    setSelectedLetters([])
-    setVerdict(null)
-    setFillInValue('')
-    setSelfGradeOutcome(null)
+  }
+
+  const goPrevious = () => {
+    if (!canGoPrevious) return
+    setHasNavigated(true)
+    setCurrentIndex((current) => current - 1)
+  }
+
+  const runSubmitAnswer = (questionId: string, response: string | string[]) => {
+    if (isSubmittingRef.current) return
+    isSubmittingRef.current = true
+    setIsSubmitting(true)
+    setFailedSubmit(null)
+    submitAnswer({ runId, questionId, response })
+      .match(
+        (result) => patchQuestionState(questionId, { verdict: result }),
+        (error) => {
+          setFailedSubmit({ kind: 'answer', questionId, response })
+          toast.error(error.message)
+        }
+      )
+      .finally(() => {
+        isSubmittingRef.current = false
+        setIsSubmitting(false)
+      })
   }
 
   const isFillIn = question?.type === 'FILL_IN'
@@ -129,49 +213,42 @@ function DrillCard({
     : selectedLetters.length > 0
 
   const submit = () => {
-    if (!question || !canSubmit || isSubmittingRef.current) return
-    isSubmittingRef.current = true
-    setIsSubmitting(true)
+    if (!question || !canSubmit) return
     // Raw, untrimmed value — the client never normalizes a fill-in answer.
     const response = isFillIn
       ? fillInValue
       : question.type === 'SINGLE_ANSWER'
         ? (selectedLetters[0] ?? '')
         : selectedLetters
-
-    submitAnswer({ runId, questionId: question.id, response })
-      .match(
-        (result) => setVerdict(result),
-        (error) => toast.error(error.message)
-      )
-      .finally(() => {
-        isSubmittingRef.current = false
-        setIsSubmitting(false)
-      })
+    runSubmitAnswer(question.id, response)
   }
 
-  const submitSelfGrade = (hadIt: boolean) => {
-    if (
-      !question ||
-      verdict?.verdict !== 'no-match' ||
-      selfGradeOutcome !== null ||
-      isSelfGradeSubmittingRef.current
-    )
-      return
+  const runSelfGrade = (questionId: string, hadIt: boolean) => {
+    if (isSelfGradeSubmittingRef.current) return
     isSelfGradeSubmittingRef.current = true
     setIsSelfGradeSubmitting(true)
-    selfGrade({ runId, questionId: question.id, hadIt })
+    setFailedSubmit(null)
+    // Captured now, not read fresh at resolve time — the async gap must not
+    // let a navigation-driven state change land on the wrong verdict object.
+    const capturedVerdict = stateById[questionId]?.verdict ?? null
+    selfGrade({ runId, questionId, hadIt })
       .match(
         (gradedVerdict) => {
-          setSelfGradeOutcome(hadIt ? 'had-it' : 'missed-it')
-          // Flips FillInField from the frozen no-match/amber treatment to the
-          // graded matched/wrong one — the reveal fields are unchanged from
-          // the original no-match response, only the discriminant moves.
-          setVerdict((current) =>
-            current ? { ...current, verdict: gradedVerdict } : current
-          )
+          patchQuestionState(questionId, {
+            selfGradeOutcome: hadIt ? 'had-it' : 'missed-it',
+            // Flips FillInField from the frozen no-match/amber treatment to
+            // the graded matched/wrong one — the reveal fields are unchanged
+            // from the original no-match response, only the discriminant
+            // moves.
+            verdict: capturedVerdict
+              ? { ...capturedVerdict, verdict: gradedVerdict }
+              : capturedVerdict
+          })
         },
-        (error) => toast.error(error.message)
+        (error) => {
+          setFailedSubmit({ kind: 'self-grade', questionId, hadIt })
+          toast.error(error.message)
+        }
       )
       .finally(() => {
         isSelfGradeSubmittingRef.current = false
@@ -179,18 +256,30 @@ function DrillCard({
       })
   }
 
-  const skip = () => goNext()
+  const submitSelfGrade = (hadIt: boolean) => {
+    if (
+      !question ||
+      verdict?.verdict !== 'no-match' ||
+      selfGradeOutcome !== null
+    )
+      return
+    runSelfGrade(question.id, hadIt)
+  }
 
-  // Blocks "Next question" until a no-match verdict's self-grade is recorded.
-  const isBlocked = verdict?.verdict === 'no-match' && selfGradeOutcome === null
+  const retryFailedSubmit = () => {
+    if (!failedSubmit) return
+    if (failedSubmit.kind === 'answer')
+      runSubmitAnswer(failedSubmit.questionId, failedSubmit.response)
+    else runSelfGrade(failedSubmit.questionId, failedSubmit.hadIt)
+  }
+
+  const skip = () => goNext()
 
   useDrillKeys({
     containerRef,
-    optionLetters: verdict
-      ? []
-      : (question?.options.map((o) => o.letter) ?? []),
+    optionLetters: activeOptionLetters,
     onLetter: toggle,
-    onPrimary: verdict ? (isBlocked ? () => {} : goNext) : submit,
+    onPrimary: isAnswered ? (isBlocked ? () => {} : goNext) : submit,
     onSkip: isBlocked ? () => {} : skip,
     // Keyboard and pointer share one handler, so the optimistic state has
     // exactly one owner.
@@ -198,7 +287,10 @@ function DrillCard({
     onSelfGradeHadIt:
       verdict?.verdict === 'no-match' ? () => submitSelfGrade(true) : undefined,
     onSelfGradeMissedIt:
-      verdict?.verdict === 'no-match' ? () => submitSelfGrade(false) : undefined
+      verdict?.verdict === 'no-match'
+        ? () => submitSelfGrade(false)
+        : undefined,
+    onPrevious: canGoPrevious ? goPrevious : undefined
   })
 
   if (!question) return null
@@ -260,22 +352,36 @@ function DrillCard({
           <PromptMarkdown text={question.prompt} />
         </p>
 
+        {isAnsweredWithoutDetail && (
+          <p
+            className="text-muted-foreground my-4 text-sm"
+            data-slot="drill-earlier-answer"
+          >
+            You answered this earlier in this run. Your answer isn&apos;t shown
+            here.
+          </p>
+        )}
+
         {question.type === 'FILL_IN' ? (
-          <FillInField
-            // Keyed on question id so React remounts the input (and its
-            // autoFocus) per fill-in question, instead of reusing the same
-            // DOM node whose focus was already spent on the previous one.
-            key={question.id}
-            value={fillInValue}
-            verdict={verdict}
-            onChange={setFillInValue}
-            onSubmit={submit}
-          />
+          !isAnsweredWithoutDetail && (
+            <FillInField
+              // Keyed on question id so React remounts the input (and its
+              // autoFocus) per fill-in question, instead of reusing the same
+              // DOM node whose focus was already spent on the previous one.
+              key={question.id}
+              value={fillInValue}
+              verdict={verdict}
+              onChange={(value) =>
+                patchQuestionState(question.id, { fillInValue: value })
+              }
+              onSubmit={submit}
+            />
+          )
         ) : (
           <>
             <ChoiceOptions
               correctLetters={verdict?.correctLetters ?? null}
-              isAnswered={verdict !== null}
+              isAnswered={isAnswered}
               options={question.options}
               selectedLetters={selectedLetters}
               type={question.type}
@@ -303,11 +409,37 @@ function DrillCard({
           />
         )}
 
+        {failedSubmit?.questionId === question.id && (
+          <div
+            className="border-destructive/40 bg-destructive/10 text-destructive mt-4 flex items-center gap-3 rounded-lg border p-3 text-sm"
+            data-slot="drill-submit-error"
+            role="alert"
+          >
+            <p className="flex-1">{SUBMIT_ERROR_MESSAGES[failedSubmit.kind]}</p>
+            <Button
+              disabled={isSubmitting || isSelfGradeSubmitting}
+              size="sm"
+              variant="destructive"
+              onClick={retryFailedSubmit}
+            >
+              Retry
+            </Button>
+          </div>
+        )}
+
         <div
           className="bg-background border-border fixed inset-x-0 bottom-0 flex items-center gap-3 border-t p-4 md:static md:mt-6 md:border-0 md:bg-transparent md:p-0"
           data-slot="drill-action-bar"
         >
-          {verdict ? (
+          {canGoPrevious && (
+            <Button variant="ghost" onClick={goPrevious}>
+              Previous
+              <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
+                ⌫
+              </kbd>
+            </Button>
+          )}
+          {isAnswered ? (
             <Button className="ml-auto" disabled={isBlocked} onClick={goNext}>
               Next question
               <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
@@ -338,12 +470,13 @@ function DrillCard({
       </div>
 
       <DrillContextRail
+        canGoPrevious={canGoPrevious}
         currentIndex={currentIndex}
-        hasOptions={question.options.length > 0}
-        isAnswered={verdict !== null}
+        isAnswered={isAnswered}
         isSelfGrading={
           verdict?.verdict === 'no-match' || selfGradeOutcome !== null
         }
+        optionLetters={activeOptionLetters}
         progressPercent={progressPercent}
         questionCount={questions.length}
       />

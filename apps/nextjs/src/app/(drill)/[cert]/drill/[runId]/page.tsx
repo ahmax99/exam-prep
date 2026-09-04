@@ -58,6 +58,7 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
         >
           <div className="mx-auto w-full max-w-[40rem] lg:my-auto xl:max-w-[67rem]">
             <DrillCard
+              answeredQuestionIds={answeredQuestionIds}
               certSlug={cert}
               questions={drillQuestions}
               runId={runId}
