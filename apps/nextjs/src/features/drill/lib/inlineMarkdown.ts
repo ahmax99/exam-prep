@@ -63,5 +63,17 @@ const tokenizeInlineMarkdown = (text: string): InlineToken[] => {
   return tokens.filter((token) => token.value !== '')
 }
 
-export { tokenizeInlineMarkdown }
+/**
+ * Returns `text` with the delimiters `tokenizeInlineMarkdown` recognizes
+ * removed, for the sinks that consume bank text as plain characters rather
+ * than rendering it — grading comparisons and screen-reader announcements.
+ * Sharing the tokenizer is the point: a sink that stripped markup its own way
+ * would drift from what PromptMarkdown actually shows.
+ */
+const stripInlineMarkdown = (text: string): string =>
+  tokenizeInlineMarkdown(text)
+    .map((token) => token.value)
+    .join('')
+
+export { stripInlineMarkdown, tokenizeInlineMarkdown }
 export type { InlineToken }

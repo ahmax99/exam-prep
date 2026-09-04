@@ -1,3 +1,4 @@
+import { stripInlineMarkdown } from '@/features/drill/lib/inlineMarkdown'
 import type { AnswerVerdict } from '@/features/drill/schemas/answerVerdict.schema'
 import type { QuestionType } from '@/lib/prisma'
 
@@ -15,11 +16,13 @@ export const buildVerdictAnnouncement = (
   verdict: AnswerVerdict,
   selectedLetters: string[]
 ): string => {
+  // Spoken, not rendered: bank text reaches this sentence as characters, so
+  // its markdown delimiters would otherwise be read aloud as punctuation.
   const textFor = (letters: string[]) => {
     const letterSet = new Set(letters)
     return question.options
       .filter((option) => letterSet.has(option.letter))
-      .map((option) => option.text)
+      .map((option) => stripInlineMarkdown(option.text))
       .join(', ')
   }
 
@@ -34,7 +37,7 @@ export const buildVerdictAnnouncement = (
         : `Correct. ${textFor(verdict.correctLetters)}.`
     case 'wrong':
       return question.type === 'FILL_IN'
-        ? `Incorrect. The correct answer is ${verdict.answerDisplay ?? 'shown below'}.`
+        ? `Incorrect. The correct answer is ${verdict.answerDisplay ? stripInlineMarkdown(verdict.answerDisplay) : 'shown below'}.`
         : `Incorrect. You chose ${textFor(selectedLetters)}. The correct answer is ${textFor(verdict.correctLetters)}.`
     case 'no-match':
       return "We couldn't automatically match your answer. Did you have it?"
