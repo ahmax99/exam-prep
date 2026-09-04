@@ -44,7 +44,11 @@ function MissReview({ misses }: Readonly<MissReviewProps>) {
           </p>
           <p className="text-sm">
             <span className="text-muted-foreground">Correct answer: </span>
-            {miss.answerDisplay ?? miss.correctLetters.join(', ')}
+            {miss.answerDisplay ? (
+              <PromptMarkdown text={miss.answerDisplay} />
+            ) : (
+              miss.correctLetters.join(', ')
+            )}
           </p>
           <ExplanationPanel explanation={miss.explanation} />
         </article>
