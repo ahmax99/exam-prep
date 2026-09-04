@@ -55,9 +55,11 @@ completed once.
   has a seeded question bank. More certifications are a planned, not
   hypothetical, extension — keep new work general rather than special-cased
   to LPIC-1.
-- **Two question types.** `CHOICE` (single- or multi-answer) and `FILL_IN`
-  (typed answer, matched against accepted-answer variants and, when the
-  matcher can't decide, resolved by a self-graded verdict).
+- **Three question types.** `SINGLE_ANSWER` and `MULTIPLE_ANSWER` (graded by
+  set equality over the chosen letters) and `FILL_IN` (typed answer, normalized
+  and matched against accepted-answer variants; when the matcher can't decide
+  it returns `no-match`, not `wrong`, and the verdict is resolved by a
+  self-grade).
 - **Mastery is stateful and per-question.** `QuestionProgress` tracks a
   `MasteryState` (`WRONG` → `SHAKY` → `MASTERED`, two consecutive correct
   answers to promote) per question across repeated `DrillRun`s and
@@ -69,10 +71,18 @@ completed once.
 
 ## Brand Commitments
 
-None confirmed. The wordmark currently renders the literal placeholder string
-`LOGO`, and page titles carry the boilerplate's `Next.js Boilerplate` suffix —
-both tracked as defects (not yet a naming decision) elsewhere in the backlog.
-No product name, logotype, or voice has been chosen; do not invent one here.
+No product name has been chosen, and none should be invented here. The two
+placeholders that used to stand in for one are gone: the wordmark now sets the
+repository's own name as a monospace lockup with an accent block cursor, and
+page titles read `Exam Prep` rather than a boilerplate suffix. Both are literal
+descriptions of what this is, deliberately not branding — treat them as the
+honest default, not as a naming decision already made.
+
+One visual commitment does exist, and it is a constraint rather than an
+identity: a **single accent hue** (cobalt) marks the one peak action on a
+surface, because green, amber and red are already spoken for by the verdict
+states (`correct` / `shaky` / `wrong`) and cannot mark an action without being
+read as a grade. See `DESIGN.md` for the rule that governs it.
 
 ## Evidence on Hand
 

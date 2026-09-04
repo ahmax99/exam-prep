@@ -8,7 +8,7 @@ Creates the following resources:
 
 - **S3 Bucket**: Stores prod's Terraform state with native S3 locking
 
-This is the **only** resource the bring-up creates outside the CI pipeline. Everything else the pipeline needs to authenticate — the GitHub OIDC provider and the per-account `gha-plan`/`gha-deploy` roles — is provided by the org repo (see [`docs/runbook.md`](../../../docs/runbook.md)), so there is no OIDC/role seeding step here anymore.
+This is the **only** resource the bring-up creates outside the CI pipeline. Everything else the pipeline needs to authenticate — the GitHub OIDC provider and the per-account `gha-plan`/`gha-deploy` roles — is provided by the org repo (see [`docs/runbook.md`](../../docs/runbook.md)), so there is no OIDC/role seeding step here anymore.
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ terraform apply -var="project_name=exam-prep" -var="environment=prod" -auto-appr
 cd ../..
 ```
 
-Then continue with prod's GitHub configuration and first apply per [`docs/runbook.md`](../../../docs/runbook.md) — no further local `terraform apply` is needed (open a PR → plan comment → merge to `main` applies prod).
+Then continue with prod's GitHub configuration and first apply per [`docs/runbook.md`](../../docs/runbook.md) — no further local `terraform apply` is needed (open a PR → plan comment → merge to `main` applies prod).
 
 ## Security Features
 

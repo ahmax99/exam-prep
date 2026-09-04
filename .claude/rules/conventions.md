@@ -39,7 +39,7 @@ Always use named exports, never default exports — except where Next.js require
 
 ## Rendering (nextjs)
 
-Cache Components is **not** enabled — there is no `cacheComponents` flag in `next.config.ts`, so this app follows Next.js's previous caching model (`app/guides/caching-without-cache-components` in the version-matched docs bundled at `node_modules/next/dist/docs/`).
+Cache Components is **not** enabled — there is no `cacheComponents` flag in `next.config.mjs`, so this app follows Next.js's previous caching model (`app/guides/caching-without-cache-components` in the version-matched docs bundled at `node_modules/next/dist/docs/`).
 
 - **`'use cache'`, `cacheLife`, and `cacheTag` are unavailable** — they are Cache Components features and error without the flag. Don't reach for them.
 - Route segment configs (`dynamic`, `revalidate`, `dynamicParams`, `fetchCache`) are the supported lever here and are fine to use. Pick the narrowest one that states the intent — `export const revalidate = 3600` for merely time-sensitive data, `dynamic = 'force-dynamic'` only when a route is genuinely per-request.
