@@ -7,8 +7,24 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* The surfaces the browser draws for us still carry the design. Left at
+   their defaults they are the one place the page reads as assembled. */
+::selection {
+  background: var(--brand);
+  color: var(--brand-foreground);
+}
+
+:root {
+  /* Firefox/standards scrollbar; the -webkit rules below cover Chromium. */
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+  accent-color: var(--brand);
+  caret-color: var(--brand);
+}
+
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -16,16 +32,25 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
+  /* Was a hardcoded rgba(0,0,0,.2) — a black thumb on the black dark canvas. */
+  background: var(--border);
+  border-radius: var(--radius-sm);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--muted-foreground);
 }
 
 @layer base {
   body {
     @apply antialiased;
+  }
+
+  /* Counts, percentages and scores are read down a column, so their digits
+     have to share one advance width even in the sans face. */
+  [data-numeric],
+  th,
+  td {
+    font-variant-numeric: tabular-nums;
   }
 }

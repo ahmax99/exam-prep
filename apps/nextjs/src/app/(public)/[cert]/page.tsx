@@ -94,7 +94,7 @@ export default async function CertificationPage({
   if (!selectedExam) {
     return (
       <PageTemplate>
-        <h1 className="text-3xl leading-tight font-semibold">
+        <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance md:text-5xl">
           {certification.name}
         </h1>
         <p className="text-muted-foreground mt-4">No exams seeded yet.</p>
@@ -182,29 +182,45 @@ export default async function CertificationPage({
 
   return (
     <PageTemplate>
-      <h1 className="text-3xl leading-tight font-semibold">
+      <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance md:text-5xl">
         {certification.name}
       </h1>
-      <div className="mt-4 flex flex-col gap-2">
+      <div className="mt-3 flex flex-col gap-1">
         <h2 className="text-xl leading-snug font-medium">{examHeading}</h2>
         <p className="text-muted-foreground text-sm">
-          {selectedExam.questionCount} questions across{' '}
-          {selectedExam.topicCount} topics · {selectedExam.objectiveCount}{' '}
+          <span className="font-mono" data-numeric>
+            {selectedExam.questionCount}
+          </span>{' '}
+          questions across{' '}
+          <span className="font-mono" data-numeric>
+            {selectedExam.topicCount}
+          </span>{' '}
+          topics ·{' '}
+          <span className="font-mono" data-numeric>
+            {selectedExam.objectiveCount}
+          </span>{' '}
           objectives
         </p>
+      </div>
+
+      <div className="mt-8">
         <RecommendedDrill certSlug={cert} recommendation={recommendation} />
       </div>
 
-      <div className="mt-6 flex flex-col gap-2">
-        <h2 className="text-xl leading-snug font-medium">Or pick a scope</h2>
-        <ExamList
-          certSlug={cert}
-          exams={certification.exams}
-          selectedCode={selectedExam.code}
-        />
+      <div className="mt-12">
+        <h2 className="border-border border-b pb-2 text-xl leading-snug font-medium">
+          Or pick a scope
+        </h2>
+        <div className="mt-4">
+          <ExamList
+            certSlug={cert}
+            exams={certification.exams}
+            selectedCode={selectedExam.code}
+          />
+        </div>
       </div>
 
-      <section aria-label="Charts" className="mt-6 grid gap-6 md:grid-cols-2">
+      <section aria-label="Charts" className="mt-12 grid gap-8 md:grid-cols-2">
         <DoughnutChart
           emptyMessage="No questions imported for this exam yet."
           segments={mixSegments}

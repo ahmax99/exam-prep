@@ -11,6 +11,7 @@ import {
 } from '@/features/progress/server/api'
 import { CertificationCard } from '@/features/progress/server/components/CertificationCard'
 import { WeakestObjectivesPanel } from '@/features/progress/server/components/WeakestObjectivesPanel'
+import { cn } from '@/utils/mergeClass'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,7 +31,7 @@ export default async function HomePage() {
   if (certifications === null) {
     return (
       <PageTemplate>
-        <h1 className="text-3xl leading-tight font-semibold">
+        <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance">
           Practice recall until the exam is boring
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -45,7 +46,7 @@ export default async function HomePage() {
   if (!primaryCertification) {
     return (
       <PageTemplate>
-        <h1 className="text-3xl leading-tight font-semibold">
+        <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance">
           Practice recall until the exam is boring
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -91,14 +92,14 @@ export default async function HomePage() {
 
   return (
     <PageTemplate>
-      <h1 className="text-3xl leading-tight font-semibold">
+      <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance md:text-5xl">
         Practice recall until the exam is boring
       </h1>
-      <p className="text-muted-foreground mt-2 max-w-prose">
+      <p className="text-muted-foreground mt-3 max-w-prose">
         Answer from memory, grade yourself honestly, and drill the objectives
         you keep missing.
       </p>
-      <div className="mt-4">
+      <div className="mt-8">
         <RecommendedDrill
           certSlug={primaryCertSlug}
           recommendation={recommendation}
@@ -106,7 +107,10 @@ export default async function HomePage() {
       </div>
       <section
         aria-label="Certifications"
-        className="mt-8 grid gap-4 sm:grid-cols-2"
+        className={cn(
+          'mt-6 grid gap-4',
+          certifications.length > 1 && 'sm:grid-cols-2'
+        )}
       >
         {certifications.map((certification) => (
           <CertificationCard

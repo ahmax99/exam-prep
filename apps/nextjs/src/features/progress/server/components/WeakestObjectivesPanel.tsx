@@ -17,43 +17,56 @@ function WeakestObjectivesPanel({
   return (
     <section
       aria-label="Weakest objectives"
-      className="mt-8 flex flex-col gap-3"
+      className="mt-12"
       data-slot="weakest-objectives-panel"
     >
-      <h2 className="text-lg font-semibold">Weakest objectives</h2>
+      {/* More space above a heading than below it. */}
+      <div className="border-border flex items-baseline justify-between gap-4 border-b pb-2">
+        <h2 className="text-xl leading-snug font-medium">Weakest objectives</h2>
+        <p className="text-muted-foreground shrink-0 text-sm">Mastered</p>
+      </div>
+
       {!hasAttempts || objectives.length === 0 ? (
-        <Empty
-          description="Answer some questions and the objectives you keep missing will rank here, weakest first."
-          title="Nothing ranked yet"
-        >
-          <Link
-            className="text-foreground min-h-11 w-fit content-center underline"
-            href={`/${certSlug}/drill?scopeKind=CERT&scopeValue=${certSlug}`}
+        <div className="mt-4">
+          <Empty
+            description="Answer some questions and the objectives you keep missing will rank here, weakest first."
+            title="Nothing ranked yet"
           >
-            Start drilling
-          </Link>
-        </Empty>
+            <Link
+              className="text-foreground min-h-11 w-fit content-center underline underline-offset-4"
+              href={`/${certSlug}/drill?scopeKind=CERT&scopeValue=${certSlug}`}
+            >
+              Start drilling
+            </Link>
+          </Empty>
+        </div>
       ) : (
-        <ul className="flex flex-col gap-2">
+        // Ruled rows, not a stack of identical rounded cards: the percentages
+        // are meant to be compared down the column, which a shared baseline
+        // and a single hairline between rows do far better than boxes.
+        <ul className="divide-border divide-y">
           {objectives.map((objective) => (
             <li key={objective.objective}>
               <Link
-                className="border-border bg-card hover:border-foreground/30 flex min-h-11 items-center gap-4 rounded-lg border p-3"
+                className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 items-center gap-4 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
                 href={`/${certSlug}/drill?scopeKind=OBJECTIVE&scopeValue=${objective.objective}`}
               >
-                <span className="w-20 shrink-0 font-mono text-sm">
+                <span className="w-16 shrink-0 font-mono text-sm" data-numeric>
                   {objective.objective}
                 </span>
-                <span className="text-muted-foreground flex-1 truncate text-sm">
+                <span className="flex-1 truncate text-sm">
                   {objective.topic}
                 </span>
                 <MasteryBar
-                  className="w-24"
+                  className="hidden w-28 sm:flex"
                   mastered={objective.mastered}
                   shaky={0}
                   total={objective.total}
                 />
-                <span className="w-12 shrink-0 text-right font-mono text-sm">
+                <span
+                  className="w-12 shrink-0 text-right font-mono text-sm"
+                  data-numeric
+                >
                   {objective.masteryPercent}%
                 </span>
               </Link>

@@ -16,6 +16,12 @@ interface FillInFieldProps {
   onSubmit: () => void
 }
 
+const verdictToneClasses: Record<AnswerVerdict['verdict'], string> = {
+  matched: 'text-success',
+  'no-match': 'text-warning',
+  wrong: 'text-destructive'
+}
+
 const verdictLabels: Record<AnswerVerdict['verdict'], string> = {
   matched: 'Matched an accepted answer — recorded as correct.',
   'no-match':
@@ -60,16 +66,24 @@ function FillInField({
   return (
     <div data-slot="fill-in-field-container">
       {verdict && (
-        <p className="text-sm font-medium" data-slot="fill-in-verdict">
+        <p
+          className={cn(
+            'max-w-[70ch] text-base font-medium',
+            verdictToneClasses[verdict.verdict]
+          )}
+          data-slot="fill-in-verdict"
+        >
           {verdictLabels[verdict.verdict]}
         </p>
       )}
 
+      {/* The answer you did not have is the thing you came here to learn, so
+          it gets the scale the input had before it was answered. */}
       {verdict && verdict.verdict !== 'matched' && verdict.answerDisplay && (
-        <div className="mt-2">
+        <div className="border-border mt-4 border-l pl-4">
           <p className="text-muted-foreground text-sm">Correct answer</p>
           <p
-            className="mt-1 font-mono text-lg font-medium"
+            className="mt-1 font-mono text-xl leading-snug font-medium md:text-2xl"
             data-slot="fill-in-correct-answer"
           >
             <PromptMarkdown text={verdict.answerDisplay} />
@@ -77,7 +91,7 @@ function FillInField({
         </div>
       )}
 
-      <div className="mt-2">
+      <div className="mt-4">
         {verdict !== null && (
           <p className="text-muted-foreground text-sm">Your answer</p>
         )}

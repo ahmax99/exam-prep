@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-03T00:00:00Z",
-  "title": "Design System: Boilerplate Baseline",
+  "generatedAt": "2026-09-04T12:30:32Z",
+  "title": "Design System: Exam Prep Design System",
   "extensions": {
     "colorMeta": {
       "primary": {
@@ -63,6 +63,57 @@
           "#f8c3c4",
           "#fdeaea"
         ]
+      },
+      "brand": {
+        "role": "primary",
+        "displayName": "Cobalt",
+        "canonical": "#1f3cf5",
+        "darkCanonical": "#6e8cff",
+        "purpose": "The single chromatic accent; the only hue carrying no verdict meaning.",
+        "tonalRamp": [
+          "#080f3d",
+          "#0e1a6b",
+          "#1526a8",
+          "#1f3cf5",
+          "#5570f8",
+          "#8a9cfa",
+          "#bfc9fc",
+          "#e9edfe"
+        ]
+      },
+      "success": {
+        "role": "secondary",
+        "displayName": "Verdict Green",
+        "canonical": "#1a7f4f",
+        "darkCanonical": "#39d98a",
+        "purpose": "A correct answer and the mastered segment of a MasteryBar.",
+        "tonalRamp": [
+          "#062516",
+          "#0b4229",
+          "#12603b",
+          "#1a7f4f",
+          "#2aa96b",
+          "#5cc894",
+          "#9ce0c1",
+          "#dbf5e9"
+        ]
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "Verdict Amber",
+        "canonical": "#916417",
+        "darkCanonical": "#cf9127",
+        "purpose": "The shaky segment of a MasteryBar and an unresolved fill-in verdict.",
+        "tonalRamp": [
+          "#2b1d05",
+          "#4a320b",
+          "#6b4911",
+          "#916417",
+          "#b98426",
+          "#cf9127",
+          "#e6c48a",
+          "#faedd6"
+        ]
       }
     },
     "typographyMeta": {
@@ -78,7 +129,18 @@
         "displayName": "Label",
         "purpose": "Buttons, form labels, table headers."
       },
-      "mono": { "displayName": "Mono", "purpose": "Code, IDs, tabular data." }
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Code, IDs, counts and every compared number; the system's measurement voice."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles and section headings."
+      }
     },
     "shadows": [
       {
@@ -101,102 +163,194 @@
       {
         "name": "ease-standard",
         "value": "cubic-bezier(0.4, 0, 0.2, 1)",
-        "purpose": "Default easing for state transitions; reduced-motion gets crossfade or instant."
+        "purpose": "Default easing for state and color transitions."
+      },
+      {
+        "name": "progress-fill",
+        "value": "width 300ms cubic-bezier(0, 0, 0.2, 1)",
+        "purpose": "The run-progress bar advancing between questions; the system's one authored motion."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Blanket duration override under prefers-reduced-motion; 0.01ms not 0s so exit transitions still emit transitionend."
       }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" },
-      { "name": "xl", "value": "1280px" },
-      { "name": "2xl", "value": "1536px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      }
     ]
   },
   "components": [
     {
+      "name": "Brand Button",
+      "kind": "button",
+      "refersTo": "button-brand",
+      "description": "The single peak action on a surface (Submit, Next question). Never used twice on one screen.",
+      "html": "<button class=\"ds-btn-brand\">Submit <kbd class=\"ds-btn-brand-kbd\">↵</kbd></button>",
+      "css": ".ds-btn-brand{font-family:var(--font-sans, system-ui, sans-serif);display:inline-flex;align-items:center;gap:.5rem;height:2.25rem;padding:0 .625rem;font-size:.875rem;font-weight:500;border:1px solid transparent;border-radius:var(--radius-md, 6px);background:var(--brand, #1f3cf5);color:var(--brand-foreground, #fff);cursor:pointer;transition:background .2s,opacity .2s}.ds-btn-brand:hover{background:color-mix(in srgb, var(--brand,#1f3cf5) 90%, transparent)}.ds-btn-brand:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}.ds-btn-brand:disabled{opacity:.5;cursor:not-allowed}.ds-btn-brand-kbd{font-family:var(--font-mono, ui-monospace, monospace);font-size:.75rem;opacity:.7}"
+    },
+    {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The single high-emphasis action per view.",
-      "html": "<button class=\"ds-btn-primary\">Create post</button>",
-      "css": ".ds-btn-primary { background: var(--primary, #000); color: var(--primary-foreground, #fff); padding: 8px 16px; height: 36px; font-family: 'Geist Sans', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.01em; border: none; border-radius: 6px; cursor: pointer; transition: opacity 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid var(--ring, #000); outline-offset: 2px; }"
+      "description": "Ink-filled default action. Every ordinary action on a surface uses this, not the accent.",
+      "html": "<button class=\"ds-btn-primary\">Start drilling</button>",
+      "css": ".ds-btn-primary{font-family:var(--font-sans, system-ui, sans-serif);display:inline-flex;align-items:center;justify-content:center;height:2.25rem;padding:0 .625rem;font-size:.875rem;font-weight:500;border:1px solid transparent;border-radius:var(--radius-md, 6px);background:var(--primary, #000);color:var(--primary-foreground, #fff);cursor:pointer;transition:background .2s}.ds-btn-primary:hover{background:color-mix(in srgb, var(--primary,#000) 80%, transparent)}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}"
     },
     {
-      "name": "Secondary Button",
+      "name": "Outline Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Supporting actions beside a primary.",
-      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
-      "css": ".ds-btn-secondary { background: var(--secondary, #ebebeb); color: var(--secondary-foreground, #000); padding: 8px 16px; height: 36px; font-family: 'Geist Sans', sans-serif; font-size: 14px; font-weight: 500; letter-spacing: 0.01em; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-btn-secondary:hover { background: var(--muted, #f5f5f5); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--ring, #000); outline-offset: 2px; }"
+      "description": "Equal-weight choice. Used in pairs where neither option may look preferred — the self-grade Y/N — and for a primary action that is temporarily blocked.",
+      "html": "<button class=\"ds-btn-outline\">I missed it <kbd class=\"ds-btn-outline-kbd\">N</kbd></button>",
+      "css": ".ds-btn-outline{font-family:var(--font-sans, system-ui, sans-serif);display:inline-flex;align-items:center;gap:.5rem;height:2.5rem;padding:0 .625rem;font-size:.875rem;font-weight:500;border:1px solid var(--border, #e4e4e4);border-radius:var(--radius-md, 6px);background:var(--background, #fcfcfc);color:var(--foreground, #000);cursor:pointer;transition:background .2s,border-color .2s}.ds-btn-outline:hover{background:var(--muted, #f5f5f5)}.ds-btn-outline:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}.ds-btn-outline-kbd{font-family:var(--font-mono, ui-monospace, monospace);font-size:.75rem;color:var(--muted-foreground, #525252)}"
     },
     {
-      "name": "Text Input",
+      "name": "Accent Action Panel",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Signature component. The recommended-drill band: a page's one peak, carrying the accent as a ground with the queued count at display scale and the action anchored at the far edge.",
+      "html": "<a class=\"ds-action-panel\" href=\"#\"><div><p class=\"ds-action-panel-head\">Start with what you missed</p><p class=\"ds-action-panel-count\"><span class=\"ds-action-panel-n\">6</span><span class=\"ds-action-panel-unit\">questions queued</span></p></div><span class=\"ds-action-panel-cta\">Start drill <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></span></a>",
+      "css": ".ds-action-panel{font-family:var(--font-sans, system-ui, sans-serif);display:flex;flex-direction:row;align-items:flex-end;justify-content:space-between;gap:2.5rem;padding:2rem;border-radius:var(--radius-xl, 12px);text-decoration:none;background:var(--brand, #1f3cf5);color:var(--brand-foreground, #fff);transition:opacity .2s}.ds-action-panel:hover{opacity:.95}.ds-action-panel:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}.ds-action-panel-head{margin:0;font-size:1.25rem;font-weight:500;line-height:1.375}.ds-action-panel-count{margin:.75rem 0 0;display:flex;align-items:baseline;gap:.75rem}.ds-action-panel-n{font-family:var(--font-mono, ui-monospace, monospace);font-size:4.5rem;font-weight:500;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}.ds-action-panel-unit{font-size:.875rem;color:color-mix(in srgb, currentColor 75%, transparent)}.ds-action-panel-cta{display:inline-flex;align-items:center;gap:.5rem;min-height:2.75rem;padding:0 1.25rem;font-weight:500;border:1px solid color-mix(in srgb, currentColor 40%, transparent);border-radius:var(--radius-lg, 8px);white-space:nowrap;transition:border-color .2s}.ds-action-panel:hover .ds-action-panel-cta{border-color:currentColor}"
+    },
+    {
+      "name": "Ruled List Row",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "Signature component. A ranked or comparable list is hairline-ruled rows on one baseline, never a stack of bordered cards — it is what makes the values comparable down the column.",
+      "html": "<ul class=\"ds-ruled-list\"><li><a class=\"ds-ruled-row\" href=\"#\"><span class=\"ds-ruled-code\">103.3</span><span class=\"ds-ruled-label\">103 — GNU &amp; Unix Commands</span><span class=\"ds-bar\"><span class=\"ds-bar-mastered\" style=\"width:22%\"></span><span class=\"ds-bar-shaky\" style=\"width:14%\"></span></span><span class=\"ds-ruled-value\">22%</span></a></li><li><a class=\"ds-ruled-row\" href=\"#\"><span class=\"ds-ruled-code\">105.1</span><span class=\"ds-ruled-label\">105 — Shells &amp; Shell Scripting</span><span class=\"ds-bar\"><span class=\"ds-bar-mastered\" style=\"width:8%\"></span><span class=\"ds-bar-shaky\" style=\"width:10%\"></span></span><span class=\"ds-ruled-value\">8%</span></a></li></ul>",
+      "css": ".ds-ruled-list{font-family:var(--font-sans, system-ui, sans-serif);list-style:none;margin:0;padding:0}.ds-ruled-list li + li{border-top:1px solid var(--border, #e4e4e4)}.ds-ruled-row{display:flex;align-items:center;gap:1rem;min-height:3.5rem;padding:0 .75rem;margin:0 -.75rem;border-radius:var(--radius-md, 6px);text-decoration:none;color:var(--foreground, #000);transition:background .2s}.ds-ruled-row:hover{background:color-mix(in srgb, var(--muted,#f5f5f5) 60%, transparent)}.ds-ruled-row:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}.ds-ruled-code{font-family:var(--font-mono, ui-monospace, monospace);width:4rem;flex-shrink:0;font-size:.875rem;font-variant-numeric:tabular-nums}.ds-ruled-label{flex:1;min-width:0;font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-ruled-value{font-family:var(--font-mono, ui-monospace, monospace);width:3rem;flex-shrink:0;text-align:right;font-size:.875rem;font-variant-numeric:tabular-nums}.ds-bar{display:flex;width:7rem;height:.375rem;overflow:hidden;border-radius:999px;background:var(--secondary, #ebebeb)}.ds-bar-mastered{height:100%;background:var(--success, #1a7f4f)}.ds-bar-shaky{height:100%;background:var(--warning, #916417)}"
+    },
+    {
+      "name": "Fill-In Field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Default form control inside Field/FieldGroup layout.",
-      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Email address\" />",
-      "css": ".ds-input { background: var(--card, #fff); color: var(--foreground, #000); border: 1px solid var(--input, #ebebeb); border-radius: 6px; padding: 8px 12px; height: 36px; font-family: 'Geist Sans', sans-serif; font-size: 16px; letter-spacing: 0.01em; width: 100%; transition: border-color 0.15s cubic-bezier(0.4,0,0.2,1); } .ds-input::placeholder { color: var(--muted-foreground, #525252); } .ds-input:focus-visible { outline: 2px solid var(--ring, #000); outline-offset: 1px; border-color: var(--ring, #000); }"
+      "description": "Signature component. Typing the answer from memory is the product thesis, so the unanswered field is the largest, most deliberate element on its surface; once answered it drops to reference scale.",
+      "html": "<input class=\"ds-fill-in\" type=\"text\" value=\"grep -c\" aria-label=\"Your answer\" />",
+      "css": ".ds-fill-in{box-sizing:border-box;font-family:var(--font-mono, ui-monospace, monospace);display:block;width:100%;min-height:3.5rem;padding:.75rem 1rem;font-size:1.25rem;background:var(--card, #fff);color:var(--foreground, #000);border:1px solid var(--input, #ebebeb);border-radius:var(--radius-lg, 8px);caret-color:var(--brand, #1f3cf5);transition:border-color .2s,box-shadow .2s}.ds-fill-in:hover{border-color:color-mix(in srgb, var(--foreground,#000) 40%, transparent)}.ds-fill-in:focus{border-color:var(--brand, #1f3cf5);outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}"
+    },
+    {
+      "name": "Option Key",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Signature component. An answer option's letter is drawn as a key rather than set as a caption, because it is literally the keyboard shortcut that selects it. Selected borrows the accent; answered switches to the verdict colors.",
+      "html": "<span class=\"ds-key\">A</span> <span class=\"ds-key ds-key-selected\">B</span> <span class=\"ds-key ds-key-correct\">C</span> <span class=\"ds-key ds-key-incorrect\">D</span>",
+      "css": ".ds-key{font-family:var(--font-mono, ui-monospace, monospace);display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;font-size:.75rem;border:1px solid var(--border, #e4e4e4);border-radius:var(--radius-sm, 4px);color:var(--muted-foreground, #525252)}.ds-key-selected{border-color:var(--brand, #1f3cf5);background:var(--brand, #1f3cf5);color:var(--brand-foreground, #fff)}.ds-key-correct{border-color:var(--success, #1a7f4f);background:var(--success, #1a7f4f);color:#fff}.ds-key-incorrect{border-color:var(--destructive, #c62b30);background:var(--destructive, #c62b30);color:#fff}"
     },
     {
       "name": "Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "Elevated content container with full Card composition.",
-      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Weekly summary</div><div class=\"ds-card-body\">Seven posts published, three drafts pending review.</div></div>",
-      "css": ".ds-card { background: var(--card, #fff); color: var(--card-foreground, #000); border: 1px solid var(--border, #e4e4e4); border-radius: 12px; padding: 24px; box-shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.09); } .ds-card-title { font-family: 'Geist Sans', sans-serif; font-size: 20px; font-weight: 500; line-height: 1.375; margin-bottom: 8px; } .ds-card-body { font-family: 'Geist Sans', sans-serif; font-size: 16px; line-height: 1.5; letter-spacing: 0.01em; color: var(--muted-foreground, #525252); }"
+      "description": "A genuinely distinct navigable object. Never nested inside another card, and never used where a rule or spacing would do.",
+      "html": "<a class=\"ds-card\" href=\"#\"><div class=\"ds-card-head\"><span class=\"ds-card-title\">LPIC-1: Linux Administrator</span><span class=\"ds-card-meta\">Linux Professional Institute</span></div><div class=\"ds-card-row\"><span class=\"ds-card-pct\">34%</span><span class=\"ds-bar\" style=\"flex:1\"><span class=\"ds-bar-mastered\" style=\"width:34%\"></span><span class=\"ds-bar-shaky\" style=\"width:15%\"></span></span></div></a>",
+      "css": ".ds-card{font-family:var(--font-sans, system-ui, sans-serif);display:flex;flex-direction:column;gap:1rem;padding:1.25rem;text-decoration:none;background:var(--card, #fff);color:var(--card-foreground, #000);border:1px solid var(--border, #e4e4e4);border-radius:var(--radius-xl, 12px);box-shadow:0px 1px 2px 0px hsl(0 0% 0% / .09);transition:border-color .2s}.ds-card:hover{border-color:color-mix(in srgb, var(--foreground,#000) 30%, transparent)}.ds-card:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb, var(--ring, #1f3cf5) 50%, transparent);}.ds-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:.75rem}.ds-card-title{font-weight:500}.ds-card-meta{flex-shrink:0;font-size:.875rem;color:var(--muted-foreground, #525252)}.ds-card-row{display:flex;align-items:center;gap:1rem}.ds-card-pct{font-family:var(--font-mono, ui-monospace, monospace);font-size:1.5rem;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}.ds-bar{display:flex;height:.375rem;overflow:hidden;border-radius:999px;background:var(--secondary, #ebebeb)}.ds-bar-mastered{height:100%;background:var(--success, #1a7f4f)}.ds-bar-shaky{height:100%;background:var(--warning, #916417)}"
     },
     {
-      "name": "Badge",
-      "kind": "chip",
-      "refersTo": "badge",
-      "description": "Status and category markers; never decorative.",
-      "html": "<span class=\"ds-badge\">Draft</span>",
-      "css": ".ds-badge { background: var(--muted, #f5f5f5); color: var(--muted-foreground, #525252); border-radius: 4px; padding: 2px 8px; font-family: 'Geist Sans', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.01em; display: inline-block; }"
+      "name": "Wordmark",
+      "kind": "nav",
+      "refersTo": "button-primary",
+      "description": "No product name has been chosen, so the mark is typographic: the words in the mono face closed by a terminal block cursor. The cursor is the only part of the identity that carries the accent.",
+      "html": "<span class=\"ds-logo\"><span class=\"ds-logo-text\">exam<span class=\"ds-logo-sep\">-</span>prep</span><span class=\"ds-logo-cursor\"></span></span>",
+      "css": ".ds-logo{font-family:var(--font-mono, ui-monospace, monospace);display:inline-flex;align-items:center;gap:.375rem;font-size:1rem;font-weight:500;letter-spacing:-.01em;color:var(--foreground, #000)}.ds-logo-text{white-space:nowrap}.ds-logo-sep{color:var(--muted-foreground, #525252)}.ds-logo-cursor{display:block;width:.4rem;height:1rem;background:var(--brand, #1f3cf5)}"
+    },
+    {
+      "name": "Explanation Well",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "A recessed well, not a bordered card: the drill card is already an elevated surface, so a second card on the same ground would be a nested card drawn as a box.",
+      "html": "<section class=\"ds-well\"><code>--usage</code> — most GNU utilities support this \"just remind me of the syntax\" flag, distinct from the fuller <code>-h</code>.</section>",
+      "css": ".ds-well{font-family:var(--font-sans, system-ui, sans-serif);max-width:70ch;padding:1rem;font-size:.875rem;line-height:1.625;border-radius:var(--radius-lg, 8px);background:color-mix(in srgb, var(--muted,#f5f5f5) 70%, transparent);color:var(--foreground, #000)}.ds-well code{font-family:var(--font-mono, ui-monospace, monospace);padding:.1em .35em;border-radius:var(--radius-sm, 4px);background:var(--secondary, #ebebeb)}"
     }
   ],
   "narrative": {
     "northStar": "The Neutral Instrument",
-    "overview": "This system is a precision tool, not a personality. It is strict monochrome by intent: black ink on near-white paper (light) and white ink on true black (dark), with a single red reserved for destruction. The design's job is to make hierarchy, state, and affordance unmistakable using only type weight, size, spacing, and hairline borders — so that when a derived app grafts its brand color onto the token layer, nothing else has to move.",
+    "overview": "This system is a precision tool, not a personality. It is near-monochrome by intent: black ink on near-white paper (light) and white ink on true black (dark), with color reserved for meaning — the primary action, destruction, answer verdicts, mastery state, and data visualization. The design's job is to make hierarchy, state, and affordance unmistakable using type weight, size, spacing, and hairline borders first, so that the handful of chromatic signals that do exist stay legible instead of competing with decoration.\n\nIt explicitly rejects SaaS-template maximalism — purple-to-blue gradients, glassmorphism cards, hero-metric blocks, identical icon-heading-text card grids — and the cream/beige \"warm neutral\" default. Neutral here is a decision, not an absence.",
     "keyCharacteristics": [
-      "Strict monochrome; color appears only when it carries meaning",
+      "Near-monochrome; color appears only when it carries meaning (the one peak action, destructive, answer verdict, mastery state, or chart data)",
       "Hierarchy from type weight, size, and whitespace — never from decoration",
-      "Hairline borders and whisper-quiet shadows define structure",
-      "Every visual value flows from src/styles/tokens/; components consume semantic classes exclusively",
+      "Hairline borders (#e4e4e4) and whisper-quiet shadows define structure",
+      "Every visual value flows from `src/styles/tokens/`; components consume semantic classes (`bg-primary`, `text-muted-foreground`) exclusively",
       "Full light/dark parity out of the box"
     ],
     "rules": [
       {
         "name": "The Monochrome Rule",
-        "body": "Chromatic color is forbidden except: Signal Red for destruction/errors, chart tokens for data visualization, and focus states. If a screen needs emphasis, reach for weight and space, not hue.",
+        "body": "Chromatic color is forbidden except: Cobalt for the one peak action, progress, focus and in-progress selection; Signal Red for destruction/errors; Verdict Green/Amber for answer correctness and mastery state; and chart tokens for data visualization. If a screen needs emphasis anywhere else, reach for weight and space, not hue.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Peak Rule",
+        "body": "A surface spends the accent once. If two things on a page are cobalt, neither is the peak — demote one to Ink (`default`) or to a bordered/ghost treatment. This is what keeps the accent legible as \"the thing to do next\" rather than decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Verdict Reservation",
+        "body": "Green, amber and red belong to answer outcomes and mastery state, and to nothing else. Never reach for them to emphasize an action, and never let the accent stand in for a grade.",
         "section": "colors"
       },
       {
         "name": "The Token Door Rule",
-        "body": "Color enters components only as semantic classes (bg-primary, text-muted-foreground, border-border). A raw hex value or Tailwind palette color in a component is a defect.",
+        "body": "Color enters components only as semantic classes (`bg-primary`, `text-muted-foreground`, `border-border`). A raw hex value or Tailwind palette color (`bg-blue-500`) in a component is a defect.",
         "section": "colors"
       },
       {
         "name": "The One Family Rule",
-        "body": "Geist carries everything. Introducing a second display face is a per-app branding decision made in tokens/fonts.css, never inline.",
+        "body": "Geist carries everything. Introducing a second display face is a per-app branding decision made in `tokens/fonts.css`, never inline.",
         "section": "typography"
+      },
+      {
+        "name": "The Row-Reach Rule",
+        "body": "A row's label and the value it belongs to stay within one comfortable eye-sweep. If a list needs more width than that, the column is too wide — narrow the container rather than stretching the row.",
+        "section": "layout"
+      },
+      {
+        "name": "More Space Above Than Below",
+        "body": "A section heading sits closer to the content it introduces than to the section it follows; the rule under a heading binds it downward.",
+        "section": "layout"
       },
       {
         "name": "The Drawn-Not-Lifted Rule",
         "body": "If a border can express the boundary, use the border. Shadows are reserved for surfaces that genuinely float above the page.",
         "section": "elevation"
+      },
+      {
+        "name": "The One Line Weight Rule",
+        "body": "Every border in the system is 1px in the Hairline color. If a boundary needs more emphasis than that, it needs more space or more type weight, not a thicker rule.",
+        "section": "shapes"
       }
     ],
     "dos": [
-      "Do express every color, radius, shadow, spacing, and font through the token files in src/styles/tokens/ — that is the only door for visual change.",
-      "Do use shadcn semantic classes and built-in variant props before any custom styling.",
+      "Do express every color, radius, shadow, spacing, and font through the token files in `src/styles/tokens/` — that is the only door for visual change.",
+      "Do use shadcn semantic classes (`bg-primary`, `text-muted-foreground`, `border-border`) and built-in `variant` props before any custom styling.",
       "Do ship loading (Skeleton), empty (Empty), error, and disabled states with every surface.",
       "Do keep body text at ≥4.5:1 contrast — Slate Text (#525252) is the lightest allowed body/muted color on light surfaces.",
-      "Do honor prefers-reduced-motion with a crossfade or instant alternative for every animation."
+      "Do rely on `src/styles/tokens/motion.css`'s blanket `prefers-reduced-motion` rule, which already covers every animation by default. Reach for a bespoke crossfade only when an animation carries meaning rather than decoration."
     ],
     "donts": [
       "Don't use purple-to-blue gradients, glassmorphism cards, hero-metric blocks, or identical icon-heading-text card grids — the SaaS-template maximalism this system explicitly rejects.",
-      "Don't introduce warm cream/beige neutrals; the baseline is strict monochrome by intent, not by omission.",
-      "Don't write raw hex or Tailwind palette colors in components — semantic tokens only.",
+      "Don't introduce warm cream/beige neutrals; the baseline is near- monochrome by intent, not by omission.",
+      "Don't spend the accent twice on one surface, or on anything that is not an action, progress, focus, or an in-progress selection.",
+      "Don't stack a page out of identically-bordered cards. A ranked or comparable list is hairline-ruled rows sharing one baseline; a card is for a genuinely distinct navigable object, and never nested inside another card.",
+      "Don't write raw hex or Tailwind palette colors (`bg-blue-500`, `text-emerald-600`) in components — semantic tokens only.",
       "Don't use colored side-stripe borders, gradient text, or tiny uppercase tracked eyebrows above every section.",
       "Don't nest cards inside cards, or reach for a card when a border or spacing would do.",
       "Don't add decorative charts, badges, or stat tiles that don't answer a user question — dashboard clutter is an anti-reference."

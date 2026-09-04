@@ -31,16 +31,27 @@ function DrillContextRail({
     >
       <div aria-hidden="true">
         <p className="text-muted-foreground text-sm">Progress</p>
-        <p className="mt-1 font-mono text-sm">
-          {currentIndex + 1} / {questionCount}
-          <span className="text-muted-foreground ml-2">{progressPercent}%</span>
+        {/* The position in the run is the rail's whole job, so the counter is
+            set at the scale you can read without stopping to look. */}
+        <p className="mt-2 font-mono text-2xl leading-none" data-numeric>
+          {currentIndex + 1}
+          <span className="text-muted-foreground text-base">
+            {' '}
+            / {questionCount}
+          </span>
         </p>
-        <span className="bg-muted mt-2 block h-1.5 overflow-hidden rounded-full">
+        <span className="bg-secondary mt-3 block h-1.5 overflow-hidden rounded-full">
           <span
-            className="bg-foreground block h-full rounded-full"
+            className="bg-brand block h-full rounded-full transition-[width] duration-300 ease-out"
             style={{ width: `${progressPercent}%` }}
           />
         </span>
+        <p
+          className="text-muted-foreground mt-2 font-mono text-xs"
+          data-numeric
+        >
+          {progressPercent}% complete
+        </p>
       </div>
 
       <div className="mt-8">

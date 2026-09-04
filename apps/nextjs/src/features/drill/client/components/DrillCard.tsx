@@ -314,7 +314,7 @@ function DrillCard({
     // to show itself to and would just be visual noise.
     <article
       ref={containerRef}
-      className="border-border bg-card rounded-lg border p-4 pb-24 outline-none md:p-6 md:pb-6 xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start xl:gap-8"
+      className="border-border bg-card rounded-xl border p-4 pb-24 outline-none md:p-8 md:pb-8 xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start xl:gap-10"
       data-slot="drill-card"
       tabIndex={-1}
     >
@@ -331,10 +331,10 @@ function DrillCard({
             </span>
             <span
               aria-hidden="true"
-              className="bg-muted h-1.5 flex-1 overflow-hidden rounded-full"
+              className="bg-secondary h-1.5 flex-1 overflow-hidden rounded-full"
             >
               <span
-                className="bg-foreground block h-full rounded-full"
+                className="bg-brand block h-full rounded-full transition-[width] duration-300 ease-out"
                 style={{ width: `${progressPercent}%` }}
               />
             </span>
@@ -364,10 +364,11 @@ function DrillCard({
           type={question.type}
         />
 
-        {/* max-w-[75ch]: a hard ceiling on DESIGN.md's 65-75ch body measure,
-            independent of the grid math above — protects the prompt column
-            from ever exceeding it regardless of viewport or font metrics. */}
-        <p className="my-4 max-w-[75ch] text-base leading-relaxed">
+        {/* The question is the entire reason this surface exists and has
+            nothing to compete with, so it carries the page at display scale.
+            max-w-[65ch]: a hard ceiling on DESIGN.md's 65-75ch measure at the
+            larger size, independent of the grid math above. */}
+        <p className="mt-6 mb-8 max-w-[65ch] text-xl leading-snug font-medium md:text-2xl">
           <PromptMarkdown text={question.prompt} />
         </p>
 
@@ -459,7 +460,14 @@ function DrillCard({
             </Button>
           )}
           {isAnswered ? (
-            <Button className="ml-auto" disabled={isBlocked} onClick={goNext}>
+            <Button
+              className="ml-auto"
+              disabled={isBlocked}
+              // Blocked pending a self-grade: a washed-out accent button reads
+              // as broken, so it steps back to outline until it can be used.
+              variant={isBlocked ? 'outline' : 'brand'}
+              onClick={goNext}
+            >
               Next question
               <kbd className="text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex">
                 ↵
@@ -476,10 +484,11 @@ function DrillCard({
               <Button
                 className="ml-auto"
                 disabled={!canSubmit || isSubmitting}
+                variant="brand"
                 onClick={submit}
               >
                 Submit
-                <kbd className="text-primary-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
+                <kbd className="text-brand-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
                   ↵
                 </kbd>
               </Button>
