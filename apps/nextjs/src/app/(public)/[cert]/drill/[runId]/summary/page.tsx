@@ -109,23 +109,21 @@ export default async function RunSummaryPage({
 
   return (
     <PageTemplate back={{ href: `/${cert}`, label: backLabel }}>
-      <div className="pb-24 md:pb-0">
-        <RunSummary headline={headline} outcomes={summary.outcomes} />
-        <SummaryActions
-          certSlug={cert}
-          missCount={summary.misses.length}
-          runId={runId}
-          skippedCount={summary.outcomes.skipped}
-        />
-        <MissReview misses={summary.misses} />
+      <RunSummary headline={headline} outcomes={summary.outcomes} />
+      <SummaryActions
+        certSlug={cert}
+        missCount={summary.misses.length}
+        runId={runId}
+        skippedCount={summary.outcomes.skipped}
+      />
+      <MissReview misses={summary.misses} />
 
-        <details className="mt-6" data-slot="past-runs">
-          <summary className="text-muted-foreground min-h-11 cursor-pointer text-sm">
-            Past runs
-          </summary>
-          <div className="mt-3">{historyContent}</div>
-        </details>
-      </div>
+      <details className="mt-6" data-slot="past-runs">
+        <summary className="text-muted-foreground min-h-11 cursor-pointer text-sm">
+          Past runs
+        </summary>
+        <div className="mt-3">{historyContent}</div>
+      </details>
     </PageTemplate>
   )
 }
