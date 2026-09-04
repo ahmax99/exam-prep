@@ -31,7 +31,7 @@
     "oxfmt": "^0.65.0",
     "oxlint": "^1.80.0",
     "turbo": "^2.10.12",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "overrides": {
     "deepmerge-ts": "^8.0.2",
