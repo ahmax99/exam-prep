@@ -1,3 +1,5 @@
+import { stripInlineMarkdown } from './inlineMarkdown'
+
 const MAX_ANSWER_TOKENS = 4
 const FORBIDDEN_SIDE_CHARS = /[\s,;'"]/
 
@@ -5,8 +7,11 @@ const FORBIDDEN_SIDE_CHARS = /[\s,;'"]/
 // what the real bank's NBSP-separated fill-in alternations depend on here.
 const WHITESPACE_RUN = /\s+/g
 
+// Stripping markup the renderer's own way is what keeps grading honest: the
+// bank writes answers in markdown, so whatever PromptMarkdown shows as
+// decoration must not be text the learner is expected to type back.
 export const normalizeAnswer = (raw: string): string =>
-  raw.replaceAll('`', '').toLowerCase().replace(WHITESPACE_RUN, ' ').trim()
+  stripInlineMarkdown(raw).toLowerCase().replace(WHITESPACE_RUN, ' ').trim()
 
 export const deriveAcceptedAnswers = (raw: string): string[] => {
   const normalized = normalizeAnswer(raw)
