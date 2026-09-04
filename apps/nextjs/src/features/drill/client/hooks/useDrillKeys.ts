@@ -12,6 +12,7 @@ interface DrillKeyHandlers {
   onSelfGradeHadIt?: () => void
   onSelfGradeMissedIt?: () => void
   onPrevious?: () => void
+  onHelp?: () => void
 }
 
 const isTextEntryTarget = (target: EventTarget | null) =>
@@ -54,6 +55,12 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       if (event.key === 'Backspace') {
         event.preventDefault()
         current.onPrevious?.()
+        return
+      }
+
+      if (event.key === '?') {
+        event.preventDefault()
+        current.onHelp?.()
         return
       }
 

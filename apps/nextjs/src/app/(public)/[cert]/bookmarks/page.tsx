@@ -66,7 +66,8 @@ export default async function BookmarksPage({
     <PageTemplate>
       <h1 className="text-2xl font-semibold">Bookmarked questions</h1>
       <p className="text-muted-foreground mt-2 text-sm">
-        {total} questions saved for revision · {mastered} already mastered
+        {total} {total === 1 ? 'question' : 'questions'} saved for revision ·{' '}
+        {mastered} already mastered
       </p>
 
       {total === 0 ? (

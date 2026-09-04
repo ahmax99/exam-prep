@@ -42,6 +42,7 @@ export default async function DrillRunPage({ params }: DrillRunPageProps) {
       const drillQuestions = questions.map((question) => ({
         id: question.id,
         objective: question.objective,
+        topic: question.topic,
         type: question.type,
         prompt: question.prompt,
         options: question.options,

@@ -17,8 +17,9 @@ interface FillInFieldProps {
 }
 
 const verdictLabels: Record<AnswerVerdict['verdict'], string> = {
-  matched: 'Matched — we recognized your answer.',
-  'no-match': "We couldn't match your answer automatically — did you have it?",
+  matched: 'Matched an accepted answer — recorded as correct.',
+  'no-match':
+    "We couldn't match this to an accepted answer. That could mean you had it and phrased it differently, or you missed it — self-grade honestly below.",
   wrong: 'Incorrect'
 }
 

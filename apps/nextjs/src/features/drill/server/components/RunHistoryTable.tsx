@@ -15,7 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB', {
 
 const deltaText = (delta: HistoryRow['delta']) => {
   if (!delta) return '—'
-  if (delta.direction === 'even') return 'even'
+  if (delta.direction === 'even') return 'No change'
   return delta.direction === 'up'
     ? `+${delta.points} pts`
     : `−${Math.abs(delta.points)} pts`

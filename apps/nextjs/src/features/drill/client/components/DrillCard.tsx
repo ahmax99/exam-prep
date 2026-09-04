@@ -22,10 +22,12 @@ import { FillInField } from './FillInField'
 import { PromptMarkdown } from './PromptMarkdown'
 import { QuestionMeta } from './QuestionMeta'
 import { SelfGradePanel } from './SelfGradePanel'
+import { ShortcutsHelp } from './ShortcutsHelp'
 
 interface DrillQuestion {
   id: string
   objective: string
+  topic: string
   type: QuestionType
   prompt: string
   options: { letter: string; text: string }[]
@@ -92,6 +94,7 @@ function DrillCard({
   const isSelfGradeSubmittingRef = useRef(false)
   const bookmarkToggleRef = useRef<HTMLButtonElement>(null)
   const containerRef = useRef<HTMLElement>(null)
+  const [isHelpOpen, setIsHelpOpen] = useState(false)
 
   const question = questions[currentIndex]
   const { selectedLetters, fillInValue, verdict, selfGradeOutcome } =
@@ -176,6 +179,10 @@ function DrillCard({
   const goNext = () => {
     setHasNavigated(true)
     if (currentIndex + 1 >= questions.length) {
+      // This run's mastery writes never remounted the shared app rail (the
+      // drill route has no sidebar of its own) — refresh so the rail and
+      // the summary page it's about to render both read the finished state.
+      router.refresh()
       router.push(`/${certSlug}/drill/${runId}/summary`)
       return
     }
@@ -290,7 +297,8 @@ function DrillCard({
       verdict?.verdict === 'no-match'
         ? () => submitSelfGrade(false)
         : undefined,
-    onPrevious: canGoPrevious ? goPrevious : undefined
+    onPrevious: canGoPrevious ? goPrevious : undefined,
+    onHelp: () => setIsHelpOpen(true)
   })
 
   if (!question) return null
@@ -331,6 +339,16 @@ function DrillCard({
               />
             </span>
           </div>
+          <ShortcutsHelp
+            canGoPrevious={canGoPrevious}
+            isAnswered={isAnswered}
+            isOpen={isHelpOpen}
+            isSelfGrading={
+              verdict?.verdict === 'no-match' || selfGradeOutcome !== null
+            }
+            optionLetters={activeOptionLetters}
+            onOpenChange={setIsHelpOpen}
+          />
           <Link className="text-muted-foreground text-sm" href={`/${certSlug}`}>
             Exit
           </Link>
@@ -342,6 +360,7 @@ function DrillCard({
           questionId={question.id}
           timesSeen={question.timesSeen}
           toggleRef={bookmarkToggleRef}
+          topic={question.topic}
           type={question.type}
         />
 
