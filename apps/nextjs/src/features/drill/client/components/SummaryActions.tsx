@@ -80,7 +80,7 @@ function SummaryActions({
         </p>
       )}
 
-      <div className="fixed inset-x-4 bottom-20 z-30 flex gap-3 md:static md:inset-auto md:flex-row">
+      <div className="flex gap-3">
         <Button
           aria-label="Drill weak spots"
           className="min-h-11 flex-1 md:flex-none"
