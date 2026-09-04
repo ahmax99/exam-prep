@@ -8,6 +8,7 @@ import type { QuestionType } from '@/lib/prisma'
 interface QuestionMetaProps {
   questionId: string
   objective: string
+  topic: string
   type: QuestionType
   timesSeen: number
   initialBookmarked: boolean
@@ -38,6 +39,7 @@ const ordinal = (value: number) => {
 function QuestionMeta({
   questionId,
   objective,
+  topic,
   type,
   timesSeen,
   initialBookmarked,
@@ -48,7 +50,9 @@ function QuestionMeta({
       className="text-muted-foreground flex items-center gap-2 text-sm"
       data-slot="question-meta"
     >
-      <span className="font-mono">{objective}</span>
+      <span>
+        <span className="font-mono">{objective}</span> {topic}
+      </span>
       <span>{TYPE_LABELS[type]}</span>
       {timesSeen >= 1 && <span>{ordinal(timesSeen + 1)} time seen</span>}
       <span className="ml-auto">

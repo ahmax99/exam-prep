@@ -1,0 +1,79 @@
+'use client'
+
+import { CircleHelp } from 'lucide-react'
+
+import { Button } from '@/components/atoms'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle
+} from '@/components/molecules/Sheet'
+
+import { ShortcutsList } from './ShortcutsList'
+
+interface ShortcutsHelpProps {
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  optionLetters: string[]
+  canGoPrevious: boolean
+  isSelfGrading: boolean
+  isAnswered: boolean
+}
+
+// The only documentation for the drill's keyboard model that isn't a
+// hidden-below-xl <kbd> chip — reachable by tap or by `?` at every
+// breakpoint, per the (drill)/[cert]/drill/[runId]/page.tsx route having no
+// sidebar of its own to put it in.
+function ShortcutsHelp({
+  isOpen,
+  onOpenChange,
+  optionLetters,
+  canGoPrevious,
+  isSelfGrading,
+  isAnswered
+}: Readonly<ShortcutsHelpProps>) {
+  return (
+    <>
+      <Button
+        aria-label="Keyboard shortcuts and what mastery means"
+        className="min-h-11 min-w-11"
+        size="icon-sm"
+        variant="ghost"
+        onClick={() => onOpenChange(true)}
+      >
+        <CircleHelp className="size-4" />
+      </Button>
+      <Sheet open={isOpen} onOpenChange={onOpenChange}>
+        <SheetContent data-slot="shortcuts-help" side="bottom">
+          <SheetHeader>
+            <SheetTitle>Keyboard shortcuts</SheetTitle>
+            <SheetDescription>
+              Press <kbd className="font-mono">?</kbd> any time to open this
+              again.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-4 pb-4">
+            <ShortcutsList
+              canGoPrevious={canGoPrevious}
+              isAnswered={isAnswered}
+              isSelfGrading={isSelfGrading}
+              optionLetters={optionLetters}
+            />
+            <p className="text-muted-foreground mt-4 text-sm">
+              <span className="text-foreground font-medium">Mastered</span> —
+              two correct answers in a row.{' '}
+              <span className="text-foreground font-medium">Missed</span> — your
+              last attempt on this question was wrong.{' '}
+              <span className="text-foreground font-medium">Unseen</span> — not
+              attempted yet.
+            </p>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
+  )
+}
+
+export { ShortcutsHelp }
