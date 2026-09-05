@@ -73,7 +73,6 @@ function ChoiceOptions({
               type={isSingle ? 'radio' : 'checkbox'}
               onChange={() => onToggle(letter)}
             />
-            {}
             <span className={cn(choiceLetterVariants({ state }))}>
               {letter}
             </span>

@@ -24,7 +24,6 @@ function DrillContextRail({
     >
       <div aria-hidden="true">
         <p className="text-muted-foreground text-sm">Progress</p>
-        {}
         <p className="mt-2 font-mono text-2xl leading-none" data-numeric>
           {currentIndex + 1}
           <span className="text-muted-foreground text-base">

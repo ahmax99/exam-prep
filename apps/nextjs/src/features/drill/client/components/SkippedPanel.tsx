@@ -40,7 +40,6 @@ function SkippedPanel({
 }: Readonly<SkippedPanelProps>) {
   return (
     <>
-      {}
       {entries.length > 0 && (
         <Button
           aria-label={`Skipped questions (${entries.length})`}

@@ -236,7 +236,6 @@ function DrillCard({
           type={question.type}
         />
 
-        {}
         <p className="mt-6 mb-8 max-w-[65ch] text-xl leading-snug font-medium md:text-2xl">
           <PromptMarkdown text={question.prompt} />
         </p>
@@ -267,7 +266,6 @@ function DrillCard({
           onToggle={toggle}
         />
 
-        {}
         <p aria-live="polite" className="sr-only" role="status">
           {buildLiveAnnouncement({
             question,

@@ -66,7 +66,6 @@ function FillInField({
         </p>
       )}
 
-      {}
       {verdict && verdict.verdict !== 'matched' && verdict.answerDisplay && (
         <div className="border-border mt-4 border-l pl-4">
           <p className="text-muted-foreground text-sm">Correct answer</p>

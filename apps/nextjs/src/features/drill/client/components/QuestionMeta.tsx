@@ -50,7 +50,6 @@ function QuestionMeta({
       className="text-muted-foreground flex items-start gap-3 text-sm"
       data-slot="question-meta"
     >
-      {}
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
         <span className="text-foreground font-mono whitespace-nowrap">
           {objective}

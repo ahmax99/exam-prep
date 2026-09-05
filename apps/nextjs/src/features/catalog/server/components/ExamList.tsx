@@ -31,7 +31,6 @@ const ExamList = ({
                 className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 flex-1 items-center gap-3 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
                 href={`/${certSlug}?exam=${exam.code}`}
               >
-                {}
                 <span
                   aria-hidden="true"
                   className={cn(

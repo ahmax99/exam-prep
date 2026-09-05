@@ -31,7 +31,6 @@ const RecommendedDrill = ({
           {recommendation.headline}
         </p>
 
-        {}
         <p className="mt-3 flex items-baseline gap-3">
           <span
             className="font-mono text-6xl leading-none font-medium tracking-tighter md:text-7xl"
@@ -39,14 +38,12 @@ const RecommendedDrill = ({
           >
             {recommendation.available}
           </span>
-          {}
           <span className="text-brand-foreground/75 text-sm">
             {recommendation.available === 1 ? 'question' : 'questions'} queued
           </span>
         </p>
       </div>
 
-      {}
       <span className="text-brand-foreground border-brand-foreground/40 group-hover/drill:border-brand-foreground inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-lg border px-5 font-medium transition-colors md:self-auto">
         Start drill
         <ArrowRight aria-hidden="true" className="size-4" />

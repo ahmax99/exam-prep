@@ -44,7 +44,6 @@ function SelfGradePanel({
         This is recorded to your mastery tracking for this question and
         can&apos;t be changed afterwards.
       </p>
-      {}
       <div className="mt-4 flex items-center gap-3">
         <Button
           className="min-h-11 flex-1"

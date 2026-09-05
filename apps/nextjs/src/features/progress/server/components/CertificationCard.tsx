@@ -96,7 +96,6 @@ function CertificationCard({
     >
       <CardHeading certification={certification} muted={false} />
 
-      {}
       <div className="flex items-center gap-4">
         <span
           className="font-mono text-2xl leading-none font-medium"
@@ -112,7 +111,6 @@ function CertificationCard({
         />
       </div>
 
-      {}
       <dl className="border-border grid grid-cols-2 gap-4 border-t pt-3 sm:grid-cols-4">
         <Stat label="Mastered" swatch="bg-success" value={mastered} />
         <Stat label="Shaky" swatch="bg-warning" value={shaky} />
