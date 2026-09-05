@@ -79,10 +79,13 @@ descriptions of what this is, deliberately not branding — treat them as the
 honest default, not as a naming decision already made.
 
 One visual commitment does exist, and it is a constraint rather than an
-identity: a **single accent hue** (cobalt) marks the one peak action on a
-surface, because green, amber and red are already spoken for by the verdict
-states (`correct` / `shaky` / `wrong`) and cannot mark an action without being
-read as a grade. See `DESIGN.md` for the rule that governs it.
+identity: colour is organised into **three tiers and nothing else** — a single
+action blue for the one peak action per surface, a categorical arc for taxonomy
+(topics, objectives, chart series), and green/amber/red reserved for the verdict
+states (`correct` / `shaky` / `wrong`). The verdict reservation is why the
+taxonomy arc lives entirely on the cool half of the colour wheel: the warm half
+is already spoken for, and a warm mark would be read as a grade. See
+`DESIGN.md` for the rules that govern it.
 
 ## Evidence on Hand
 
