@@ -7,18 +7,14 @@ import { useRef, useState } from 'react'
 import {
   canSubmitAnswer,
   nextSelection,
-  selectableLetters,
   toAnswerResponse
 } from '@/features/drill/lib/answerInput'
 import type { QuestionType } from '@/lib/prisma'
 
 import { bindShortcuts, boundShortcuts } from '../../lib/shortcuts'
-import { selectSkippedIndexes } from '../../lib/skipped'
 import { useCardFocus } from '../hooks/useCardFocus'
-import { useDrillAnswers } from '../hooks/useDrillAnswers'
-import { useDrillCursor } from '../hooks/useDrillCursor'
 import { useDrillKeys } from '../hooks/useDrillKeys'
-import { useDrillSubmissions } from '../hooks/useDrillSubmissions'
+import { useDrillState } from '../hooks/useDrillState'
 import { buildLiveAnnouncement } from '../lib/verdictAnnouncement'
 
 import { DrillActionBar } from './DrillActionBar'
@@ -65,54 +61,34 @@ function DrillCard({
   const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [isSkippedOpen, setIsSkippedOpen] = useState(false)
 
-  const answers = useDrillAnswers(answeredQuestionIds)
-  const cursor = useDrillCursor({
+  const {
+    answers,
+    cursor,
+    submissions,
+    question,
+    questionState,
+    isAnswered,
+    isAnsweredWithoutDetail,
+    isBlocked,
+    isSelfGrading,
+    canGoPrevious,
+    activeOptionLetters,
+    skippedEntries
+  } = useDrillState({
+    runId,
+    questions,
     startIndex,
     frontier,
-    questionCount: questions.length,
+    answeredQuestionIds,
     onFinish: () => {
       router.refresh()
       router.push(`/${certSlug}/drill/${runId}/summary`)
     }
   })
-  const submissions = useDrillSubmissions({
-    runId,
-    patchQuestionState: answers.patchQuestionState,
-    verdictFor: answers.verdictFor
-  })
 
   const { currentIndex } = cursor
-  const question = questions[currentIndex]
   const { selectedLetters, fillInValue, verdict, selfGradeOutcome } =
-    answers.stateFor(question?.id)
-
-  const isAnswered = answers.isRevealed(question?.id)
-  const isAnsweredWithoutDetail = isAnswered && verdict === null
-  const isSelfGrading =
-    verdict?.verdict === 'no-match' || selfGradeOutcome !== null
-
-  const isBlocked = verdict?.verdict === 'no-match' && selfGradeOutcome === null
-  const canGoPrevious = currentIndex > 0 && !isBlocked
-
-  const activeOptionLetters = selectableLetters(question?.options, isAnswered)
-
-  const skippedEntries = selectSkippedIndexes(
-    questions.map((entry) => entry.id),
-    answers.isRecorded,
-    cursor.furthestIndex
-  ).flatMap((index) => {
-    const skipped = questions[index]
-    return skipped
-      ? [
-          {
-            index,
-            id: skipped.id,
-            objective: skipped.objective,
-            prompt: skipped.prompt
-          }
-        ]
-      : []
-  })
+    questionState
 
   const shortcuts = boundShortcuts({
     optionLetters: activeOptionLetters,

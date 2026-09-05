@@ -2,9 +2,14 @@
 
 import { useState } from 'react'
 
+import {
+  answerPhase,
+  type AnswerPhase,
+  type SelfGradeOutcome
+} from '@/features/drill/lib/answerPhase'
 import type { AnswerVerdict } from '@/features/drill/schemas/answerVerdict.schema'
 
-export type SelfGradeOutcome = 'had-it' | 'missed-it'
+export type { SelfGradeOutcome }
 
 export interface QuestionState {
   selectedLetters: string[]
@@ -40,20 +45,16 @@ export const useDrillAnswers = (answeredQuestionIds: string[]) => {
   const stateFor = (questionId: string | undefined): QuestionState =>
     stateById[questionId ?? ''] ?? EMPTY_QUESTION_STATE
 
+  const phaseFor = (questionId: string | undefined): AnswerPhase =>
+    answerPhase(stateFor(questionId))
+
   const isRevealed = (questionId: string | undefined) =>
     questionId !== undefined &&
     (stateById[questionId]?.verdict != null ||
       answeredBeforeMount.has(questionId))
 
-  const isRecorded = (questionId: string) => {
-    if (answeredBeforeMount.has(questionId)) return true
-    const recorded = stateById[questionId]
-    if (!recorded?.verdict) return false
-    return (
-      recorded.verdict.verdict !== 'no-match' ||
-      recorded.selfGradeOutcome !== null
-    )
-  }
+  const isRecorded = (questionId: string) =>
+    answeredBeforeMount.has(questionId) || phaseFor(questionId) === 'recorded'
 
   const verdictFor = (questionId: string) =>
     stateById[questionId]?.verdict ?? null
@@ -61,6 +62,7 @@ export const useDrillAnswers = (answeredQuestionIds: string[]) => {
   return {
     patchQuestionState,
     stateFor,
+    phaseFor,
     isRevealed,
     isRecorded,
     verdictFor
