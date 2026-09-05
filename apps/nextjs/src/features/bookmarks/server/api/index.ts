@@ -7,12 +7,6 @@ import {
   getPrismaClient
 } from '@/lib/prisma'
 
-export interface BookmarkRecord {
-  questionId: string
-  note: string | null
-  createdAt: Date
-}
-
 export interface BookmarkListItem {
   questionId: string
   note: string | null

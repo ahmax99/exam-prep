@@ -10,7 +10,7 @@ import { SidebarProvider } from '@/components/organisms/Sidebar'
 import { logger } from '@/config/logger'
 import { countBookmarks } from '@/features/bookmarks/server/api'
 import { getCertifications } from '@/features/catalog/server/api'
-import { ErrorScreenProvider } from '@/features/error/client/providers/ErrorScreenProvider'
+import { drillHref } from '@/features/drill/lib/drillHref'
 import { catchAsyncError } from '@/features/error/utils/catchError'
 import { getDashboard } from '@/features/progress/server/api'
 
@@ -21,14 +21,21 @@ const log = logger.child({ module: 'public-layout' })
 export default async function PublicLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  const certifications = (await catchAsyncError(getCertifications())).match(
+  const [certificationsResult, dashboardResult, cookieStore] =
+    await Promise.all([
+      catchAsyncError(getCertifications()),
+      catchAsyncError(getDashboard()),
+      cookies()
+    ])
+
+  const certifications = certificationsResult.match(
     (value) => value,
     (error) => {
       log.error({ error }, 'Failed to load certifications for app rail')
       return []
     }
   )
-  const dashboard = (await catchAsyncError(getDashboard())).match(
+  const dashboard = dashboardResult.match(
     (value) => value,
     (error) => {
       log.error({ error }, 'Failed to load dashboard mastery for app rail')
@@ -51,19 +58,25 @@ export default async function PublicLayout({
     : null
   const savedHref = primaryCertSlug ? `/${primaryCertSlug}/bookmarks` : null
   const runsHref = primaryCertSlug ? `/${primaryCertSlug}/runs` : null
-  const sidebarOpen = (await cookies()).get('sidebar_state')?.value !== 'false'
+  const sidebarOpen = cookieStore.get('sidebar_state')?.value !== 'false'
 
   const practiceItems: AppSidebarPracticeItem[] = primaryCertSlug
     ? [
         {
           label: 'Missed',
           count: primaryMastery?.missed ?? null,
-          href: `/${primaryCertSlug}/drill?scopeKind=MISSED&scopeValue=${primaryCertSlug}`
+          href: drillHref(primaryCertSlug, {
+            scopeKind: 'MISSED',
+            scopeValue: primaryCertSlug
+          })
         },
         {
           label: 'Never seen',
           count: primaryMastery?.unseen ?? null,
-          href: `/${primaryCertSlug}/drill?scopeKind=UNSEEN&scopeValue=${primaryCertSlug}`
+          href: drillHref(primaryCertSlug, {
+            scopeKind: 'UNSEEN',
+            scopeValue: primaryCertSlug
+          })
         },
 
         { label: 'Bookmarked', count: bookmarkCount, href: savedHref! },
@@ -73,7 +86,6 @@ export default async function PublicLayout({
 
   return (
     <SidebarProvider className="flex-col" defaultOpen={sidebarOpen}>
-      <ErrorScreenProvider />
       <PageHeader />
       <div className="flex flex-1">
         <AppSidebar

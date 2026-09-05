@@ -1,4 +1,5 @@
 import { cn } from '@/utils/mergeClass'
+import { toPercent } from '@/utils/toPercent'
 
 const RADIUS = 40
 const STROKE_WIDTH = 14
@@ -119,7 +120,7 @@ const DoughnutLegend = ({ segments }: Readonly<DoughnutLegendProps>) => {
           </span>
           <span className="font-mono">{segment.value}</span>
           <span className="text-muted-foreground w-12 text-right font-mono text-xs">
-            {`(${total === 0 ? 0 : Math.round((segment.value / total) * 100)}%)`}
+            {`(${toPercent(segment.value, total)}%)`}
           </span>
         </li>
       ))}
@@ -127,5 +128,5 @@ const DoughnutLegend = ({ segments }: Readonly<DoughnutLegendProps>) => {
   )
 }
 
-export { DoughnutChart, DoughnutLegend }
+export { DoughnutChart }
 export type { DoughnutSegment }

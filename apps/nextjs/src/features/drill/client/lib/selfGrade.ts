@@ -1,9 +1,8 @@
 import ky from 'ky'
-import { errAsync, okAsync } from 'neverthrow'
 import { z } from 'zod'
 
-import { AppError } from '@/features/error/lib/AppError'
 import { catchAsyncError } from '@/features/error/utils/catchError'
+import { parseResponse } from '@/features/error/utils/parseResponse'
 
 interface SelfGradeParams {
   runId: string
@@ -22,11 +21,8 @@ export const selfGrade = ({ runId, questionId, hadIt }: SelfGradeParams) =>
         json: { questionId, hadIt }
       })
       .json<unknown>()
-  ).andThen((body) => {
-    const parsed = selfGradeResultSchema.safeParse(body)
-    return parsed.success
-      ? okAsync<'matched' | 'wrong', AppError>(parsed.data.verdict)
-      : errAsync<'matched' | 'wrong', AppError>(
-          new AppError('INTERNAL_ERROR', 'Unexpected self-grade response')
-        )
-  })
+  )
+    .andThen(
+      parseResponse(selfGradeResultSchema, 'Unexpected self-grade response')
+    )
+    .map(({ verdict }) => verdict)

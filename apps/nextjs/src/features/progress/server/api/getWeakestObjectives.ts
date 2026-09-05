@@ -1,6 +1,7 @@
 import 'server-only'
 import { WEAKEST_OBJECTIVES_LIMIT } from '@/features/progress/constants'
 import { getPrismaClient } from '@/lib/prisma'
+import { toPercent } from '@/utils/toPercent'
 
 export interface WeakestObjective {
   objective: string
@@ -52,7 +53,7 @@ export const getWeakestObjectives = async (
   return [...byObjective.values()]
     .map((row) => ({
       ...row,
-      masteryPercent: Math.round((row.mastered / row.total) * 100)
+      masteryPercent: toPercent(row.mastered, row.total)
     }))
     .sort(
       (a, b) =>

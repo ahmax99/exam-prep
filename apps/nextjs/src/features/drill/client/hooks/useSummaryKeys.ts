@@ -2,16 +2,12 @@
 
 import { useEffect, useRef } from 'react'
 
+import { isTextEntryTarget } from '@/features/drill/client/lib/isTextEntryTarget'
+
 interface SummaryKeyHandlers {
   onRetry: () => void
   onWeakSpots: (() => void) | null
 }
-
-const isTextEntryTarget = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  target.closest(
-    'input:not([type=radio]):not([type=checkbox]), textarea, select, [contenteditable="true"]'
-  ) !== null
 
 export const useSummaryKeys = (handlers: SummaryKeyHandlers) => {
   const handlersRef = useRef(handlers)

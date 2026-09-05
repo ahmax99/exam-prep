@@ -1,4 +1,5 @@
 import type { StartRunInput } from '@/features/drill/schemas/startRun.schema'
+import { toPercent } from '@/utils/toPercent'
 
 export interface RunOutcomes {
   rightFirstTry: number
@@ -34,7 +35,7 @@ export const summarizeOutcomes = (
   const skipped = total - attempts.length
   const score = rightFirstTry + selfGraded
 
-  const percent = total === 0 ? 0 : Math.round((score / total) * 100)
+  const percent = toPercent(score, total)
 
   return { rightFirstTry, selfGraded, missed, skipped, score, total, percent }
 }
@@ -76,6 +77,11 @@ export const buildHeadline = (
   return `${worked} ${missedWord} to revisit.`
 }
 
+export const runDateFormatter = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeStyle: 'short'
+})
+
 export type HistoryDelta =
   | { direction: 'up' | 'down'; points: number }
   | { direction: 'even'; points: 0 }
@@ -90,9 +96,6 @@ export interface HistoryRow {
   delta: HistoryDelta
   isCurrent: boolean
 }
-
-export const toPercent = (score: number, total: number) =>
-  total === 0 ? 0 : Math.round((score / total) * 100)
 
 export const toHistoryRows = (
   runs: { id: string; startedAt: Date; score: number; total: number }[],

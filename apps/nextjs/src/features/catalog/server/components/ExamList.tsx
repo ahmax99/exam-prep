@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import type { CertificationExam } from '@/features/catalog/server/api'
+import { drillHref } from '@/features/drill/lib/drillHref'
 import { cn } from '@/utils/mergeClass'
 
 interface ExamListProps {
@@ -53,7 +54,10 @@ const ExamList = ({
               {exam.questionCount > 0 && (
                 <Link
                   className="text-muted-foreground hover:border-foreground/30 hover:text-foreground border-border focus-visible:ring-ring/50 flex min-h-11 shrink-0 items-center rounded-md border px-3 text-sm transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
-                  href={`/${certSlug}/drill?scopeKind=EXAM&scopeValue=${exam.code}`}
+                  href={drillHref(certSlug, {
+                    scopeKind: 'EXAM',
+                    scopeValue: exam.code
+                  })}
                 >
                   Drill{' '}
                   <span className="ml-1 font-mono" data-numeric>

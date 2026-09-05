@@ -10,16 +10,10 @@ import { removeBookmark } from '@/features/bookmarks/client/lib/removeBookmark'
 import { setBookmark } from '@/features/bookmarks/client/lib/setBookmark'
 import type { BookmarkListItem } from '@/features/bookmarks/server/api'
 import { PromptMarkdown } from '@/features/drill/client/components/PromptMarkdown'
-import type { QuestionType } from '@/lib/prisma'
+import { QUESTION_TYPE_LABELS } from '@/features/drill/constants'
 
 interface BookmarkRowProps {
   item: BookmarkListItem
-}
-
-const TYPE_LABELS: Record<QuestionType, string> = {
-  SINGLE_ANSWER: 'Single answer',
-  MULTIPLE_ANSWER: 'Multiple answer',
-  FILL_IN: 'Fill in'
 }
 
 function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
@@ -61,7 +55,7 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-mono text-sm">{item.objective}</span>
           <span className="text-muted-foreground text-sm">
-            {TYPE_LABELS[item.type]}
+            {QUESTION_TYPE_LABELS[item.type]}
           </span>
           <span
             className={masteryChipVariants({ state: item.state ?? 'unseen' })}

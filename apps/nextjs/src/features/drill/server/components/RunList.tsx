@@ -1,17 +1,13 @@
 import Link from 'next/link'
 
-import { describeScope, toPercent } from '@/features/drill/lib/summary'
+import { describeScope, runDateFormatter } from '@/features/drill/lib/summary'
 import type { CertificationRun } from '@/features/drill/server/api'
+import { toPercent } from '@/utils/toPercent'
 
 interface RunListProps {
   certSlug: string
   runs: CertificationRun[]
 }
-
-const dateFormatter = new Intl.DateTimeFormat('en-GB', {
-  dateStyle: 'medium',
-  timeStyle: 'short'
-})
 
 function RunList({ certSlug, runs }: Readonly<RunListProps>) {
   return (
@@ -28,7 +24,7 @@ function RunList({ certSlug, runs }: Readonly<RunListProps>) {
           </thead>
           <tbody>
             {runs.map((run) => {
-              const formatted = dateFormatter.format(run.startedAt)
+              const formatted = runDateFormatter.format(run.startedAt)
               const isOpen = run.finishedAt === null
 
               const href = isOpen
