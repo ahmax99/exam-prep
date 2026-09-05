@@ -1,7 +1,4 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Amplify's SSR compute doesn't forward app-level env vars to the deployed
-  // function's runtime, only to the build — never add DATABASE_URL here.
   env: {
     AWS_REGION: process.env.AWS_REGION,
     BASE_URL: process.env.BASE_URL,

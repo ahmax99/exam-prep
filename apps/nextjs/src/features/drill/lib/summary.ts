@@ -16,8 +16,6 @@ export interface AttemptOutcome {
   selfGraded: boolean
 }
 
-// The four buckets are disjoint and sum to `total`; `score` separately
-// derives the headline (a self-graded "I had it" still counts as correct).
 export const summarizeOutcomes = (
   questionIds: string[],
   attempts: AttemptOutcome[]
@@ -35,14 +33,12 @@ export const summarizeOutcomes = (
   const total = questionIds.length
   const skipped = total - attempts.length
   const score = rightFirstTry + selfGraded
-  // Guards an all-skipped run (total === 0 or every question skipped) from NaN%.
+
   const percent = total === 0 ? 0 : Math.round((score / total) * 100)
 
   return { rightFirstTry, selfGraded, missed, skipped, score, total, percent }
 }
 
-// Mirrors queue.ts's SCOPE_WHERE_BUILDERS shape: one function per scope kind,
-// keyed for exhaustiveness rather than a switch.
 const SCOPE_DESCRIPTIONS: Record<
   StartRunInput['scopeKind'],
   (scopeValue: string) => string
@@ -61,8 +57,6 @@ export const describeScope = (
   scopeValue: string
 ): string => SCOPE_DESCRIPTIONS[scopeKind](scopeValue)
 
-// The summary's opening line: what happened, in words, before any digit.
-// Score/percent stay available as secondary, smaller text alongside this.
 export const buildHeadline = (
   outcomes: RunOutcomes,
   scopeDescription: string
@@ -100,8 +94,6 @@ export interface HistoryRow {
 export const toPercent = (score: number, total: number) =>
   total === 0 ? 0 : Math.round((score / total) * 100)
 
-// `runs` arrives newest-first; each row's predecessor is the next element
-// (the run immediately before it in time), so the oldest run has no delta.
 export const toHistoryRows = (
   runs: { id: string; startedAt: Date; score: number; total: number }[],
   currentRunId: string

@@ -29,10 +29,6 @@ interface SkippedPanelProps {
   onJump: (index: number) => void
 }
 
-// The way back to a skipped question mid-run. A side sheet rather than a slot
-// in DrillContextRail: the rail is desktop-only and deliberately inert, and
-// this list is the one place in the drill that has to be both reachable on a
-// phone and focusable.
 function SkippedPanel({
   isOpen,
   onOpenChange,
@@ -44,9 +40,7 @@ function SkippedPanel({
 }: Readonly<SkippedPanelProps>) {
   return (
     <>
-      {/* Nothing skipped yet is the normal state for most of a run — an
-          always-present "Skipped 0" would be a permanent piece of furniture
-          advertising a list that cannot be opened usefully. */}
+      {}
       {entries.length > 0 && (
         <Button
           aria-label={`Skipped questions (${entries.length})`}

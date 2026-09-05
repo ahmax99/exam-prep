@@ -50,10 +50,7 @@ function QuestionMeta({
       className="text-muted-foreground flex items-start gap-3 text-sm"
       data-slot="question-meta"
     >
-      {/* Each fact is atomic and middot-separated, matching the separator the
-          catalog pages already use: at 390px the old bare-space run-on wrapped
-          mid-fact ("Fill / in", "12th time / seen") and read as one broken
-          sentence, and the objective code ran straight into the topic. */}
+      {}
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
         <span className="text-foreground font-mono whitespace-nowrap">
           {objective}

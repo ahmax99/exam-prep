@@ -13,7 +13,6 @@ interface CertificationCardProps {
 const cardClassName =
   'border-border bg-card hover:border-foreground/30 focus-visible:ring-ring/50 flex min-h-11 flex-col gap-4 rounded-xl border p-5 transition-colors focus-visible:ring-[3px] focus-visible:outline-none'
 
-// The name/vendor row every branch below shares.
 const CardHeading = ({
   certification,
   muted
@@ -21,8 +20,6 @@ const CardHeading = ({
   certification: CertificationSummary
   muted: boolean
 }>) => (
-  // Stacks below sm: at 390px a long certification name and the vendor fought
-  // for the same line and the name wrapped under it.
   <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
     <span className={muted ? 'text-foreground font-medium' : 'font-medium'}>
       {certification.name}
@@ -33,8 +30,6 @@ const CardHeading = ({
   </div>
 )
 
-// `swatch` keys a stat to the bar segment above it; the label still carries
-// the meaning on its own, so the color is supplementary, never the only cue.
 const Stat = ({
   label,
   value,
@@ -101,8 +96,7 @@ function CertificationCard({
     >
       <CardHeading certification={certification} muted={false} />
 
-      {/* The percentage reads against the bar it summarizes, rather than
-          standing alone as a hero number that says nothing actionable. */}
+      {}
       <div className="flex items-center gap-4">
         <span
           className="font-mono text-2xl leading-none font-medium"
@@ -118,8 +112,7 @@ function CertificationCard({
         />
       </div>
 
-      {/* Shaky is listed because the bar draws it: without it the amber
-          segment sat next to a "0% mastered" label explaining nothing. */}
+      {}
       <dl className="border-border grid grid-cols-2 gap-4 border-t pt-3 sm:grid-cols-4">
         <Stat label="Mastered" swatch="bg-success" value={mastered} />
         <Stat label="Shaky" swatch="bg-warning" value={shaky} />

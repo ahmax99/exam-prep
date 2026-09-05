@@ -14,8 +14,6 @@ interface MissReviewProps {
   misses: MissDetail[]
 }
 
-// The highest-value content on this page — always rendered expanded, never
-// behind a disclosure the user has to find.
 function MissReview({ misses }: Readonly<MissReviewProps>) {
   if (misses.length === 0) return null
 

@@ -28,14 +28,11 @@ const runStartRun = async (input: StartRunInput) => {
     orderBy: [{ exam: { code: 'asc' } }, { number: 'asc' }]
   })
 
-  // No `limit` means drill everything in scope — `orderQueue` still puts
-  // wrong/unseen/shaky questions first, it just never truncates the result.
   const questionIds = orderQueue(candidates, input.limit ?? candidates.length)
 
   if (questionIds.length === 0)
     throw new AppError('NOT_FOUND', 'No questions match this scope')
 
-  // The set is frozen here and never re-derived — getRun only ever reads it back (spec D7).
   return db.drillRun.create({
     data: {
       scopeKind: input.scopeKind,
@@ -60,19 +57,14 @@ const runStartOrResumeRun = async (
 ): Promise<{ id: string }> => {
   const db = await getPrismaClient()
 
-  // A run with no attempts is not worth resuming: it holds no progress and its
-  // queue was frozen at creation, so a fresh one is strictly more current.
   const resumable = await db.drillRun.findFirst({
     where: {
-      // Runs don't record certSlug, so a second certification reusing an exam
-      // code would need that column before this lookup stays exact.
       scopeKind: input.scopeKind,
       scopeValue: input.scopeValue,
       finishedAt: null,
       attempts: { some: {} }
     },
-    // Recency alone would hand back a newer empty run and strand the answers
-    // sitting in an older one, so attempt count outranks it.
+
     orderBy: [{ attempts: { _count: 'desc' } }, { startedAt: 'desc' }],
     select: { id: true }
   })
@@ -88,8 +80,6 @@ const runGetRun = async (id: string) => {
   const run = await db.drillRun.findUnique({ where: { id } })
   if (!run) throw new AppError('NOT_FOUND', 'Run not found')
 
-  // correctLetters/acceptedAnswers/answerDisplay/explanation are deliberately
-  // excluded — they reach the client only via submitAnswer's response.
   const questions = await db.question.findMany({
     where: { id: { in: run.questionIds } },
     select: {
@@ -134,9 +124,6 @@ const runGetRun = async (id: string) => {
 
 export const getRun = (id: string) => catchAsyncError(runGetRun(id))
 
-// The `:` separator cannot occur inside a cuid, so this id is unambiguous —
-// and it turns "one attempt per (run, question)" into a real DB constraint
-// enforced by the primary key, with no schema.prisma change.
 const attemptIdFor = (runId: string, questionId: string) =>
   `${runId}:${questionId}`
 
@@ -246,8 +233,6 @@ const runSubmitAnswer = async ({
     explanation: question.explanation
   }
 
-  // The single most important contract in this issue: nothing below this
-  // line may touch the database when the verdict is 'no-match'.
   if (verdict === 'no-match') return reveal
 
   await writeAttempt(db, {
@@ -277,7 +262,7 @@ const runSelfGrade = async ({
     select: { type: true }
   })
   if (!question) throw new AppError('NOT_FOUND', 'Question not found')
-  // Only a fill-in can produce 'no-match', the only outcome self-grade resolves.
+
   if (question.type !== 'FILL_IN')
     throw new AppError(
       'BAD_REQUEST',
@@ -298,8 +283,6 @@ const runSelfGrade = async ({
 export const selfGrade = (input: SelfGradeInput & { runId: string }) =>
   catchAsyncError(runSelfGrade(input))
 
-// A single conditional statement — the second call matches zero rows and
-// is a genuine no-op, with no read-then-write window.
 const closeRunIfOpen = (db: PrismaClient, id: string) =>
   db.drillRun.updateMany({
     where: { id, finishedAt: null },
@@ -349,7 +332,6 @@ const runGetRunHistory = async ({
     select: { id: true, startedAt: true, finishedAt: true, questionIds: true }
   })
 
-  // DrillRun has no certSlug column; each run's first question id witnesses its cert.
   const witnessIds = runs
     .map((run) => run.questionIds[0])
     .filter((questionId) => questionId !== undefined)
@@ -412,16 +394,9 @@ const runGetCertificationRunHistory = async (
     select: { id: true }
   })
   const certQuestionIds = certQuestions.map((question) => question.id)
-  // An unseeded cert has no questions — hasSome: [] matches nothing in
-  // Postgres, but skip the query outright rather than relying on that.
+
   if (certQuestionIds.length === 0) return []
 
-  // DrillRun has no cert column, so a run belongs to a cert iff its question
-  // set overlaps the cert's questions. Unlike runGetRunHistory's witness
-  // technique, this uses an exact array-overlap filter (hasSome) rather than
-  // over-fetching then filtering — without an indexed scopeKind/scopeValue
-  // filter narrowing the set first, take: 50 then post-filtering would
-  // silently return fewer than 50 cert-wide runs.
   const runs = await db.drillRun.findMany({
     where: { questionIds: { hasSome: certQuestionIds } },
     orderBy: { startedAt: 'desc' },
@@ -467,7 +442,7 @@ const runGetRunSummary = async ({
   certSlug: string
 }) => {
   const db = await getPrismaClient()
-  // Reaching the summary closes the run, whether or not it finished normally.
+
   await closeRunIfOpen(db, runId)
 
   const run = await db.drillRun.findUnique({
@@ -483,10 +458,6 @@ const runGetRunSummary = async ({
   })
   if (!run) throw new AppError('NOT_FOUND', 'Run not found')
 
-  // DrillRun has no certSlug column; the run's first question witnesses its
-  // cert, the same technique runGetRunHistory already uses. An empty
-  // questionIds array cannot occur (startRun rejects an empty queue), but a
-  // missing witness still resolves to NOT_FOUND rather than a thrown TypeError.
   const witnessId = run.questionIds[0]
   const witness = witnessId
     ? await db.question.findFirst({
@@ -496,8 +467,6 @@ const runGetRunSummary = async ({
     : null
   if (!witness) throw new AppError('NOT_FOUND', 'Run not found')
 
-  // No DISTINCT needed: writeAttempt sets Attempt.id = `${runId}:${questionId}`,
-  // so the primary key already enforces one attempt per (run, question).
   const attempts = await db.attempt.findMany({
     where: { runId },
     select: {
@@ -520,8 +489,6 @@ const runGetRunSummary = async ({
     attempts.map((attempt) => [attempt.questionId, attempt.response])
   )
 
-  // The one place answer keys reach the client for a non-answered path — safe
-  // here because the run is finished, and scoped strictly to missed questions.
   const missedQuestions = await db.question.findMany({
     where: { id: { in: missedIds } },
     select: {
@@ -552,19 +519,16 @@ const runGetRunSummary = async ({
       }
     })
     .filter((miss) => miss !== null)
-    // Order by position in run.questionIds so misses read in run order.
+
     .sort(
       (a, b) => run.questionIds.indexOf(a.id) - run.questionIds.indexOf(b.id)
     )
 
-  // Already in run order, so the list reads the way the run was walked.
   const answeredIds = new Set(attempts.map((attempt) => attempt.questionId))
   const skippedIds = run.questionIds.filter(
     (questionId) => !answeredIds.has(questionId)
   )
 
-  // Prompt and objective only — a skipped question was never answered, so
-  // none of the reveal fields `misses` carries may come along with it.
   const skippedQuestions = await db.question.findMany({
     where: { id: { in: skippedIds } },
     select: { id: true, objective: true, prompt: true }
@@ -607,8 +571,6 @@ const runRetryRun = async (id: string) => {
   })
   if (!source) throw new AppError('NOT_FOUND', 'Run not found')
 
-  // D7: the array is copied element-for-element — never re-derived from scope,
-  // or the history table would be comparing two different question sets.
   return db.drillRun.create({
     data: {
       scopeKind: source.scopeKind,

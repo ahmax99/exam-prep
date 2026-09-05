@@ -3,14 +3,11 @@
 import { Button } from '@/components/atoms'
 
 interface DrillActionBarProps {
-  // A named variant rather than an `isAnswered` flag: the bar has two distinct
-  // shapes, and the mode picks one instead of combining with the gates below.
   mode: 'answer' | 'next'
   isBlocked: boolean
   canSubmit: boolean
   isSubmitting: boolean
-  // Absent when there is nowhere to go back to, so the button simply isn't
-  // rendered — no separate "can" flag to keep in sync with the handler.
+
   onPrevious?: () => void
   onNext: () => void
   onSkip: () => void
@@ -20,8 +17,6 @@ interface DrillActionBarProps {
 const shortcutHintClassName =
   'text-muted-foreground ml-2 hidden font-mono text-xs md:inline-flex'
 
-// Fixed to the bottom of the viewport on mobile so the primary action stays
-// reachable under a long prompt; an ordinary block in the flow from md up.
 function DrillActionBar({
   mode,
   isBlocked,
@@ -47,8 +42,7 @@ function DrillActionBar({
         <Button
           className="ml-auto"
           disabled={isBlocked}
-          // Blocked pending a self-grade: a washed-out accent button reads as
-          // broken, so it steps back to outline until it can be used.
+
           variant={isBlocked ? 'outline' : 'brand'}
           onClick={onNext}
         >

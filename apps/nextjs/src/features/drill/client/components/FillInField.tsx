@@ -37,21 +37,10 @@ function FillInField({
 }: Readonly<FillInFieldProps>) {
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Hands keyboard control back to useDrillKeys's global handler once
-  // answered: isTextEntryTarget only ignores a *focused* text input.
   useEffect(() => {
     if (verdict !== null) inputRef.current?.blur()
   }, [verdict])
 
-  // Backstops the `autoFocus` attribute below on every mount (including a
-  // remount when goNext advances to the next FILL_IN question, via
-  // key={question.id}). Real navigation is the case that needs it: Next.js's
-  // App Router refocuses the page's <main> landmark after every navigation
-  // (layout-router.js's scroll-and-focus handler), which runs after the DOM
-  // commit but before passive effects — so it wins the race against
-  // `autoFocus` and leaves focus stranded on <main>. A passive effect fires
-  // after that handler, so it reclaims focus for the input every time; on a
-  // plain in-page advance it's just a harmless no-op reassertion.
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
@@ -77,8 +66,7 @@ function FillInField({
         </p>
       )}
 
-      {/* The answer you did not have is the thing you came here to learn, so
-          it gets the scale the input had before it was answered. */}
+      {}
       {verdict && verdict.verdict !== 'matched' && verdict.answerDisplay && (
         <div className="border-border mt-4 border-l pl-4">
           <p className="text-muted-foreground text-sm">Correct answer</p>

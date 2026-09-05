@@ -27,8 +27,6 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
   const [isRemoving, setIsRemoving] = useState(false)
 
   const undoRemove = () => {
-    // The row is unmounted by the refresh below, so this closure must not
-    // touch component state — only the captured item and the router.
     setBookmark({ questionId: item.questionId, note: item.note }).match(
       () => router.refresh(),
       (error) => toast.error(error.message)

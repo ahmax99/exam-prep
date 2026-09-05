@@ -20,10 +20,6 @@ interface ShortcutsHelpProps {
   shortcuts: Shortcut[]
 }
 
-// The only documentation for the drill's keyboard model that isn't a
-// hidden-below-xl <kbd> chip — reachable by tap or by `?` at every
-// breakpoint, per the (drill)/[cert]/drill/[runId]/page.tsx route having no
-// sidebar of its own to put it in.
 function ShortcutsHelp({
   isOpen,
   onOpenChange,

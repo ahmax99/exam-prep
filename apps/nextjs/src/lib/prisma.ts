@@ -49,8 +49,6 @@ const createPrismaClient = async () => {
   return new PrismaClient({ adapter })
 }
 
-// Returns the real client, never a wrapper — `$transaction([...])`'s array form needs
-// genuine PrismaPromises, which only the resolved client's own delegates produce.
 export const getPrismaClient = (): Promise<PrismaClient> => {
   if (!globalForPrisma.prismaPromise)
     globalForPrisma.prismaPromise = createPrismaClient().catch(

@@ -19,7 +19,6 @@ export const getQuestionMix = async (
     _count: { _all: true }
   })
 
-  // A type absent from the groups has no questions, so it counts as zero.
   const countOf = (type: QuestionType) =>
     groups.find((group) => group.type === type)?._count._all ?? 0
 

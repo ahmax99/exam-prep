@@ -14,8 +14,6 @@ export const getTopicMastery = async (
 ): Promise<TopicMastery[]> => {
   const db = await getPrismaClient()
 
-  // Topic lives on Question while state lives on QuestionProgress, so the
-  // per-topic roll-up is folded here rather than grouped in the database.
   const questions = await db.question.findMany({
     where: { exam: { code: examCode, certification: { slug: certSlug } } },
     select: { topic: true, progress: { select: { state: true } } },

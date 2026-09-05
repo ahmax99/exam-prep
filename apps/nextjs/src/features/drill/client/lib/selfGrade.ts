@@ -11,9 +11,6 @@ interface SelfGradeParams {
   hadIt: boolean
 }
 
-// Only the discriminant the caller needs to flip FillInField's verdict —
-// the reveal fields (correctLetters/answerDisplay/explanation) are already
-// held from the original no-match response, so the server doesn't resend them.
 const selfGradeResultSchema = z.object({
   verdict: z.enum(['matched', 'wrong'])
 })

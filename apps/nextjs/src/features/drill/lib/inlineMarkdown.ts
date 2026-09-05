@@ -4,15 +4,11 @@ interface InlineToken {
   bold: boolean
 }
 
-// Code-span alternative first: at each scan position a `**` inside backticks
-// is consumed as code before bold parsing ever sees it, giving code precedence.
 const INLINE_PATTERN = /`([^`]*)`|\*\*([\s\S]+?)\*\*/g
 
 const isCodeSpan = (segment: string) =>
   segment.length >= 2 && segment.startsWith('`') && segment.endsWith('`')
 
-// Bold content is re-scanned for code spans only — never for further emphasis —
-// so a bold run keeps a nested `<code>` without the tokenizer needing recursion.
 const toBoldTokens = (content: string): InlineToken[] =>
   content
     .split(/(`[^`]*`)/)
@@ -23,14 +19,6 @@ const toBoldTokens = (content: string): InlineToken[] =>
         : { kind: 'text', value: segment, bold: true }
     )
 
-/**
- * Splits `text` into render-ready inline runs, recognizing exactly two
- * constructs: code spans (`` `…` ``) and strong emphasis (`**…**`). Runs are
- * returned in source order with delimiters already stripped from `value`, and
- * no token ever has an empty `value`. Unbalanced or malformed markers (a lone
- * `*`, unmatched `**`) fall through untouched as plain text — never dropped,
- * never thrown.
- */
 const tokenizeInlineMarkdown = (text: string): InlineToken[] => {
   const tokens: InlineToken[] = []
   let cursor = 0
@@ -63,13 +51,6 @@ const tokenizeInlineMarkdown = (text: string): InlineToken[] => {
   return tokens.filter((token) => token.value !== '')
 }
 
-/**
- * Returns `text` with the delimiters `tokenizeInlineMarkdown` recognizes
- * removed, for the sinks that consume bank text as plain characters rather
- * than rendering it — grading comparisons and screen-reader announcements.
- * Sharing the tokenizer is the point: a sink that stripped markup its own way
- * would drift from what PromptMarkdown actually shows.
- */
 const stripInlineMarkdown = (text: string): string =>
   tokenizeInlineMarkdown(text)
     .map((token) => token.value)

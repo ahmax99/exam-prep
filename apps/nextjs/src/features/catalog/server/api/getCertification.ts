@@ -31,8 +31,6 @@ export const getCertification = async (
   if (!certification)
     throw new AppError('NOT_FOUND', `Certification "${slug}" not found`)
 
-  // Topic and objective are Question columns, so their distinct counts come from
-  // the exam's own questions rather than an aggregate Prisma can express.
   const exams = await db.exam.findMany({
     where: { certificationId: certification.id },
     select: {

@@ -26,14 +26,10 @@ export const dynamic = 'force-dynamic'
 
 const log = logger.child({ module: 'certification-page' })
 
-// Dedupes the certification read across `generateMetadata` and the render —
-// two calls, one pair of statements.
 const loadCertification = cache((slug: string) =>
   catchAsyncError(getCertification(slug))
 )
 
-// The `[cert]` segment reaches four separate `server/api` reads below; reject
-// a shape that can't match a row before any of them run.
 const parseCertSlug = (cert: string) => {
   const result = certSlugSchema.safeParse(cert)
   if (!result.success) notFound()
@@ -143,8 +139,6 @@ export default async function CertificationPage({
     examQuestionCount: selectedExam.questionCount
   })
 
-  // Seeded titles already lead with their own code ("Exam 101 Mixed") — only
-  // prefix one that doesn't.
   const examHeading = selectedExam.title.startsWith(`Exam ${selectedExam.code}`)
     ? selectedExam.title
     : `Exam ${selectedExam.code} — ${selectedExam.title}`

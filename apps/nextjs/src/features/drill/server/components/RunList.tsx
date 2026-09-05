@@ -8,8 +8,6 @@ interface RunListProps {
   runs: CertificationRun[]
 }
 
-// A fixed instance keeps server- and browser-rendered timestamps identical —
-// Date#toLocaleString without an explicit locale can disagree between them.
 const dateFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
   timeStyle: 'short'
@@ -32,9 +30,7 @@ function RunList({ certSlug, runs }: Readonly<RunListProps>) {
             {runs.map((run) => {
               const formatted = dateFormatter.format(run.startedAt)
               const isOpen = run.finishedAt === null
-              // getRunSummary closes an open run, so linking an open run
-              // there would let browsing history mutate it — resume it
-              // instead and keep browsing read-only.
+
               const href = isOpen
                 ? `/${certSlug}/drill/${run.id}`
                 : `/${certSlug}/drill/${run.id}/summary`

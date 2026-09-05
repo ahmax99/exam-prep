@@ -21,9 +21,6 @@ interface DrillAnswerAreaProps {
   onSubmit: () => void
 }
 
-// The input surface for whichever question type is on screen, plus the reveal
-// that replaces it once answered. Split from DrillCard so the card holds the
-// run's control flow and this holds the per-question-type branch.
 function DrillAnswerArea({
   questionId,
   type,
@@ -41,9 +38,6 @@ function DrillAnswerArea({
     if (isAnsweredWithoutDetail) return null
     return (
       <FillInField
-        // Keyed on question id so React remounts the input (and its autoFocus)
-        // per fill-in question, instead of reusing the same DOM node whose
-        // focus was already spent on the previous one.
         key={questionId}
         value={fillInValue}
         verdict={verdict}

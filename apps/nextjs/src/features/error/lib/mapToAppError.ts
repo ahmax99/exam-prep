@@ -20,8 +20,6 @@ const stringifyUnknownError = (error: unknown) => {
   }
 }
 
-// The raw text stays reachable for debugging but never reaches a toast or a
-// response body — `message` is user-facing everywhere AppError is rendered.
 const withCause = (appError: AppError, cause: unknown) => {
   appError.cause = cause
   return appError

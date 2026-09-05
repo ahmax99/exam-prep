@@ -49,7 +49,6 @@ export default async function RunSummaryPage({
   })
 
   if (summaryResult.isErr()) {
-    // A well-formed but nonexistent or wrong-cert runId is a real 404.
     if (summaryResult.error.code === 'NOT_FOUND') notFound()
 
     log.error(
@@ -67,8 +66,6 @@ export default async function RunSummaryPage({
 
   const summary = summaryResult.value
 
-  // Runs after the summary read (it needs the run's own scope) — sequential,
-  // not Promise.all. A failure here must not block the score block or actions.
   const historyResult = await getRunHistory({
     scopeKind: summary.run.scopeKind,
     scopeValue: summary.run.scopeValue,
@@ -89,8 +86,6 @@ export default async function RunSummaryPage({
     }
   )
 
-  // A missing certification (a bad slug already 404'd above) must not block
-  // the summary itself — fall back to the raw slug in the back link.
   const certResult = await catchAsyncError(getCertification(parsedCert.data))
   const backLabel = certResult.match(
     (certification) => `Back to ${certification.name}`,

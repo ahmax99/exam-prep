@@ -16,9 +16,6 @@ interface SkippedReviewProps {
   total: number
 }
 
-// Each row links back into this same run rather than starting a new one:
-// answering a skipped question here finishes the run that was abandoned,
-// instead of re-drilling everything that was already answered correctly.
 function SkippedReview({
   skipped,
   certSlug,

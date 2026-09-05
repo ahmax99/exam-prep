@@ -17,8 +17,7 @@ export const startRunSchema = z.object({
     .min(1)
     .max(100)
     .regex(/^[a-z0-9-]+$/),
-  // No upper bound: a run defaults to every question in scope, so `limit`
-  // exists only to request a smaller subset, never to cap a larger one.
+
   limit: z.number().int().min(1).optional()
 })
 

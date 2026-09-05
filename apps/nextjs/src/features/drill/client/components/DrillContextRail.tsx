@@ -11,9 +11,6 @@ interface DrillContextRailProps {
   shortcuts: Shortcut[]
 }
 
-// Purely presentational: no state, no handlers, no focusable elements — it
-// must stay inert so it can safely live inside DrillCard's `containerRef`
-// without expanding useDrillKeys' focus-containment gate to a new tab stop.
 function DrillContextRail({
   currentIndex,
   questionCount,
@@ -27,8 +24,7 @@ function DrillContextRail({
     >
       <div aria-hidden="true">
         <p className="text-muted-foreground text-sm">Progress</p>
-        {/* The position in the run is the rail's whole job, so the counter is
-            set at the scale you can read without stopping to look. */}
+        {}
         <p className="mt-2 font-mono text-2xl leading-none" data-numeric>
           {currentIndex + 1}
           <span className="text-muted-foreground text-base">

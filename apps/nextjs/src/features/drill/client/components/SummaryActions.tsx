@@ -22,8 +22,7 @@ function SummaryActions({
   missCount
 }: Readonly<SummaryActionsProps>) {
   const router = useRouter()
-  // A plain ref, not state: two keydowns can arrive before React flushes an
-  // isSubmitting update, and both must still see the in-flight request.
+
   const isStartingRef = useRef(false)
 
   const retry = () => {
@@ -57,9 +56,6 @@ function SummaryActions({
     onWeakSpots: missCount > 0 ? weakSpots : null
   })
 
-  // Weak-spot drilling is the product's whole reason to exist — it's the
-  // primary action whenever there's something to drill; retrying the
-  // identical set is the fallback, not the default.
   const hasWeakSpots = missCount > 0
 
   return (

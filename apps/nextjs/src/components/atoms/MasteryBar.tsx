@@ -20,8 +20,6 @@ function MasteryBar({
     <div
       aria-label={`${Math.round(masteredPercent)}% mastered`}
       className={cn(
-        // Track is `secondary`, not `muted`: muted (#f5f5f5) is invisible on
-        // both the card and the page ground, so an empty bar read as broken.
         'bg-secondary flex h-1.5 overflow-hidden rounded-full',
         className
       )}

@@ -30,7 +30,7 @@ interface AppSidebarCertification {
 interface AppSidebarPracticeItem {
   label: string
   count: number | null
-  href: string // no longer nullable — an item that has no destination is not built
+  href: string
 }
 
 interface AppSidebarProps {

@@ -12,8 +12,6 @@ export interface DrillRecommendation {
   headline: string
 }
 
-// Second person, imperative: this surface's job is to start a run, so the
-// headline names the move rather than describing the bucket.
 const HEADLINES: Record<
   Exclude<RecommendedScopeKind, 'EXAM' | 'CERT'>,
   string
@@ -22,10 +20,6 @@ const HEADLINES: Record<
   UNSEEN: 'Cover new ground'
 }
 
-// Decides what a certification's primary "Drill" action should target:
-// missed questions first, then unseen, then the selected exam if one is
-// known, else every question in the certification (the `/` landing page has
-// no selected exam yet).
 export const recommendDrill = (input: {
   certSlug: string
   missed: number

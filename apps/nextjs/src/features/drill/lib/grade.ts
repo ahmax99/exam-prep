@@ -27,8 +27,6 @@ export const grade = (
   switch (question.type) {
     case 'SINGLE_ANSWER':
     case 'MULTIPLE_ANSWER': {
-      // Set equality subsumes single-answer matching: a 1-element
-      // correctLetters matches only an identical 1-element response.
       const chosen = toLetterSet(response)
       const correct = toLetterSet(question.correctLetters)
       return isSameSet(chosen, correct) ? 'matched' : 'wrong'

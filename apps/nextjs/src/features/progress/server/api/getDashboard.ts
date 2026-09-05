@@ -23,8 +23,6 @@ export const getDashboard = cache(async (): Promise<CertificationMastery[]> => {
     orderBy: { slug: 'asc' }
   })
 
-  // State lives on QuestionProgress and the certification two relations away, so
-  // the roll-up is scoped per certification — a set the catalog keeps small.
   return Promise.all(
     certifications.map(async ({ id, slug }) => {
       const scope = { exam: { certificationId: id } }
@@ -44,8 +42,7 @@ export const getDashboard = cache(async (): Promise<CertificationMastery[]> => {
       const mastered = countOf('MASTERED')
       const shaky = countOf('SHAKY')
       const missed = countOf('WRONG')
-      // MasteryState is exactly WRONG|SHAKY|MASTERED and a missing QuestionProgress
-      // row means "unseen", so this sum is the certification's attempt existence check.
+
       const attempted = mastered + shaky + missed
 
       return {

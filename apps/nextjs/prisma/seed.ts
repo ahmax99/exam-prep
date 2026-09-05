@@ -74,9 +74,6 @@ const bankSchema = z.object({
 type Bank = z.infer<typeof bankSchema>
 type BankQuestion = Bank['questions'][number]
 
-// The bank JSON carries no certification identity today; the AWS bank must
-// supply the `certification` block explicitly rather than growing a second
-// hardcoded fallback here.
 const LPIC1_CERTIFICATION = {
   slug: 'lpic-1',
   name: 'LPIC-1: Linux Administrator',
@@ -89,9 +86,6 @@ const QUESTION_TYPE_BY_BANK_TYPE: Record<BankQuestion['type'], QuestionType> = {
   fill_in: 'FILL_IN'
 }
 
-// The real question banks, not a fixture — running the seed with no
-// arguments must write the same data this repo ships, never placeholder
-// content that could collide with and overwrite a real exam's rows.
 const DEFAULT_INPUT_PATH = fileURLToPath(
   new URL('../../../data/lpic1', import.meta.url)
 )
@@ -135,8 +129,6 @@ const loadBank = (file: string): ResultAsync<Bank, AppError> =>
       )
     })
 
-// Deferred until after validation: `@/lib/prisma` transitively requires
-// S3_BUCKET_NAME, which would otherwise fail a bad-path/bad-JSON run.
 const loadPrismaClient = () =>
   import('@/lib/prisma').then((prismaModule) => prismaModule.getPrismaClient())
 

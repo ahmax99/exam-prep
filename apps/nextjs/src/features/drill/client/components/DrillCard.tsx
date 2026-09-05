@@ -71,9 +71,6 @@ function DrillCard({
     frontier,
     questionCount: questions.length,
     onFinish: () => {
-      // This run's mastery writes never remounted the shared app rail (the
-      // drill route has no sidebar of its own) — refresh so the rail and the
-      // summary page it's about to render both read the finished state.
       router.refresh()
       router.push(`/${certSlug}/drill/${runId}/summary`)
     }
@@ -94,7 +91,6 @@ function DrillCard({
   const isSelfGrading =
     verdict?.verdict === 'no-match' || selfGradeOutcome !== null
 
-  // Blocks "Next question" until a no-match verdict's self-grade is recorded.
   const isBlocked = verdict?.verdict === 'no-match' && selfGradeOutcome === null
   const canGoPrevious = currentIndex > 0 && !isBlocked
 
@@ -118,8 +114,6 @@ function DrillCard({
       : []
   })
 
-  // Derived once, from the same expressions useDrillKeys is handed, so the
-  // legend and the key handler cannot drift apart.
   const shortcuts = boundShortcuts({
     optionLetters: activeOptionLetters,
     isAnswered,
@@ -164,8 +158,7 @@ function DrillCard({
     containerRef,
     optionLetters: activeOptionLetters,
     onLetter: toggle,
-    // Keyboard and pointer share one handler, so the optimistic state has
-    // exactly one owner.
+
     onBookmark: () => bookmarkToggleRef.current?.click(),
     onHelp: () => setIsHelpOpen(true),
     ...bindShortcuts(
@@ -187,10 +180,6 @@ function DrillCard({
   )
 
   return (
-    // tabIndex + outline-none: this container is only ever focused
-    // programmatically (see the mount effect above), never via Tab — it's
-    // not in the tab sequence — so a full-card outline has no keyboard user
-    // to show itself to and would just be visual noise.
     <article
       ref={containerRef}
       className="border-border bg-card rounded-xl border p-4 pb-24 outline-none md:p-8 md:pb-8 xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start xl:gap-10"
@@ -247,10 +236,7 @@ function DrillCard({
           type={question.type}
         />
 
-        {/* The question is the entire reason this surface exists and has
-            nothing to compete with, so it carries the page at display scale.
-            max-w-[65ch]: a hard ceiling on DESIGN.md's 65-75ch measure at the
-            larger size, independent of the grid math above. */}
+        {}
         <p className="mt-6 mb-8 max-w-[65ch] text-xl leading-snug font-medium md:text-2xl">
           <PromptMarkdown text={question.prompt} />
         </p>
@@ -281,11 +267,7 @@ function DrillCard({
           onToggle={toggle}
         />
 
-        {/* Always mounted (content toggles empty/set) — a live region only
-            reliably announces a state change if it existed before the change;
-            mounting it alongside the verdict text drops the first announcement
-            on some screen readers. Covers both the submit verdict and the
-            self-grade outcome. */}
+        {}
         <p aria-live="polite" className="sr-only" role="status">
           {buildLiveAnnouncement({
             question,

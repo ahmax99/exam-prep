@@ -34,8 +34,6 @@ function PageTemplate({
   }
 
   return (
-    // 64rem, not 80rem: at the wider measure a ruled row's label and its value
-    // sat ~1200px apart, which is past the distance the eye tracks a row.
     <article className="mx-auto my-8 w-full max-w-3xl px-4 lg:my-12 lg:max-w-[64rem] lg:px-8">
       {back && (
         <nav aria-label="back" className="mb-10">

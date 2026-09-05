@@ -9,8 +9,6 @@ export const bookmarkQuestionIdSchema = z
   .max(64)
   .regex(/^[A-Za-z0-9_-]+$/)
 
-// Three-valued on purpose: key absent (undefined) leaves an existing note
-// untouched, null/whitespace-only clears it, a non-empty string sets it.
 export const bookmarkBodySchema = z.object({
   note: z
     .string()

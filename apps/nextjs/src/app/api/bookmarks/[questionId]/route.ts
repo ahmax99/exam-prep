@@ -19,9 +19,6 @@ const parseQuestionId = async (context: BookmarkRouteContext) => {
   return parsed.data
 }
 
-// A bodyless PUT is a legitimate "just bookmark it" call, so an empty body
-// becomes `{}` rather than a parse failure; a non-empty unparseable body is
-// still BAD_REQUEST.
 const readJsonBody = async (request: NextRequest): Promise<unknown> => {
   const text = await request.text()
   if (text.length === 0) return {}
