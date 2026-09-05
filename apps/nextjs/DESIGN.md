@@ -1,31 +1,33 @@
 ---
 name: Exam Prep Design System
-description: A near-monochrome, token-driven system for a personal LPIC-1 drill tool, with a single cobalt accent for the primary action and color otherwise reserved for answer verdicts, mastery state, and data visualization.
+description: A token-driven terminal colour scheme for a personal LPIC-1 drill tool, built on hue-tinted neutrals with three chromatic tiers - one action blue, a five-step categorical arc for taxonomy, and a reserved verdict triad.
 colors:
-  primary: '#000000'
-  primary-foreground: '#ffffff'
-  background: '#fcfcfc'
-  card: '#ffffff'
-  secondary: '#ebebeb'
-  muted: '#f5f5f5'
-  muted-foreground: '#525252'
-  border: '#e4e4e4'
-  input: '#ebebeb'
-  ring: '#1f3cf5'
-  brand: '#1f3cf5'
-  brand-foreground: '#ffffff'
-  destructive: '#e54b4f'
-  destructive-foreground: '#ffffff'
-  success: '#1a7f4f'
-  success-foreground: '#ffffff'
-  warning: '#916417'
-  warning-foreground: '#ffffff'
-  chart-correct: '#24a969'
-  chart-self-graded: '#a57218'
-  chart-missed: '#b02a2f'
-  chart-fill-in: '#a57218'
-  chart-single: '#4a8df5'
-  chart-multiple: '#a258c1'
+  primary: '#0f1727'
+  primary-foreground: '#fafcfe'
+  background: '#f5f8fd'
+  card: '#fefeff'
+  secondary: '#e1e9f5'
+  muted: '#ecf2fa'
+  muted-foreground: '#57647a'
+  accent: '#deecfc'
+  accent-foreground: '#0c2c5a'
+  border: '#d5deec'
+  input: '#d5deec'
+  ring: '#2a61ec'
+  brand: '#2a61ec'
+  brand-foreground: '#fafcff'
+  destructive: '#c21b27'
+  destructive-foreground: '#fafcfe'
+  success: '#007d48'
+  success-foreground: '#fafcfe'
+  warning: '#8d6600'
+  warning-foreground: '#fafcfe'
+  sidebar: '#ebf2fb'
+  category-1: '#009a9a'
+  category-2: '#006389'
+  category-3: '#687be5'
+  category-4: '#78389a'
+  category-5: '#cb5792'
 typography:
   display:
     fontFamily: 'Geist Sans, sans-serif'
@@ -116,109 +118,136 @@ components:
 
 ## Overview
 
-**Creative North Star: "The Neutral Instrument"**
+**Creative North Star: "The Terminal Scheme"**
 
-This system is a precision tool, not a personality. It is near-monochrome by
-intent: black ink on near-white paper (light) and white ink on true black
-(dark), with color reserved for meaning — the primary action, destruction,
-answer verdicts, mastery state, and data visualization. The design's job is to make hierarchy,
-state, and affordance unmistakable using type weight, size, spacing, and
-hairline borders first, so that the handful of chromatic signals that do exist
-stay legible instead of competing with decoration.
+This system is a precision tool that admits what it is for. Its user is
+studying Linux system administration, and it borrows the one colour tradition
+that audience already reads fluently: the terminal scheme. Every neutral is
+mixed toward a single cool blue rather than left as gray, so the ground itself
+carries the hue and the marks placed on it belong to the same world instead of
+sitting on it as stains. Light is a daylight terminal; dark is a night one.
 
-It explicitly rejects SaaS-template maximalism — purple-to-blue gradients,
-glassmorphism cards, hero-metric blocks, identical icon-heading-text card
-grids — and the cream/beige "warm neutral" default. Neutral here is a decision,
-not an absence.
+Colour here is never decoration, and it is never a free choice at the call
+site. There are exactly three chromatic tiers, and everything chromatic in the
+app is in one of them:
+
+1. **Action** — one blue (264deg). The peak action, focus, progress, selection.
+2. **Taxonomy** — a five-step categorical arc. Topics, objectives, chart series.
+3. **Verdict** — green, amber, red. Answer outcome and mastery state, nothing else.
+
+It still rejects SaaS-template maximalism — purple-to-blue gradients,
+glassmorphism, hero-metric blocks, identical icon-heading-text card grids — and
+still rejects the cream/beige "warm neutral" default. What changed is that the
+absence of colour is no longer the position; a disciplined, fully-specified
+colour system is.
 
 **Key Characteristics:**
 
-- Near-monochrome; color appears only when it carries meaning (the one peak
-  action, destructive, answer verdict, mastery state, or chart data)
-- Hierarchy from type weight, size, and whitespace — never from decoration
-- Hairline borders (#e4e4e4) and whisper-quiet shadows define structure
+- Tinted neutrals throughout — no pure gray, no pure black, no pure white
+- Every chromatic value belongs to one of the three tiers above
+- Hierarchy from type weight, size and whitespace first; colour confirms it
+- Hairline borders and whisper-quiet shadows define structure
 - Every visual value flows from `src/styles/tokens/`; components consume
   semantic classes (`bg-primary`, `text-muted-foreground`) exclusively
-- Full light/dark parity out of the box
+- Full light/dark parity, each composed rather than inverted
 
-## Colors
+## Colours
 
-A two-pole monochrome ramp with one semantic red; the palette is deliberately
-brandless so the primary slot can be recolored per app.
+Every value is derived in OKLCH and converted to sRGB, so ramps share a hue and
+step predictably in lightness. All 76 foreground/background pairs the system
+can produce were checked against WCAG AA before shipping.
 
-### Primary
+### Neutrals
 
-- **Ink** (#000000): the primary action color and text color. Buttons, focus
-  rings, and headings all share it — authority through uniformity. In dark
-  mode the poles flip (white ink on black).
+Mixed toward 258deg. The hue is faint in light and pronounced in dark, but it
+is never zero.
 
-### Neutral
+- **Canvas** (#f5f8fd / #0a111b): the app ground.
+- **Card** (#fefeff / #131b27): elevated surfaces — cards, popovers, inputs.
+- **Muted** (#ecf2fa / #1e2633): muted fills — skeletons, badges, chart tracks.
+- **Secondary** (#e1e9f5 / #252f3d): secondary buttons, bar tracks.
+- **Accent** (#deecfc / #293a4d): the tinted hover and active fill.
+- **Hairline** (#d5deec / #2b3544): borders and dividers; one line weight.
+- **Ink** (#0f1727 / #f0f4f9): body text and the `default` button.
+- **Slate Text** (#57647a / #9facbe): muted foreground. Passes 4.5:1 on every
+  neutral surface above; do not lighten it.
+- **Rail** (#ebf2fb / #111823): the sidebar plane, deliberately offset from the
+  canvas so the rail and the content column are different surfaces.
 
-- **Paper** (#fcfcfc): the app canvas. Not pure white, so cards can sit on it.
-- **Card White** (#ffffff): elevated surfaces — cards, popovers, inputs.
-- **Whisper Gray** (#f5f5f5): muted fills — skeletons, table stripes, badges.
-- **Control Gray** (#ebebeb): secondary buttons, input borders, accents.
-- **Hairline** (#e4e4e4): borders and dividers; the structural line weight.
-- **Slate Text** (#525252): muted foreground — descriptions, captions,
-  placeholders. Passes 4.5:1 on all neutral surfaces; do not lighten it.
+### Tier 1 — Action
 
-### Accent
+- **Signal Blue** (#2a61ec light / #7da7ff dark): the single action hue. It has
+  four jobs and no others: the one peak action per surface, run progress, focus
+  rings, and a selection in progress. It passes both directions — as text on
+  every neutral surface, and as a ground under its own foreground. It never
+  appears as a verdict, and it never appears in a chart.
 
-- **Cobalt** (#1f3cf5 light / #6e8cff dark): the single chromatic accent, and
-  the only hue in the palette that carries no verdict meaning — green, amber
-  and red are already spoken for by correct / shaky / wrong, so nothing else
-  could mark an action without being misread as a grade. It has exactly four
-  jobs: the one peak action per surface (`RecommendedDrill`, the drill card's
-  Submit / Next), run progress, focus rings, and a selection in progress (a
-  chosen answer option, the selected exam row). It passes both directions —
-  6.8:1 as ink on paper, 7.0:1 with white on it — so it works as text and as
-  a filled ground. It never appears in a chart, a verdict, or a mastery bar.
+### Tier 2 — Taxonomy
 
-### Tertiary
+`category-1` … `category-5` — the categorical arc, stepping evenly 195 -> 351deg
+with lightness alternating light/deep along the way:
 
-- **Signal Red** (#e54b4f): destructive actions and validation errors only.
+| Token        | Light     | Dark      |
+| ------------ | --------- | --------- |
+| `category-1` | `#009a9a` | `#00e0e0` |
+| `category-2` | `#006389` | `#00a5e2` |
+| `category-3` | `#687be5` | `#b1c1ff` |
+| `category-4` | `#78389a` | `#b67cd8` |
+| `category-5` | `#cb5792` | `#ffa4ce` |
 
-### Feedback
+Both axes are load-bearing. sRGB clamps chroma hard through cyan and blue, so
+at a single lightness those hues converge into the same dark teal and stop
+being tellable apart at swatch size — the alternating lightness is what keeps
+neighbours distinct, and it is also what keeps them distinct under red-green
+colour-vision deficiency.
 
-- **Verdict Green** (#1a7f4f): a correct answer, and the mastered portion of
-  a `MasteryBar` (a question that has been answered correctly two times in a
-  row). The one chromatic "you got this right" signal in the system.
-- **Verdict Amber** (#916417): the shaky portion of a `MasteryBar` — a
-  question answered correctly once, not yet enough to call mastered. Distinct
-  from Signal Red: amber means "not solid yet," not "wrong."
+The `chart-*` tokens are **aliases** onto this arc and the verdict tier, never
+their own colours: a topic's dot in a list and its arc in a chart have to be
+the same swatch or the coding is a lie.
 
-### Data Visualization
+### Tier 3 — Verdict
 
-Chart tokens are scoped to two roles and never reused as UI feedback color:
+- **Verdict Green** (#007d48 / #32d58b): a correct answer, and the mastered
+  portion of a `MasteryBar`.
+- **Verdict Amber** (#8d6600 / #dca744): the shaky portion of a `MasteryBar` —
+  answered correctly once, not yet enough to call mastered. Also the bookmarked
+  state. "Not solid yet," never "wrong."
+- **Signal Red** (#c21b27 / #f86a6b): a wrong answer, destructive actions, and
+  validation errors.
 
-- **Categorical** (`chart-1`…`chart-5`): generic series color for charts with
-  no inherent semantic mapping (e.g. a doughnut segmented by question type).
-- **Semantic** (`chart-correct` #24a969, `chart-self-graded` #a57218,
-  `chart-missed` #b02a2f, `chart-fill-in` #a57218, `chart-single` #4a8df5,
-  `chart-multiple` #a258c1): fixed meaning across every chart that plots
-  answer outcomes or question-type mix, so the same color always means the
-  same thing from chart to chart.
+All three are used as text as well as fills, so all three hold 4.5:1.
 
 ### Named Rules
 
-**The Monochrome Rule.** Chromatic color is forbidden except: Cobalt for the
-one peak action, progress, focus and in-progress selection; Signal Red for
-destruction/errors; Verdict Green/Amber for answer correctness and mastery
-state; and chart tokens for data visualization. If a screen needs emphasis
-anywhere else, reach for weight and space, not hue.
+**The Three Tiers Rule.** Every chromatic value in the app is action, taxonomy,
+or verdict. There is no fourth tier and no one-off hue. If something needs
+emphasis and is none of those three, it gets weight and space, not colour.
 
-**The One Peak Rule.** A surface spends the accent once. If two things on a
-page are cobalt, neither is the peak — demote one to Ink (`default`) or to a
-bordered/ghost treatment. This is what keeps the accent legible as "the thing
-to do next" rather than decoration.
+**The One Peak Rule.** A surface spends the action blue once. If two things on a
+page are blue, neither is the peak — demote one to Ink (`default`) or to a
+bordered/ghost treatment. A blocked or pending primary action steps down to
+`outline` rather than shipping a washed-out accent, which reads as broken.
 
-**The Verdict Reservation.** Green, amber and red belong to answer outcomes
-and mastery state, and to nothing else. Never reach for them to emphasize an
-action, and never let the accent stand in for a grade.
+**The Verdict Reservation.** Green, amber and red belong to answer outcomes and
+mastery state, and to nothing else. Never reach for them to emphasise an
+action, and never let the action blue stand in for a grade. This is why the
+taxonomy arc lives entirely on the cool half of the wheel: the warm half is
+spoken for.
 
-**The Token Door Rule.** Color enters components only as semantic classes
-(`bg-primary`, `text-muted-foreground`, `border-border`). A raw hex value or
-Tailwind palette color (`bg-blue-500`) in a component is a defect.
+**The Assigned-Not-Hashed Rule.** Taxonomy colour is assigned by order of first
+appearance within the list being rendered (`categoryColors` in
+`src/utils/categoryColor.ts`), not by hashing the key. With five hues and a
+handful of topics a hash collides often enough that two rows in one list come
+out the same colour — the one thing the coding must never do.
+
+**The Token Door Rule.** Colour enters components only as semantic classes
+(`bg-primary`, `text-muted-foreground`, `border-border`) or as a
+`var(--category-n)` handed down from `categoryColors`. A raw hex value or
+Tailwind palette colour (`bg-blue-500`) in a component is a defect.
+
+**Tinted, Never Gray.** No pure gray, pure black or pure white anywhere in the
+palette. If a value needs to read as neutral, it is the 258deg neutral at low
+chroma — not `#000`, `#fff`, or a Tailwind `gray-*`.
 
 ## Typography
 
@@ -334,7 +363,7 @@ crisp edges, instant feedback.
 - **Shape:** gently rounded (6px radius), 36px default height.
 - **Primary:** Ink on white text (#000000 / #ffffff), 8px 16px padding, Label type.
 - **Hover / Focus:** ~90% opacity shift on hover; 2px Ink focus ring offset from the element. No transforms.
-- **Brand:** Cobalt fill with white text, for the single peak action on a surface (see The One Peak Rule). A blocked or pending primary action steps down to `outline` rather than shipping a washed-out accent, which reads as broken.
+- **Brand:** Signal Blue fill with its own foreground, for the single peak action on a surface (see The One Peak Rule). A blocked or pending primary action steps down to `outline` rather than shipping a washed-out accent, which reads as broken.
 - **Secondary / Ghost / Destructive:** Control Gray fill / transparent with hover fill / Signal Red. All via shadcn `variant` props — never custom classes.
 - **Loading:** compose `Spinner` + `disabled`; no bespoke spinners.
 
@@ -373,8 +402,8 @@ crisp edges, instant feedback.
   `border-border`) and built-in `variant` props before any custom styling.
 - **Do** ship loading (Skeleton), empty (Empty), error, and disabled states
   with every surface.
-- **Do** keep body text at ≥4.5:1 contrast — Slate Text (#525252) is the
-  lightest allowed body/muted color on light surfaces.
+- **Do** keep body text at ≥4.5:1 contrast — Slate Text (#57647a) is the
+  lightest allowed body/muted colour on light surfaces.
 - **Do** rely on `src/styles/tokens/motion.css`'s blanket
   `prefers-reduced-motion` rule, which already covers every animation by
   default. Reach for a bespoke crossfade only when an animation carries
@@ -385,15 +414,17 @@ crisp edges, instant feedback.
 - **Don't** use purple-to-blue gradients, glassmorphism cards, hero-metric
   blocks, or identical icon-heading-text card grids — the SaaS-template
   maximalism this system explicitly rejects.
-- **Don't** introduce warm cream/beige neutrals; the baseline is near-
-  monochrome by intent, not by omission.
-- **Don't** spend the accent twice on one surface, or on anything that is not
-  an action, progress, focus, or an in-progress selection.
+- **Don't** introduce warm cream/beige neutrals, or reach for a pure gray,
+  black or white. Neutrals are the 258deg cool tint at low chroma.
+- **Don't** spend the action blue twice on one surface, or on anything that is
+  not an action, progress, focus, or an in-progress selection — and don't
+  introduce a chromatic value that belongs to none of the three tiers.
 - **Don't** stack a page out of identically-bordered cards. A ranked or
   comparable list is hairline-ruled rows sharing one baseline; a card is for a
   genuinely distinct navigable object, and never nested inside another card.
-- **Don't** write raw hex or Tailwind palette colors (`bg-blue-500`,
-  `text-emerald-600`) in components — semantic tokens only.
+- **Don't** write raw hex or Tailwind palette colours (`bg-blue-500`,
+  `text-emerald-600`) in components — semantic tokens only, and taxonomy
+  colour only via `categoryColors`.
 - **Don't** use colored side-stripe borders, gradient text, or tiny uppercase
   tracked eyebrows above every section.
 - **Don't** nest cards inside cards, or reach for a card when a border or

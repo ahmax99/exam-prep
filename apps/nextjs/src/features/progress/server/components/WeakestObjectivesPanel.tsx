@@ -1,8 +1,9 @@
 import Link from 'next/link'
 
-import { Empty, MasteryBar } from '@/components/atoms'
+import { CategoryDot, Empty, MasteryBar } from '@/components/atoms'
 import { drillHref } from '@/features/drill/lib/drillHref'
 import type { WeakestObjective } from '@/features/progress/server/api'
+import { categoryColors } from '@/utils/categoryColor'
 
 interface WeakestObjectivesPanelProps {
   certSlug: string
@@ -15,6 +16,8 @@ function WeakestObjectivesPanel({
   objectives,
   hasAttempts
 }: Readonly<WeakestObjectivesPanelProps>) {
+  const colors = categoryColors(objectives.map((objective) => objective.topic))
+
   return (
     <section
       aria-label="Weakest objectives"
@@ -54,7 +57,10 @@ function WeakestObjectivesPanel({
                   scopeValue: objective.objective
                 })}
               >
-                <span className="w-16 shrink-0 font-mono text-sm" data-numeric>
+                <CategoryDot
+                  color={colors.get(objective.topic) ?? 'var(--category-1)'}
+                />
+                <span className="w-14 shrink-0 font-mono text-sm" data-numeric>
                   {objective.objective}
                 </span>
                 <span className="flex-1 truncate text-sm">

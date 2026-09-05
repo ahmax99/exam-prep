@@ -1,8 +1,9 @@
 import Link from 'next/link'
 
-import { MasteryBar } from '@/components/atoms'
+import { CategoryDot, MasteryBar } from '@/components/atoms'
 import { drillHref } from '@/features/drill/lib/drillHref'
 import type { TopicMastery } from '@/features/progress/server/api'
+import { categoryColors } from '@/utils/categoryColor'
 
 interface TopicMasteryPanelProps {
   certSlug: string
@@ -13,6 +14,8 @@ const TopicMasteryPanel = ({
   certSlug,
   topics
 }: Readonly<TopicMasteryPanelProps>) => {
+  const colors = categoryColors(topics.map((topic) => topic.topic))
+
   return (
     <section
       aria-label="Topics"
@@ -39,6 +42,9 @@ const TopicMasteryPanel = ({
                   scopeValue: topic.topic
                 })}
               >
+                <CategoryDot
+                  color={colors.get(topic.topic) ?? 'var(--category-1)'}
+                />
                 <span className="flex-1 truncate text-sm">{topic.topic}</span>
                 <MasteryBar
                   className="hidden w-28 sm:flex"

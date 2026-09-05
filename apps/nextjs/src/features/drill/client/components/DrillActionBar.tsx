@@ -58,11 +58,17 @@ function DrillActionBar({
           <Button
             className="ml-auto"
             disabled={!canSubmit || isSubmitting}
-            variant="brand"
+            variant={canSubmit ? 'brand' : 'outline'}
             onClick={onSubmit}
           >
             Submit
-            <kbd className="text-brand-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex">
+            <kbd
+              className={
+                canSubmit
+                  ? 'text-brand-foreground/70 ml-2 hidden font-mono text-xs md:inline-flex'
+                  : shortcutHintClassName
+              }
+            >
               ↵
             </kbd>
           </Button>

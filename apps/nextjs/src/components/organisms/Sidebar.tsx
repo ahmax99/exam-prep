@@ -212,7 +212,7 @@ function Sidebar({
       />
       <div
         className={cn(
-          'fixed top-16 bottom-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear lg:flex',
+          'top-header fixed bottom-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear lg:flex',
           side === 'left'
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'
             : 'right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]',
@@ -282,6 +282,17 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
       tabIndex={-1}
       title="Toggle Sidebar"
       onClick={toggleSidebar}
+      {...props}
+    />
+  )
+}
+
+function SidebarHeader({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      className={cn('flex flex-col gap-2 p-2', className)}
+      data-sidebar="header"
+      data-slot="sidebar-header"
       {...props}
     />
   )
@@ -466,6 +477,7 @@ export {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuButton,

@@ -14,11 +14,13 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail
+  SidebarRail,
+  SidebarTrigger
 } from '@/components/organisms/Sidebar'
 
 interface AppSidebarCertification {
@@ -51,6 +53,9 @@ function AppSidebar({
 }: Readonly<AppSidebarProps>) {
   return (
     <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarTrigger className="self-end group-data-[collapsible=icon]:self-center" />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Certifications</SidebarGroupLabel>
