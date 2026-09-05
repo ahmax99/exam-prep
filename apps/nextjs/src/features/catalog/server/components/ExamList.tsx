@@ -31,8 +31,6 @@ const ExamList = ({
                 className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 flex-1 items-center gap-3 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
                 href={`/${certSlug}?exam=${exam.code}`}
               >
-                {/* The selected exam is marked by the accent rule, not by a
-                    heavier box — the row set is meant to read as one column. */}
                 <span
                   aria-hidden="true"
                   className={cn(

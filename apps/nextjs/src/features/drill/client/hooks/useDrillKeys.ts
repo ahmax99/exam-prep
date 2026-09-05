@@ -34,16 +34,11 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
       if (event.ctrlKey || event.metaKey || event.altKey) return
       if (event.isComposing) return
       if (isTextEntryTarget(event.target)) return
-      // OS key-repeat would otherwise let a held Enter/S/letter fire the
-      // handler many times (e.g. skip past several questions unintentionally).
+
       if (event.repeat) return
 
       const current = handlersRef.current
 
-      // A screen reader's browse-mode quick-nav keys (b, s, y, n, ...) move
-      // its virtual cursor without moving real DOM focus, so gating on focus
-      // containment — not just "not a text field" — keeps those keys free
-      // for AT navigation until the user has actually focused into the card.
       if (!current.containerRef.current?.contains(document.activeElement))
         return
 
@@ -76,8 +71,6 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
 
       switch (letter) {
         case 'B':
-          // B only bookmarks when the question has no lettered B option —
-          // otherwise the visible option wins.
           event.preventDefault()
           current.onBookmark()
           break
@@ -86,7 +79,6 @@ export const useDrillKeys = (handlers: DrillKeyHandlers) => {
           current.onSkip()
           break
         case 'L':
-          // Same precedence rule as B: a visible L option owns the key.
           event.preventDefault()
           current.onSkippedList()
           break

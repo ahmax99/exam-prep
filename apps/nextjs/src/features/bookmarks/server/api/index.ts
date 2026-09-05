@@ -44,7 +44,7 @@ const runSetBookmark = async (input: {
 
   return db.bookmark.upsert({
     where: { questionId: input.questionId },
-    // An absent `note` (undefined) leaves an existing note untouched.
+
     create: { questionId: input.questionId, note: input.note ?? null },
     update: input.note === undefined ? {} : { note: input.note },
     select: { questionId: true, note: true, createdAt: true }
@@ -60,8 +60,6 @@ const runRemoveBookmark = async (questionId: string) => {
   const db = await getPrismaClient()
   await requireQuestion(db, questionId)
 
-  // deleteMany matches zero rows without throwing, which is what makes
-  // DELETE idempotent — no P2025 handling needed.
   await db.bookmark.deleteMany({ where: { questionId } })
 }
 

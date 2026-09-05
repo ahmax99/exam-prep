@@ -15,8 +15,6 @@ interface DrillSubmitErrorProps {
   onRetry: () => void
 }
 
-// The message names what was and wasn't written, because a failed answer and a
-// failed self-grade leave the run in different states.
 function DrillSubmitError({
   kind,
   isRetrying,

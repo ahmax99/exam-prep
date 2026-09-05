@@ -73,8 +73,6 @@ function ChoiceOptions({
               type={isSingle ? 'radio' : 'checkbox'}
               onChange={() => onToggle(letter)}
             />
-            {/* Stays in the accessible name on purpose: the shortcut legend
-                tells the user to press this letter. */}
             <span className={cn(choiceLetterVariants({ state }))}>
               {letter}
             </span>

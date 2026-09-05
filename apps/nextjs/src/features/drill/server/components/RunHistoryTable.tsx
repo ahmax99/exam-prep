@@ -6,8 +6,6 @@ interface RunHistoryTableProps {
   rows: HistoryRow[]
 }
 
-// A fixed instance keeps server- and browser-rendered timestamps identical —
-// Date#toLocaleString without an explicit locale can disagree between them.
 const dateFormatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
   timeStyle: 'short'

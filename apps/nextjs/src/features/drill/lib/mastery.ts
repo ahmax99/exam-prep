@@ -5,7 +5,6 @@ export interface MasteryUpdate {
   correctStreak: number
 }
 
-// Two consecutive corrects promote SHAKY to MASTERED; any wrong resets to WRONG/0.
 const MASTERY_STREAK = 2
 
 export const nextMastery = (

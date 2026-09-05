@@ -68,7 +68,6 @@ function SidebarProvider({
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
 
-  // Internal state — openProp/setOpenProp let a caller control it instead.
   const [internalOpen, setInternalOpen] = React.useState(defaultOpen)
   const open = openProp ?? internalOpen
   const setOpen = React.useCallback(
@@ -200,8 +199,6 @@ function Sidebar({
       data-state={state}
       data-variant={variant}
     >
-      {/* Reserves the layout gap on desktop — the actual panel below is
-          position: fixed and taken out of flow. */}
       <div
         className={cn(
           'relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
@@ -215,10 +212,6 @@ function Sidebar({
       />
       <div
         className={cn(
-          // top-16 (not inset-y-0): this app pairs the sidebar with a
-          // sticky, full-width PageHeader (h-16) that sits above it —
-          // shadcn's stock inset-y-0 assumes the sidebar owns the full
-          // viewport height with any header living inside SidebarInset.
           'fixed top-16 bottom-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear lg:flex',
           side === 'left'
             ? 'left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]'

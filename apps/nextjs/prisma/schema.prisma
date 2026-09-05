@@ -64,8 +64,6 @@ model QuestionOption {
   @@unique([questionId, letter])
 }
 
-/// Absence of a row means "unseen" — so seeding does not write 413 rows,
-/// and "never touched" cannot drift out of sync with reality.
 model QuestionProgress {
   questionId    String       @id
   question      Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -106,8 +104,6 @@ enum ScopeKind {
   BOOKMARKS
 }
 
-/// Immutable log. Never updated, never deleted — this is what makes
-/// "save all previous drill attempts" queryable rather than merely retained.
 model Attempt {
   id         String    @id @default(cuid())
   runId      String?

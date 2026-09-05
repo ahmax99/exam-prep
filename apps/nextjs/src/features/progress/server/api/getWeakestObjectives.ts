@@ -23,8 +23,6 @@ export const getWeakestObjectives = async (
 ): Promise<WeakestObjective[]> => {
   const db = await getPrismaClient()
 
-  // Objective lives on Question while state lives on QuestionProgress, so the
-  // per-objective roll-up is folded here rather than grouped in the database.
   const questions = await db.question.findMany({
     where: { exam: { certification: { slug: certSlug } } },
     select: {
@@ -37,7 +35,6 @@ export const getWeakestObjectives = async (
   const byObjective = new Map<string, ObjectiveRow>()
 
   for (const { objective, topic, progress } of questions) {
-    // An objective is only unique within its topic, so both form the group key.
     const key = JSON.stringify([topic, objective])
     const row = byObjective.get(key) ?? {
       objective,

@@ -20,7 +20,6 @@ const TopicMasteryPanel = ({
     >
       <div className="border-border flex items-baseline justify-between gap-4 border-b pb-2">
         <h2 className="text-xl leading-snug font-medium">Topics</h2>
-        {/* Names the counter column: the number is mastered-only, not answered. */}
         <p className="text-muted-foreground shrink-0 text-sm">Mastered</p>
       </div>
 
@@ -29,8 +28,6 @@ const TopicMasteryPanel = ({
           No topics for this exam yet.
         </p>
       ) : (
-        // Same ruled treatment as the weakest-objectives readout, so the two
-        // ranked lists in this app read as one instrument.
         <ul className="divide-border divide-y">
           {topics.map((topic) => (
             <li key={topic.topic}>

@@ -26,10 +26,7 @@ const isMountedDuringSsr = () => false
 
 const ThemeToggle = () => {
   const { theme, setTheme } = useTheme()
-  // Hydration-mismatch guard: the accessible name below depends on the
-  // resolved theme, which is unknown on the server. useSyncExternalStore's
-  // getServerSnapshot/getSnapshot split gives a hydration-safe "mounted" flag
-  // without the setState-in-effect oxlint flags as a render-cascade risk.
+
   const mounted = useSyncExternalStore(
     subscribeToNothing,
     isMountedOnClient,

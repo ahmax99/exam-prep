@@ -25,7 +25,7 @@ export const useSummaryKeys = (handlers: SummaryKeyHandlers) => {
       if (event.ctrlKey || event.metaKey || event.altKey) return
       if (event.isComposing) return
       if (isTextEntryTarget(event.target)) return
-      // OS key-repeat would otherwise fire the handler many times per hold.
+
       if (event.repeat) return
 
       if (!/^[a-z]$/i.test(event.key)) return

@@ -26,8 +26,7 @@ function BookmarkToggle({
 }: Readonly<BookmarkToggleProps>) {
   const router = useRouter()
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarked)
-  // A plain ref, not state: a second click arriving before React flushes the
-  // first must still see the in-flight request.
+
   const isPendingRef = useRef(false)
 
   const onClick = () => {
@@ -44,10 +43,6 @@ function BookmarkToggle({
 
     request
       .match(
-        // The bookmark count in the shared app rail is rendered by
-        // (public)/layout.tsx, a server component the drill route never
-        // remounts — without this it goes stale until something else
-        // forces a refresh.
         () => router.refresh(),
         (error) => {
           setIsBookmarked(previous)

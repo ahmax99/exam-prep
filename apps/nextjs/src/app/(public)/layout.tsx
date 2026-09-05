@@ -53,9 +53,6 @@ export default async function PublicLayout({
   const runsHref = primaryCertSlug ? `/${primaryCertSlug}/runs` : null
   const sidebarOpen = (await cookies()).get('sidebar_state')?.value !== 'false'
 
-  // "Past runs" carries count: null on purpose — a run count would need two
-  // extra Prisma queries (cert question ids + drillRun.count overlap) on
-  // every page render, since DrillRun has no cert column.
   const practiceItems: AppSidebarPracticeItem[] = primaryCertSlug
     ? [
         {
@@ -68,8 +65,7 @@ export default async function PublicLayout({
           count: primaryMastery?.unseen ?? null,
           href: `/${primaryCertSlug}/drill?scopeKind=UNSEEN&scopeValue=${primaryCertSlug}`
         },
-        // savedHref/runsHref are non-null here: both are derived from
-        // primaryCertSlug, which this branch has already checked truthy.
+
         { label: 'Bookmarked', count: bookmarkCount, href: savedHref! },
         { label: 'Past runs', count: null, href: runsHref! }
       ]
@@ -89,8 +85,6 @@ export default async function PublicLayout({
           practiceItems={practiceItems}
         />
         <main
-          // Reserves exactly the tab bar's occupied height (spaces.css)
-          // so the two never drift out of sync.
           className="pb-bottom-nav min-w-0 flex-1 lg:pb-0"
           id="main-content"
           tabIndex={-1}

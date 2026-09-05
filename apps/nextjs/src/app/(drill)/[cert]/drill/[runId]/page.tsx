@@ -13,9 +13,6 @@ export const dynamic = 'force-dynamic'
 
 const log = logger.child({ module: 'drill-page' })
 
-// Hoisted so the success and error branches can't drift apart.
-// Anchored to the top rather than vertically centered: centering re-positions
-// the question on every advance, because each prompt is a different height.
 const drillMainClassName = 'px-4 py-6 lg:px-8 lg:py-14'
 
 export const generateMetadata = () =>
@@ -47,8 +44,7 @@ export default async function DrillRunPage({
   return result.match(
     ({ run, questions, answeredQuestionIds }) => {
       const answered = new Set(answeredQuestionIds)
-      // A `?q=` that names a question already answered (in another tab, say)
-      // or absent from this run degrades to the normal resume point.
+
       const requestedIndex = questions.findIndex(
         (question) =>
           question.id === requestedQuestionId && !answered.has(question.id)
@@ -60,10 +56,6 @@ export default async function DrillRunPage({
 
       if (startIndex === -1) redirect(`/${cert}/drill/${runId}/summary`)
 
-      // How far the run had been walked before this render — everything
-      // before it with no attempt was skipped. A finished run was walked to
-      // its end; for a live one the server can't tell "skipped" from "not
-      // reached yet", so its last answer is the only defensible frontier.
       const lastAnsweredIndex = questions.reduce(
         (last, question, index) => (answered.has(question.id) ? index : last),
         -1
@@ -102,8 +94,6 @@ export default async function DrillRunPage({
       )
     },
     (error) => {
-      // A well-formed but nonexistent runId is a real 404, not a transient
-      // failure a refresh could fix.
       if (error.code === 'NOT_FOUND') notFound()
 
       log.error({ error, runId }, 'Failed to load drill run')

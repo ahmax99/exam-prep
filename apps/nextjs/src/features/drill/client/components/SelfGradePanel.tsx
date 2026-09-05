@@ -44,9 +44,6 @@ function SelfGradePanel({
         This is recorded to your mastery tracking for this question and
         can&apos;t be changed afterwards.
       </p>
-      {/* Both answers carry identical weight on purpose: making "I had it"
-          the prettier button would bias the self-grade, and the honesty of
-          that call is the only thing mastery tracking is built on. */}
       <div className="mt-4 flex items-center gap-3">
         <Button
           className="min-h-11 flex-1"
