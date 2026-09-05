@@ -1,12 +1,8 @@
 import ky from 'ky'
-import { errAsync, okAsync } from 'neverthrow'
 
-import {
-  type AnswerVerdict,
-  answerVerdictSchema
-} from '@/features/drill/schemas/answerVerdict.schema'
-import { AppError } from '@/features/error/lib/AppError'
+import { answerVerdictSchema } from '@/features/drill/schemas/answerVerdict.schema'
 import { catchAsyncError } from '@/features/error/utils/catchError'
+import { parseResponse } from '@/features/error/utils/parseResponse'
 
 interface SubmitAnswerParams {
   runId: string
@@ -25,11 +21,4 @@ export const submitAnswer = ({
         json: { questionId, response }
       })
       .json<unknown>()
-  ).andThen((body) => {
-    const parsed = answerVerdictSchema.safeParse(body)
-    return parsed.success
-      ? okAsync<AnswerVerdict, AppError>(parsed.data)
-      : errAsync<AnswerVerdict, AppError>(
-          new AppError('INTERNAL_ERROR', 'Unexpected answer response')
-        )
-  })
+  ).andThen(parseResponse(answerVerdictSchema, 'Unexpected answer response'))

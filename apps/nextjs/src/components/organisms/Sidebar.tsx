@@ -245,7 +245,7 @@ function SidebarTrigger({
 
   return (
     <Button
-      className={cn(className)}
+      className={className}
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
       size="icon-sm"
@@ -473,6 +473,5 @@ export {
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
-  sidebarMenuButtonVariants,
   useSidebar
 }

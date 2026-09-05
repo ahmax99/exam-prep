@@ -1,15 +1,10 @@
-import type { HistoryRow } from '@/features/drill/lib/summary'
+import { runDateFormatter, type HistoryRow } from '@/features/drill/lib/summary'
 
 import { historyDeltaVariants } from './RunHistoryTable.variants'
 
 interface RunHistoryTableProps {
   rows: HistoryRow[]
 }
-
-const dateFormatter = new Intl.DateTimeFormat('en-GB', {
-  dateStyle: 'medium',
-  timeStyle: 'short'
-})
 
 const deltaText = (delta: HistoryRow['delta']) => {
   if (!delta) return '—'
@@ -40,7 +35,7 @@ function RunHistoryTable({ rows }: Readonly<RunHistoryTableProps>) {
                 className={row.isCurrent ? 'bg-muted' : undefined}
               >
                 <td className="py-2 font-mono text-sm">
-                  {dateFormatter.format(row.startedAt)}
+                  {runDateFormatter.format(row.startedAt)}
                   {row.isCurrent && (
                     <span className="sr-only"> (current run)</span>
                   )}

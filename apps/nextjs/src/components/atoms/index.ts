@@ -1,5 +1,3 @@
 export * from './Button'
 export * from './Empty'
 export * from './MasteryBar'
-export * from './Separator'
-export * from './Skeleton'

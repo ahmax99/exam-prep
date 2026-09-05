@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { ArrowRight } from 'lucide-react'
 
+import { drillHref } from '@/features/drill/lib/drillHref'
 import type { DrillRecommendation } from '@/features/drill/lib/recommendation'
 
 interface RecommendedDrillProps {
@@ -15,9 +16,10 @@ const RecommendedDrill = ({
 }: Readonly<RecommendedDrillProps>) => {
   if (recommendation.available === 0) return null
 
-  const href =
-    `/${certSlug}/drill?scopeKind=${recommendation.scopeKind}` +
-    `&scopeValue=${encodeURIComponent(recommendation.scopeValue)}`
+  const href = drillHref(certSlug, {
+    scopeKind: recommendation.scopeKind,
+    scopeValue: recommendation.scopeValue
+  })
 
   return (
     <Link

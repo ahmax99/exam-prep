@@ -2,6 +2,7 @@ import 'server-only'
 import { cache } from 'react'
 
 import { getPrismaClient, type MasteryState } from '@/lib/prisma'
+import { toPercent } from '@/utils/toPercent'
 
 export interface CertificationMastery {
   certificationId: string
@@ -54,7 +55,7 @@ export const getDashboard = cache(async (): Promise<CertificationMastery[]> => {
         unseen: total - attempted,
         attempted,
         total,
-        masteryPercent: total === 0 ? 0 : Math.round((mastered / total) * 100)
+        masteryPercent: toPercent(mastered, total)
       }
     })
   )

@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 
 import { tokenizeInlineMarkdown } from '@/features/drill/lib/inlineMarkdown'
-import { cn } from '@/utils/mergeClass'
 
 interface PromptMarkdownProps {
   text: string
@@ -12,7 +11,7 @@ function PromptMarkdown({ text, className }: Readonly<PromptMarkdownProps>) {
   const tokens = tokenizeInlineMarkdown(text)
 
   return (
-    <span className={cn(className)} data-slot="prompt-markdown">
+    <span className={className} data-slot="prompt-markdown">
       {tokens.map((token, index) => {
         const key = `${index}-${token.value}`
         const content =

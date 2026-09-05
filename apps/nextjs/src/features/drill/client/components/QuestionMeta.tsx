@@ -3,6 +3,7 @@
 import type { Ref } from 'react'
 
 import { BookmarkToggle } from '@/features/bookmarks/client/components/BookmarkToggle'
+import { QUESTION_TYPE_LABELS } from '@/features/drill/constants'
 import type { QuestionType } from '@/lib/prisma'
 
 interface QuestionMetaProps {
@@ -13,12 +14,6 @@ interface QuestionMetaProps {
   timesSeen: number
   initialBookmarked: boolean
   toggleRef?: Ref<HTMLButtonElement>
-}
-
-const TYPE_LABELS: Record<QuestionType, string> = {
-  SINGLE_ANSWER: 'Single answer',
-  MULTIPLE_ANSWER: 'Multiple answer',
-  FILL_IN: 'Fill in'
 }
 
 const ordinal = (value: number) => {
@@ -56,7 +51,7 @@ function QuestionMeta({
         </span>
         <span className="min-w-0 truncate">{topic}</span>
         <span aria-hidden="true">·</span>
-        <span className="whitespace-nowrap">{TYPE_LABELS[type]}</span>
+        <span className="whitespace-nowrap">{QUESTION_TYPE_LABELS[type]}</span>
         {timesSeen >= 1 && (
           <>
             <span aria-hidden="true">·</span>

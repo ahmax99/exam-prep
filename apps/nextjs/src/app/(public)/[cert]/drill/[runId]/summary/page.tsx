@@ -43,10 +43,13 @@ export default async function RunSummaryPage({
   const parsedRunId = idSchema.safeParse(runId)
   if (!parsedCert.success || !parsedRunId.success) notFound()
 
-  const summaryResult = await getRunSummary({
-    runId: parsedRunId.data,
-    certSlug: parsedCert.data
-  })
+  const [summaryResult, certResult] = await Promise.all([
+    getRunSummary({
+      runId: parsedRunId.data,
+      certSlug: parsedCert.data
+    }),
+    catchAsyncError(getCertification(parsedCert.data))
+  ])
 
   if (summaryResult.isErr()) {
     if (summaryResult.error.code === 'NOT_FOUND') notFound()
@@ -86,7 +89,6 @@ export default async function RunSummaryPage({
     }
   )
 
-  const certResult = await catchAsyncError(getCertification(parsedCert.data))
   const backLabel = certResult.match(
     (certification) => `Back to ${certification.name}`,
     (error) => {
