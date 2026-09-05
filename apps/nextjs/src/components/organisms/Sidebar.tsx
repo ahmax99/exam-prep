@@ -199,7 +199,6 @@ function Sidebar({
       data-state={state}
       data-variant={variant}
     >
-      {}
       <div
         className={cn(
           'relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear',
