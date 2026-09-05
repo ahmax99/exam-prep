@@ -20,7 +20,6 @@ const TopicMasteryPanel = ({
     >
       <div className="border-border flex items-baseline justify-between gap-4 border-b pb-2">
         <h2 className="text-xl leading-snug font-medium">Topics</h2>
-        {}
         <p className="text-muted-foreground shrink-0 text-sm">Mastered</p>
       </div>
 
