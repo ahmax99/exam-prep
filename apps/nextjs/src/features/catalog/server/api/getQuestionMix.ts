@@ -1,5 +1,5 @@
 import 'server-only'
-import { getPrismaClient } from '@/lib/prisma'
+import { getPrismaClient, type QuestionType } from '@/lib/prisma'
 
 export interface QuestionMix {
   fillIn: number
@@ -13,16 +13,19 @@ export const getQuestionMix = async (
 ): Promise<QuestionMix> => {
   const db = await getPrismaClient()
 
-  const [row] = await db.$queryRaw<QuestionMix[]>`
-    SELECT
-      COUNT(*) FILTER (WHERE q.type = 'FILL_IN')::int AS "fillIn",
-      COUNT(*) FILTER (WHERE q.type = 'SINGLE_ANSWER')::int AS "singleAnswer",
-      COUNT(*) FILTER (WHERE q.type = 'MULTIPLE_ANSWER')::int AS "multipleAnswer"
-    FROM "Question" q
-    JOIN "Exam" e ON e.id = q."examId"
-    JOIN "Certification" c ON c.id = e."certificationId"
-    WHERE c.slug = ${certSlug} AND e.code = ${examCode}
-  `
+  const groups = await db.question.groupBy({
+    by: ['type'],
+    where: { exam: { code: examCode, certification: { slug: certSlug } } },
+    _count: { _all: true }
+  })
 
-  return row ?? { fillIn: 0, singleAnswer: 0, multipleAnswer: 0 }
+  // A type absent from the groups has no questions, so it counts as zero.
+  const countOf = (type: QuestionType) =>
+    groups.find((group) => group.type === type)?._count._all ?? 0
+
+  return {
+    fillIn: countOf('FILL_IN'),
+    singleAnswer: countOf('SINGLE_ANSWER'),
+    multipleAnswer: countOf('MULTIPLE_ANSWER')
+  }
 }

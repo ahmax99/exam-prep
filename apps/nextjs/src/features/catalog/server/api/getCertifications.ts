@@ -16,15 +16,24 @@ export const getCertifications = cache(
   async (): Promise<CertificationSummary[]> => {
     const db = await getPrismaClient()
 
-    return db.$queryRaw<CertificationSummary[]>`
-      SELECT c.id, c.slug, c.name, c.vendor,
-        COUNT(DISTINCT e.id)::int AS "examCount",
-        COUNT(q.id)::int AS "questionCount"
-      FROM "Certification" c
-      LEFT JOIN "Exam" e ON e."certificationId" = c.id
-      LEFT JOIN "Question" q ON q."examId" = e.id
-      GROUP BY c.id, c.slug, c.name, c.vendor
-      ORDER BY c.name ASC
-    `
+    const certifications = await db.certification.findMany({
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        vendor: true,
+        exams: { select: { _count: { select: { questions: true } } } }
+      },
+      orderBy: { name: 'asc' }
+    })
+
+    return certifications.map(({ exams, ...certification }) => ({
+      ...certification,
+      examCount: exams.length,
+      questionCount: exams.reduce(
+        (total, exam) => total + exam._count.questions,
+        0
+      )
+    }))
   }
 )

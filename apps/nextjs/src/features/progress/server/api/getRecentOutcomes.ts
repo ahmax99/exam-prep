@@ -16,17 +16,23 @@ export const getRecentOutcomes = async (
   const db = await getPrismaClient()
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 
-  const [row] = await db.$queryRaw<RecentOutcomes[]>`
-    SELECT
-      COUNT(*) FILTER (WHERE a."isCorrect" AND NOT a."selfGraded")::int AS "rightFirstTry",
-      COUNT(*) FILTER (WHERE a."isCorrect" AND a."selfGraded")::int AS "selfGraded",
-      COUNT(*) FILTER (WHERE NOT a."isCorrect")::int AS missed
-    FROM "Attempt" a
-    JOIN "Question" q ON q.id = a."questionId"
-    JOIN "Exam" e ON e.id = q."examId"
-    JOIN "Certification" c ON c.id = e."certificationId"
-    WHERE c.slug = ${certSlug} AND a."createdAt" >= ${since}
-  `
+  const groups = await db.attempt.groupBy({
+    by: ['isCorrect', 'selfGraded'],
+    where: {
+      createdAt: { gte: since },
+      question: { exam: { certification: { slug: certSlug } } }
+    },
+    _count: { _all: true }
+  })
 
-  return row ?? { rightFirstTry: 0, selfGraded: 0, missed: 0 }
+  return groups.reduce<RecentOutcomes>(
+    (outcomes, group) => {
+      const count = group._count._all
+      if (!group.isCorrect) outcomes.missed += count
+      else if (group.selfGraded) outcomes.selfGraded += count
+      else outcomes.rightFirstTry += count
+      return outcomes
+    },
+    { rightFirstTry: 0, selfGraded: 0, missed: 0 }
+  )
 }

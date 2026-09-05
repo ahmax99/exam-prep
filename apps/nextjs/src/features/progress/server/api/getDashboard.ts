@@ -1,7 +1,7 @@
 import 'server-only'
 import { cache } from 'react'
 
-import { getPrismaClient } from '@/lib/prisma'
+import { getPrismaClient, type MasteryState } from '@/lib/prisma'
 
 export interface CertificationMastery {
   certificationId: string
@@ -15,39 +15,50 @@ export interface CertificationMastery {
   masteryPercent: number
 }
 
-interface MasteryRow {
-  certificationId: string
-  slug: string
-  total: number
-  mastered: number
-  shaky: number
-  missed: number
-}
-
 export const getDashboard = cache(async (): Promise<CertificationMastery[]> => {
   const db = await getPrismaClient()
 
-  const rows = await db.$queryRaw<MasteryRow[]>`
-      SELECT c.id AS "certificationId", c.slug,
-        COUNT(q.id)::int AS total,
-        COUNT(*) FILTER (WHERE qp.state = 'MASTERED')::int AS mastered,
-        COUNT(*) FILTER (WHERE qp.state = 'SHAKY')::int AS shaky,
-        COUNT(*) FILTER (WHERE qp.state = 'WRONG')::int AS missed
-      FROM "Certification" c
-      LEFT JOIN "Exam" e ON e."certificationId" = c.id
-      LEFT JOIN "Question" q ON q."examId" = e.id
-      LEFT JOIN "QuestionProgress" qp ON qp."questionId" = q.id
-      GROUP BY c.id, c.slug
-      ORDER BY c.slug ASC
-    `
-
-  return rows.map((row) => {
-    const unseen = row.total - row.mastered - row.shaky - row.missed
-    // MasteryState is exactly WRONG|SHAKY|MASTERED and a missing QuestionProgress
-    // row means "unseen", so this sum is the certification's attempt existence check.
-    const attempted = row.mastered + row.shaky + row.missed
-    const masteryPercent =
-      row.total === 0 ? 0 : Math.round((row.mastered / row.total) * 100)
-    return { ...row, unseen, attempted, masteryPercent }
+  const certifications = await db.certification.findMany({
+    select: { id: true, slug: true },
+    orderBy: { slug: 'asc' }
   })
+
+  // State lives on QuestionProgress and the certification two relations away, so
+  // the roll-up is scoped per certification — a set the catalog keeps small.
+  return Promise.all(
+    certifications.map(async ({ id, slug }) => {
+      const scope = { exam: { certificationId: id } }
+
+      const [total, states] = await Promise.all([
+        db.question.count({ where: scope }),
+        db.questionProgress.groupBy({
+          by: ['state'],
+          where: { question: scope },
+          _count: { _all: true }
+        })
+      ])
+
+      const countOf = (state: MasteryState) =>
+        states.find((group) => group.state === state)?._count._all ?? 0
+
+      const mastered = countOf('MASTERED')
+      const shaky = countOf('SHAKY')
+      const missed = countOf('WRONG')
+      // MasteryState is exactly WRONG|SHAKY|MASTERED and a missing QuestionProgress
+      // row means "unseen", so this sum is the certification's attempt existence check.
+      const attempted = mastered + shaky + missed
+
+      return {
+        certificationId: id,
+        slug,
+        mastered,
+        shaky,
+        missed,
+        unseen: total - attempted,
+        attempted,
+        total,
+        masteryPercent: total === 0 ? 0 : Math.round((mastered / total) * 100)
+      }
+    })
+  )
 })
