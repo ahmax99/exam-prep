@@ -31,17 +31,26 @@ export const getCertification = async (
   if (!certification)
     throw new AppError('NOT_FOUND', `Certification "${slug}" not found`)
 
-  const exams = await db.$queryRaw<CertificationExam[]>`
-    SELECT e.code, e.title,
-      COUNT(q.id)::int AS "questionCount",
-      COUNT(DISTINCT q.topic)::int AS "topicCount",
-      COUNT(DISTINCT q.objective)::int AS "objectiveCount"
-    FROM "Exam" e
-    LEFT JOIN "Question" q ON q."examId" = e.id
-    WHERE e."certificationId" = ${certification.id}
-    GROUP BY e.id, e.code, e.title
-    ORDER BY e.code ASC
-  `
+  // Topic and objective are Question columns, so their distinct counts come from
+  // the exam's own questions rather than an aggregate Prisma can express.
+  const exams = await db.exam.findMany({
+    where: { certificationId: certification.id },
+    select: {
+      code: true,
+      title: true,
+      questions: { select: { topic: true, objective: true } }
+    },
+    orderBy: { code: 'asc' }
+  })
 
-  return { ...certification, exams }
+  return {
+    ...certification,
+    exams: exams.map(({ questions, ...exam }) => ({
+      ...exam,
+      questionCount: questions.length,
+      topicCount: new Set(questions.map((question) => question.topic)).size,
+      objectiveCount: new Set(questions.map((question) => question.objective))
+        .size
+    }))
+  }
 }

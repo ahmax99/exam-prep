@@ -23,24 +23,45 @@ export const getWeakestObjectives = async (
 ): Promise<WeakestObjective[]> => {
   const db = await getPrismaClient()
 
-  const rows = await db.$queryRaw<ObjectiveRow[]>`
-    SELECT q.objective, q.topic,
-      COUNT(*) FILTER (WHERE qp.state = 'MASTERED')::int AS mastered,
-      COUNT(*)::int AS total
-    FROM "Question" q
-    JOIN "Exam" e ON e.id = q."examId"
-    JOIN "Certification" c ON c.id = e."certificationId"
-    LEFT JOIN "QuestionProgress" qp ON qp."questionId" = q.id
-    WHERE c.slug = ${certSlug}
-    GROUP BY q.objective, q.topic
-    ORDER BY ROUND(COUNT(*) FILTER (WHERE qp.state = 'MASTERED')::numeric / COUNT(*) * 100) ASC,
-      COUNT(*) DESC,
-      q.objective ASC
-    LIMIT ${limit}
-  `
+  // Objective lives on Question while state lives on QuestionProgress, so the
+  // per-objective roll-up is folded here rather than grouped in the database.
+  const questions = await db.question.findMany({
+    where: { exam: { certification: { slug: certSlug } } },
+    select: {
+      objective: true,
+      topic: true,
+      progress: { select: { state: true } }
+    }
+  })
 
-  return rows.map((row) => ({
-    ...row,
-    masteryPercent: Math.round((row.mastered / row.total) * 100)
-  }))
+  const byObjective = new Map<string, ObjectiveRow>()
+
+  for (const { objective, topic, progress } of questions) {
+    // An objective is only unique within its topic, so both form the group key.
+    const key = JSON.stringify([topic, objective])
+    const row = byObjective.get(key) ?? {
+      objective,
+      topic,
+      mastered: 0,
+      total: 0
+    }
+
+    row.total += 1
+    if (progress?.state === 'MASTERED') row.mastered += 1
+
+    byObjective.set(key, row)
+  }
+
+  return [...byObjective.values()]
+    .map((row) => ({
+      ...row,
+      masteryPercent: Math.round((row.mastered / row.total) * 100)
+    }))
+    .sort(
+      (a, b) =>
+        a.masteryPercent - b.masteryPercent ||
+        b.total - a.total ||
+        a.objective.localeCompare(b.objective)
+    )
+    .slice(0, limit)
 }
