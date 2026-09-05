@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, type RefObject } from 'react'
 
+import { isTextEntryTarget } from '@/features/drill/client/lib/isTextEntryTarget'
+
 interface DrillKeyHandlers {
   containerRef: RefObject<HTMLElement | null>
   optionLetters: string[]
@@ -15,12 +17,6 @@ interface DrillKeyHandlers {
   onPrevious?: () => void
   onHelp?: () => void
 }
-
-const isTextEntryTarget = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  target.closest(
-    'input:not([type=radio]):not([type=checkbox]), textarea, select, [contenteditable="true"]'
-  ) !== null
 
 export const useDrillKeys = (handlers: DrillKeyHandlers) => {
   const handlersRef = useRef(handlers)

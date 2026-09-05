@@ -5,7 +5,7 @@ import { useRef } from 'react'
 
 import { toast } from 'sonner'
 
-import { startBookmarksRun } from '@/features/bookmarks/client/lib/startBookmarksRun'
+import { startRun } from '@/features/drill/client/lib/startRun'
 
 interface DrillBookmarksButtonProps {
   certSlug: string
@@ -25,7 +25,12 @@ function DrillBookmarksButton({
     if (isPendingRef.current) return
     isPendingRef.current = true
 
-    startBookmarksRun(certSlug, count)
+    startRun({
+      scopeKind: 'BOOKMARKS',
+      scopeValue: '',
+      certSlug,
+      limit: count
+    })
       .match(
         ({ id }) => router.push(`/${certSlug}/drill/${id}`),
         (error) => toast.error(error.message)

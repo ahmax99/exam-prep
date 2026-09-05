@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { MasteryBar } from '@/components/atoms'
+import { drillHref } from '@/features/drill/lib/drillHref'
 import type { TopicMastery } from '@/features/progress/server/api'
 
 interface TopicMasteryPanelProps {
@@ -33,7 +34,10 @@ const TopicMasteryPanel = ({
             <li key={topic.topic}>
               <Link
                 className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 items-center gap-4 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
-                href={`/${certSlug}/drill?scopeKind=TOPIC&scopeValue=${encodeURIComponent(topic.topic)}`}
+                href={drillHref(certSlug, {
+                  scopeKind: 'TOPIC',
+                  scopeValue: topic.topic
+                })}
               >
                 <span className="flex-1 truncate text-sm">{topic.topic}</span>
                 <MasteryBar

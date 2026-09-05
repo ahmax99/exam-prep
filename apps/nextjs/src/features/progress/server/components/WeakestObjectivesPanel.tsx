@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { Empty, MasteryBar } from '@/components/atoms'
+import { drillHref } from '@/features/drill/lib/drillHref'
 import type { WeakestObjective } from '@/features/progress/server/api'
 
 interface WeakestObjectivesPanelProps {
@@ -33,7 +34,10 @@ function WeakestObjectivesPanel({
           >
             <Link
               className="text-foreground min-h-11 w-fit content-center underline underline-offset-4"
-              href={`/${certSlug}/drill?scopeKind=CERT&scopeValue=${certSlug}`}
+              href={drillHref(certSlug, {
+                scopeKind: 'CERT',
+                scopeValue: certSlug
+              })}
             >
               Start drilling
             </Link>
@@ -45,7 +49,10 @@ function WeakestObjectivesPanel({
             <li key={objective.objective}>
               <Link
                 className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 items-center gap-4 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
-                href={`/${certSlug}/drill?scopeKind=OBJECTIVE&scopeValue=${objective.objective}`}
+                href={drillHref(certSlug, {
+                  scopeKind: 'OBJECTIVE',
+                  scopeValue: objective.objective
+                })}
               >
                 <span className="w-16 shrink-0 font-mono text-sm" data-numeric>
                   {objective.objective}

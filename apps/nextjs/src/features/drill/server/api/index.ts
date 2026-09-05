@@ -80,34 +80,35 @@ const runGetRun = async (id: string) => {
   const run = await db.drillRun.findUnique({ where: { id } })
   if (!run) throw new AppError('NOT_FOUND', 'Run not found')
 
-  const questions = await db.question.findMany({
-    where: { id: { in: run.questionIds } },
-    select: {
-      id: true,
-      number: true,
-      objective: true,
-      topic: true,
-      prompt: true,
-      type: true,
-      options: {
-        select: { letter: true, text: true },
-        orderBy: { letter: 'asc' }
-      },
-      exam: { select: { code: true, title: true } },
-      progress: { select: { timesSeen: true } },
-      bookmark: { select: { questionId: true } }
-    }
-  })
+  const [questions, answered] = await Promise.all([
+    db.question.findMany({
+      where: { id: { in: run.questionIds } },
+      select: {
+        id: true,
+        number: true,
+        objective: true,
+        topic: true,
+        prompt: true,
+        type: true,
+        options: {
+          select: { letter: true, text: true },
+          orderBy: { letter: 'asc' }
+        },
+        exam: { select: { code: true, title: true } },
+        progress: { select: { timesSeen: true } },
+        bookmark: { select: { questionId: true } }
+      }
+    }),
+    db.attempt.findMany({
+      where: { runId: id },
+      select: { questionId: true }
+    })
+  ])
 
   const byId = new Map(questions.map((question) => [question.id, question]))
   const ordered = run.questionIds
     .map((questionId) => byId.get(questionId))
     .filter((question) => question !== undefined)
-
-  const answered = await db.attempt.findMany({
-    where: { runId: id },
-    select: { questionId: true }
-  })
 
   return {
     run: {
@@ -289,34 +290,22 @@ const closeRunIfOpen = (db: PrismaClient, id: string) =>
     data: { finishedAt: new Date() }
   })
 
-const runFinishRun = async (id: string) => {
-  const db = await getPrismaClient()
-  await closeRunIfOpen(db, id)
-
-  const run = await db.drillRun.findUnique({
-    where: { id },
-    select: { id: true, finishedAt: true, questionIds: true }
-  })
-  if (!run) throw new AppError('NOT_FOUND', 'Run not found')
-
-  const score = await db.attempt.count({
-    where: { runId: id, isCorrect: true }
-  })
-
-  return {
-    id: run.id,
-    finishedAt: run.finishedAt,
-    score,
-    total: run.questionIds.length
-  }
-}
-
-export const finishRun = (id: string) => catchAsyncError(runFinishRun(id))
-
 type RunHistoryScope = Pick<
   StartRunInput,
   'scopeKind' | 'scopeValue' | 'certSlug'
 >
+
+const correctCountByRun = async (db: PrismaClient, runIds: string[]) => {
+  const counts = await db.attempt.groupBy({
+    by: ['runId'],
+    where: { runId: { in: runIds }, isCorrect: true },
+    _count: { _all: true }
+  })
+
+  return new Map<string | null, number>(
+    counts.map((row) => [row.runId, row._count._all])
+  )
+}
 
 const runGetRunHistory = async ({
   scopeKind,
@@ -353,13 +342,9 @@ const runGetRunHistory = async ({
     return witness !== undefined && inCert.has(witness)
   })
 
-  const counts = await db.attempt.groupBy({
-    by: ['runId'],
-    where: { runId: { in: scoped.map((run) => run.id) }, isCorrect: true },
-    _count: { _all: true }
-  })
-  const scoreByRun = new Map<string | null, number>(
-    counts.map((row) => [row.runId, row._count._all])
+  const scoreByRun = await correctCountByRun(
+    db,
+    scoped.map((run) => run.id)
   )
 
   return scoped.map((run) => ({
@@ -411,13 +396,9 @@ const runGetCertificationRunHistory = async (
     }
   })
 
-  const counts = await db.attempt.groupBy({
-    by: ['runId'],
-    where: { runId: { in: runs.map((run) => run.id) }, isCorrect: true },
-    _count: { _all: true }
-  })
-  const scoreByRun = new Map<string | null, number>(
-    counts.map((row) => [row.runId, row._count._all])
+  const scoreByRun = await correctCountByRun(
+    db,
+    runs.map((run) => run.id)
   )
 
   return runs.map((run) => ({

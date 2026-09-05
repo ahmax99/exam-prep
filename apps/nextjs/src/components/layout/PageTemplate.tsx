@@ -2,37 +2,15 @@ import Link from 'next/link'
 
 import { ArrowLeft } from 'lucide-react'
 
-import { cn } from '@/utils/mergeClass'
-
 interface PageTemplateProps {
-  alignment?: 'left' | 'center'
   back?: {
     href: string
     label: string
   }
-  fullHeight?: boolean
   children: React.ReactNode
 }
 
-function PageTemplate({
-  alignment = 'left',
-  back,
-  fullHeight = false,
-  children
-}: Readonly<PageTemplateProps>) {
-  if (alignment === 'center') {
-    return (
-      <article
-        className={cn(
-          'flex w-full flex-col items-center justify-center',
-          fullHeight ? 'min-h-screen' : 'min-h-[calc(100vh-4rem)]'
-        )}
-      >
-        {children}
-      </article>
-    )
-  }
-
+function PageTemplate({ back, children }: Readonly<PageTemplateProps>) {
   return (
     <article className="mx-auto my-8 w-full max-w-3xl px-4 lg:my-12 lg:max-w-[64rem] lg:px-8">
       {back && (
