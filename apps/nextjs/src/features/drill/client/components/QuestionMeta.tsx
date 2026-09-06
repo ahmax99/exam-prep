@@ -31,6 +31,10 @@ const ordinal = (value: number) => {
   }
 }
 
+const Separator = () => (
+  <span aria-hidden="true" className="bg-neutral size-[3px] rounded-full" />
+)
+
 function QuestionMeta({
   questionId,
   objective,
@@ -42,19 +46,19 @@ function QuestionMeta({
 }: Readonly<QuestionMetaProps>) {
   return (
     <div
-      className="text-muted-foreground flex items-start gap-3 text-sm"
+      className="text-muted-foreground flex items-start gap-3.5 text-sm"
       data-slot="question-meta"
     >
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="text-foreground font-mono whitespace-nowrap">
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5">
+        <span className="bg-accent text-accent-foreground inline-flex h-[22px] items-center rounded-[3px] px-2 font-mono text-[10px] font-medium whitespace-nowrap">
           {objective}
         </span>
         <span className="min-w-0 truncate">{topic}</span>
-        <span aria-hidden="true">·</span>
+        <Separator />
         <span className="whitespace-nowrap">{QUESTION_TYPE_LABELS[type]}</span>
         {timesSeen >= 1 && (
           <>
-            <span aria-hidden="true">·</span>
+            <Separator />
             <span className="whitespace-nowrap">
               {ordinal(timesSeen + 1)} time seen
             </span>

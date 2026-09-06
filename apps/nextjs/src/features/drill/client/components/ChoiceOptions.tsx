@@ -50,7 +50,7 @@ function ChoiceOptions({
   return (
     <div
       aria-label="Answer options"
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-2.5"
       data-slot="choice-options"
       role={isSingle ? 'radiogroup' : 'group'}
     >
@@ -76,16 +76,21 @@ function ChoiceOptions({
             <span className={cn(choiceLetterVariants({ state }))}>
               {letter}
             </span>
-            <span className="min-w-0 flex-1 text-base leading-relaxed">
+            <span
+              className={cn(
+                'min-w-0 flex-1 text-base leading-[1.6]',
+                state === 'selected' && 'font-medium'
+              )}
+            >
               <PromptMarkdown text={text} />
             </span>
             {state === 'correct' && (
-              <span className="text-success shrink-0 text-sm font-medium">
+              <span className="text-success ml-auto shrink-0 text-[13px] font-medium">
                 Correct answer
               </span>
             )}
             {state === 'incorrect' && (
-              <span className="text-destructive shrink-0 text-sm font-medium">
+              <span className="text-destructive ml-auto shrink-0 text-[13px] font-medium">
                 Your answer
               </span>
             )}

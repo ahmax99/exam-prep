@@ -8,6 +8,7 @@
   --table-header: #fafbfc;
   --outline: #dfe4e7;
   --neutral: #b6c0c6;
+  --warning-border: #8a6a12;
   --prose-foreground: #3f4a52;
   --skeleton: #e4e9ec;
   --skeleton-muted: #eceff1;
@@ -19,6 +20,7 @@
   --table-header: #121a20;
   --outline: #3a4650;
   --neutral: #4a5a64;
+  --warning-border: #c9a04a;
   --prose-foreground: #cfd8dd;
   --skeleton: #222c34;
   --skeleton-muted: #1b242b;
@@ -30,6 +32,7 @@
   --color-table-header: var(--table-header);
   --color-outline: var(--outline);
   --color-neutral: var(--neutral);
+  --color-warning-border: var(--warning-border);
   --color-prose-foreground: var(--prose-foreground);
   --color-skeleton: var(--skeleton);
   --color-skeleton-muted: var(--skeleton-muted);

@@ -2,7 +2,7 @@
 
 import { ListX } from 'lucide-react'
 
-import { Button } from '@/components/atoms'
+import { Button, ShortcutHint } from '@/components/atoms'
 import {
   Sheet,
   SheetContent,
@@ -43,17 +43,15 @@ function SkippedPanel({
       {entries.length > 0 && (
         <Button
           aria-label={`Skipped questions (${entries.length})`}
-          className="min-h-11"
+          className="gap-2 px-3.5 font-mono text-[10px]"
           disabled={isDisabled}
-          size="sm"
+          size="icon"
           variant="ghost"
           onClick={() => onOpenChange(true)}
         >
-          <ListX className="size-4" />
+          <ListX className="size-3.5" />
           <span aria-hidden="true">Skipped {entries.length}</span>
-          <kbd className="text-muted-foreground ml-1 hidden font-mono text-xs md:inline-flex">
-            L
-          </kbd>
+          <ShortcutHint keyLabel="L" />
         </Button>
       )}
 

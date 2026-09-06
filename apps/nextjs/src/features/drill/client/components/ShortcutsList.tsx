@@ -6,13 +6,15 @@ interface ShortcutsListProps {
 
 function ShortcutsList({ shortcuts }: Readonly<ShortcutsListProps>) {
   return (
-    <dl className="flex flex-col gap-1.5 text-sm">
+    <dl className="flex flex-col gap-2">
       {shortcuts.map((shortcut) => (
-        <div key={shortcut.combo} className="flex items-center gap-2">
-          <dt>
-            <kbd className="font-mono text-xs">{shortcut.combo}</kbd>
+        <div key={shortcut.combo} className="flex items-baseline gap-3">
+          <dt className="w-[30px] shrink-0 font-mono text-[10px]">
+            {shortcut.combo}
           </dt>
-          <dd className="text-muted-foreground">{shortcut.description}</dd>
+          <dd className="text-muted-foreground m-0 text-[13px]">
+            {shortcut.description}
+          </dd>
         </div>
       ))}
     </dl>

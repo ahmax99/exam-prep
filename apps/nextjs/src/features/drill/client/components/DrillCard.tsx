@@ -158,7 +158,7 @@ function DrillCard({
   return (
     <article
       ref={containerRef}
-      className="border-border bg-card rounded-xl border p-4 pb-24 outline-none md:p-8 md:pb-8 xl:grid xl:grid-cols-[minmax(0,1fr)_15rem] xl:items-start xl:gap-10"
+      className="border-border bg-card mx-auto w-full max-w-[1072px] rounded-lg border p-4 pb-24 outline-none md:p-10 md:pb-10 xl:grid xl:grid-cols-[minmax(0,1fr)_240px] xl:items-start xl:gap-12"
       data-slot="drill-card"
       tabIndex={-1}
     >
@@ -168,17 +168,19 @@ function DrillCard({
           {question.objective}
         </h1>
 
-        <header className="mb-4 flex items-center justify-between gap-4 xl:justify-end">
+        <header className="mb-7 flex items-center justify-between gap-3.5 xl:justify-end">
+          {/* Below xl the rail is gone, so progress rides in this row and
+              frees the vertical space the prompt needs. */}
           <div className="flex flex-1 items-center gap-3 xl:hidden">
-            <span aria-hidden="true" className="font-mono text-sm">
+            <span aria-hidden="true" className="font-mono text-[13px]">
               {currentIndex + 1} / {questions.length}
             </span>
             <span
               aria-hidden="true"
-              className="bg-secondary h-1.5 flex-1 overflow-hidden rounded-full"
+              className="bg-row-border dark:bg-secondary h-1.5 max-w-24 flex-1 overflow-hidden rounded-full"
             >
               <span
-                className="bg-brand block h-full rounded-full transition-[width] duration-300 ease-out"
+                className="bg-brand block h-full rounded-full transition-[width] duration-[320ms] ease-[var(--ease-om)]"
                 style={{ width: `${progressPercent}%` }}
               />
             </span>
@@ -197,80 +199,85 @@ function DrillCard({
             shortcuts={shortcuts}
             onOpenChange={setIsHelpOpen}
           />
-          <Link className="text-muted-foreground text-sm" href={`/${certSlug}`}>
+          <Link
+            className="text-muted-foreground hover:text-foreground inline-flex min-h-11 items-center px-2 text-sm transition-colors"
+            href={`/${certSlug}`}
+          >
             Exit
           </Link>
         </header>
 
-        <QuestionMeta
-          initialBookmarked={question.isBookmarked}
-          objective={question.objective}
-          questionId={question.id}
-          timesSeen={question.timesSeen}
-          toggleRef={bookmarkToggleRef}
-          topic={question.topic}
-          type={question.type}
-        />
+        <div className="animate-om-enter" key={question.id}>
+          <QuestionMeta
+            initialBookmarked={question.isBookmarked}
+            objective={question.objective}
+            questionId={question.id}
+            timesSeen={question.timesSeen}
+            toggleRef={bookmarkToggleRef}
+            topic={question.topic}
+            type={question.type}
+          />
 
-        <p className="mt-6 mb-8 max-w-[65ch] text-xl leading-snug font-medium md:text-2xl">
-          <PromptMarkdown text={question.prompt} />
-        </p>
-
-        {isAnsweredWithoutDetail && (
-          <p
-            className="text-muted-foreground my-4 text-sm"
-            data-slot="drill-earlier-answer"
-          >
-            You answered this earlier in this run. Your answer isn&apos;t shown
-            here.
+          <p className="mt-[26px] mb-8 max-w-[60ch] text-[22px] leading-[1.24] font-medium tracking-[-0.025em] text-pretty md:text-[29px]">
+            <PromptMarkdown text={question.prompt} />
           </p>
-        )}
 
-        <DrillAnswerArea
-          fillInValue={fillInValue}
-          isAnswered={isAnswered}
-          isAnsweredWithoutDetail={isAnsweredWithoutDetail}
-          options={question.options}
-          questionId={question.id}
-          selectedLetters={selectedLetters}
-          type={question.type}
-          verdict={verdict}
-          onFillInChange={(value) =>
-            answers.patchQuestionState(question.id, { fillInValue: value })
-          }
-          onSubmit={submit}
-          onToggle={toggle}
-        />
+          {isAnsweredWithoutDetail && (
+            <p
+              className="text-muted-foreground my-4 text-sm"
+              data-slot="drill-earlier-answer"
+            >
+              You answered this earlier in this run. Your answer isn&apos;t
+              shown here.
+            </p>
+          )}
 
-        <p aria-live="polite" className="sr-only" role="status">
-          {buildLiveAnnouncement({
-            question,
-            verdict,
-            selfGradeOutcome,
-            selectedLetters,
-            hasNavigated: cursor.hasNavigated,
-            position: `Question ${currentIndex + 1} of ${questions.length}.`
-          })}
-        </p>
-
-        {isSelfGrading && (
-          <SelfGradePanel
-            isSubmitting={submissions.isSelfGradeSubmitting}
-            outcome={selfGradeOutcome}
-            onHadIt={() => submitSelfGrade(true)}
-            onMissedIt={() => submitSelfGrade(false)}
-          />
-        )}
-
-        {submissions.failedSubmit?.questionId === question.id && (
-          <DrillSubmitError
-            isRetrying={
-              submissions.isSubmitting || submissions.isSelfGradeSubmitting
+          <DrillAnswerArea
+            fillInValue={fillInValue}
+            isAnswered={isAnswered}
+            isAnsweredWithoutDetail={isAnsweredWithoutDetail}
+            options={question.options}
+            questionId={question.id}
+            selectedLetters={selectedLetters}
+            type={question.type}
+            verdict={verdict}
+            onFillInChange={(value) =>
+              answers.patchQuestionState(question.id, { fillInValue: value })
             }
-            kind={submissions.failedSubmit.kind}
-            onRetry={submissions.retryFailedSubmit}
+            onSubmit={submit}
+            onToggle={toggle}
           />
-        )}
+
+          <p aria-live="polite" className="sr-only" role="status">
+            {buildLiveAnnouncement({
+              question,
+              verdict,
+              selfGradeOutcome,
+              selectedLetters,
+              hasNavigated: cursor.hasNavigated,
+              position: `Question ${currentIndex + 1} of ${questions.length}.`
+            })}
+          </p>
+
+          {isSelfGrading && (
+            <SelfGradePanel
+              isSubmitting={submissions.isSelfGradeSubmitting}
+              outcome={selfGradeOutcome}
+              onHadIt={() => submitSelfGrade(true)}
+              onMissedIt={() => submitSelfGrade(false)}
+            />
+          )}
+
+          {submissions.failedSubmit?.questionId === question.id && (
+            <DrillSubmitError
+              isRetrying={
+                submissions.isSubmitting || submissions.isSelfGradeSubmitting
+              }
+              kind={submissions.failedSubmit.kind}
+              onRetry={submissions.retryFailedSubmit}
+            />
+          )}
+        </div>
 
         <DrillActionBar
           canSubmit={canSubmit}
