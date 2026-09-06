@@ -1,8 +1,6 @@
 import { cn } from '@/utils/mergeClass'
 
 interface SkeletonProps {
-  /* Secondary shapes sit a shade lighter, so a placeholder block reads as
-     having a hierarchy rather than as one flat grey mass. */
   tone?: 'primary' | 'secondary'
   className?: string
 }
@@ -19,8 +17,6 @@ const Skeleton = ({ tone = 'primary', className }: Readonly<SkeletonProps>) => (
 )
 
 interface SkeletonRegionProps {
-  /* Regions pulse together but start staggered, so the page reads as filling
-     in from the top rather than flashing as one block. */
   delayMs?: number
   className?: string
   children: React.ReactNode

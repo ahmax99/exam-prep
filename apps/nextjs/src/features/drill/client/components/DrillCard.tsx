@@ -169,8 +169,6 @@ function DrillCard({
         </h1>
 
         <header className="mb-7 flex items-center justify-between gap-3.5 xl:justify-end">
-          {/* Below xl the rail is gone, so progress rides in this row and
-              frees the vertical space the prompt needs. */}
           <div className="flex flex-1 items-center gap-3 xl:hidden">
             <span aria-hidden="true" className="font-mono text-[13px]">
               {currentIndex + 1} / {questions.length}

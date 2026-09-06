@@ -90,8 +90,6 @@ function WeakestObjectivesPanel({
               <span className="min-w-0 flex-1 truncate text-[15px]">
                 {objective.topic}
               </span>
-              {/* A single success segment: this table ranks how much of the
-                  objective is mastered, so shaky is not part of the reading. */}
               <MasteryBar
                 className="bg-row-border dark:bg-secondary order-last h-1.5 w-full sm:order-none sm:w-28"
                 mastered={objective.mastered}

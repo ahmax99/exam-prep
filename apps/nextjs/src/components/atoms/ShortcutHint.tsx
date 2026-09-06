@@ -5,9 +5,6 @@ interface ShortcutHintProps {
   className?: string
 }
 
-/* Every binding in the app is visible: as this hint inside the control it
-   drives, and again as the context rail's shortcut list. Hidden below md,
-   where there is no keyboard to hint at. */
 const ShortcutHint = ({ keyLabel, className }: Readonly<ShortcutHintProps>) => (
   <span
     aria-hidden="true"

@@ -9,8 +9,6 @@ const PageHeader = () => {
     <header className="border-border bg-card sticky top-0 z-20 border-b px-4 lg:px-7">
       <nav className="h-header-nav flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          {/* Below lg the rail becomes an overlay sheet, so the header owns
-              the only way into it. */}
           <SidebarTrigger className="-ml-2.5 lg:hidden" />
           <Link
             className="focus-visible:ring-ring/50 rounded-sm focus-visible:ring-[3px] focus-visible:outline-none"

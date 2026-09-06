@@ -1,7 +1,3 @@
-/* Surface tokens the Daylight Console screens need on top of colors.css.
-   They live here rather than in colors.css so that file stays a drop-in
-   replacement for the design hand-off's own copy. */
-
 :root {
   --row-border: #eceff1;
   --row-active: #f2f8fa;
@@ -12,8 +8,6 @@
   --prose-foreground: #3f4a52;
   --skeleton: #e4e9ec;
   --skeleton-muted: #eceff1;
-  /* Ink for a verdict chip sitting on its own tint — darker than the verdict
-     colour in light, lighter in dark, so the chip stays readable. */
   --success-tint: #e7f4ee;
   --success-ink: #0b5c41;
   --destructive-tint: #fbeceb;

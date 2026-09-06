@@ -6,8 +6,6 @@ export const choiceOptionVariants = cva(
     variants: {
       state: {
         idle: 'border-border hover:bg-muted border px-4 py-[15px]',
-        /* The selected row is the one 2px border in the app. Padding drops a
-           pixel to match, so selecting never nudges the text. */
         selected: 'border-brand bg-row-active border-2 px-[15px] py-3.5',
         correct: 'border-success bg-success/10 border px-4 py-[15px]',
         incorrect: 'border-destructive bg-destructive/10 border px-4 py-[15px]'

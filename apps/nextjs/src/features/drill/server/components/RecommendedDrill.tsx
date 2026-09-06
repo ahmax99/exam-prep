@@ -57,7 +57,6 @@ const RecommendedDrill = ({
           </span>
         </p>
 
-        {/* The hero inverts: the card's ink becomes this control's fill. */}
         <span className="bg-brand-foreground text-accent-foreground inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[4px] px-5 text-[15px] font-semibold">
           Start drill
           <ArrowRight aria-hidden="true" className="size-4" />

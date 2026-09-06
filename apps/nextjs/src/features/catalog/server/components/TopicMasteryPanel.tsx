@@ -59,8 +59,6 @@ const TopicMasteryPanel = ({
               <span className="min-w-0 flex-1 truncate text-[15px]">
                 {topic.topic}
               </span>
-              {/* Below sm the row wraps and the bar takes the full width —
-                  four columns will not fit a phone. */}
               <MasteryBar
                 className="bg-row-border dark:bg-secondary order-last h-1.5 w-full sm:order-none sm:w-44"
                 mastered={topic.mastered}

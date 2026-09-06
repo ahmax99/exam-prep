@@ -5,8 +5,6 @@ export const masteryChipVariants = cva(
   {
     variants: {
       state: {
-        /* Unseen is the absence of a grade rather than one, so it takes a
-           plain outline and stays lowercase. */
         unseen: 'border-border text-muted-foreground',
         WRONG: 'border-destructive text-destructive bg-destructive/10',
         SHAKY: 'border-warning text-warning bg-warning/10',

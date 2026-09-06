@@ -24,10 +24,6 @@
   animation: accordion-up 0.2s ease-out;
 }
 
-/* Daylight Console ships exactly four animations. Anything beyond this set was
-   rejected at design review: the app is re-entered constantly between runs, and
-   a cascade on every visit reads as friction rather than polish. */
-
 @keyframes om-grow {
   from {
     transform: scaleX(0);
@@ -54,8 +50,6 @@
   }
 }
 
-/* Spans the full bar with a left origin, so the segments keep their
-   proportions while the whole bar grows. */
 .animate-om-grow {
   transform-origin: left;
   animation: om-grow 450ms var(--ease-om) 100ms both;

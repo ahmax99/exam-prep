@@ -38,14 +38,10 @@ function AppSidebar({
   certifications,
   practiceItems
 }: Readonly<AppSidebarProps>) {
-  /* Every certification route is nested under /<slug>, so the first path
-     segment is the one that should read as active. */
   const activeCertSlug = usePathname().split('/')[1]
 
   return (
     <Sidebar collapsible="offcanvas">
-      {/* Only the overlay sheet needs its own chrome; on desktop the page
-          header already carries the wordmark. */}
       <div className="border-row-border h-header-nav flex shrink-0 items-center justify-between border-b px-4 lg:hidden">
         <Logo />
         <SidebarClose className="-mr-2.5" />
@@ -101,8 +97,6 @@ function AppSidebar({
                       </span>
                     </SidebarMenuButton>
                     {item.count !== null && (
-                      /* Missed is the one count that carries a verdict
-                         colour — it is a grade, the others are just tallies. */
                       <SidebarMenuBadge
                         className={
                           item.label === 'Missed' ? 'text-destructive' : ''

@@ -7,8 +7,6 @@ interface OverallMasteryCardProps {
   className?: string
 }
 
-/* Summed from the per-topic rows the page already loads rather than queried
-   separately — the totals are the same numbers, just rolled up. */
 const rollUp = (topics: TopicMastery[]) =>
   topics.reduce(
     (totals, topic) => ({

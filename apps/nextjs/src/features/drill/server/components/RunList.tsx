@@ -40,8 +40,6 @@ function RunList({ certSlug, runs }: Readonly<RunListProps>) {
                 className={cn(
                   'hover:bg-muted flex min-h-[50px] items-center px-6 transition-colors',
                   index > 0 && 'border-row-border border-t',
-                  /* An in-progress run links into the drill, not a summary,
-                     so it is tinted and its percent cell says so. */
                   isOpen && 'bg-row-active hover:bg-row-active'
                 )}
                 href={

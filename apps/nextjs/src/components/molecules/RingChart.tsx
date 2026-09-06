@@ -1,8 +1,6 @@
 import { cn } from '@/utils/mergeClass'
 
 const RADIUS = 40
-/* Thinner than the doughnut it replaces: the ring is a supporting mark next
-   to its legend, not the card's subject. */
 const STROKE_WIDTH = 9
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 

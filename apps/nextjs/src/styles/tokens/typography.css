@@ -1,11 +1,7 @@
 :root {
-  /* Space Grotesk sits comfortably at 0 — the old 0.01em base was there to
-     open up Geist and now just softens the headline set. */
   --tracking-base: 0em;
   --leading-base: 1.5;
 
-  /* Mono default. Display-size mono (the big counts) wants -0.07em; these are
-     the two steps used across the redesign. */
   --tracking-mono: -0.03em;
   --tracking-mono-display: -0.07em;
 }

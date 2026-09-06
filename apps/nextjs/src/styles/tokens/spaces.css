@@ -8,8 +8,6 @@
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* The header gains 4px at lg, where the wordmark and its controls step up a
-   size. Driving it from the token keeps the sidebar's top offset in step. */
 @media (min-width: 64rem) {
   :root {
     --header-nav-height: 3.625rem;

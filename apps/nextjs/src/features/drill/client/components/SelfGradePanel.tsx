@@ -33,8 +33,6 @@ function SelfGradePanel({
 
   return (
     <div
-      /* The 2px left rule is the only other place a 2px border is allowed:
-         it ties this panel to the warning verdict that raised it. */
       className="border-input border-l-warning bg-muted animate-om-reveal mt-[26px] rounded-md border border-l-2 px-[22px] py-5"
       data-slot="self-grade-panel"
     >

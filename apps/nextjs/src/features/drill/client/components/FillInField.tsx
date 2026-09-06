@@ -53,8 +53,6 @@ function FillInField({
     onSubmit()
   }
 
-  /* The whole graded block reveals as one unit, after the verdict colours
-     have already crossfaded — the grade is read before the prose arrives. */
   const revealed = verdict !== null
 
   return (

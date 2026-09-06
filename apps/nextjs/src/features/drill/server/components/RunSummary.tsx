@@ -4,8 +4,6 @@ import type { RunOutcomes } from '@/features/drill/lib/summary'
 interface RunSummaryProps {
   headline: string
   outcomes: RunOutcomes
-  /* The run's actions live inside this card in the redesign, so they come
-     in as children rather than sitting beside it. */
   children?: React.ReactNode
 }
 
@@ -29,8 +27,6 @@ function RunSummary({
     { label: 'Correct', value: rightFirstTry, dotClassName: 'bg-success' },
     { label: 'Self-graded', value: selfGraded, dotClassName: 'bg-warning' },
     { label: 'Missed', value: missed, dotClassName: 'bg-destructive' },
-    /* Skipped is neutral, not a verdict colour — it is an absence of a
-       grade rather than one. */
     { label: 'Skipped', value: skipped, dotClassName: 'bg-neutral' }
   ]
 
@@ -87,8 +83,6 @@ function RunSummary({
         </span>
       </div>
 
-      {/* 1px gaps, filled by the grid's own background, stand in for the
-          dividers between cells — no extra border elements. */}
       <dl className="bg-row-border mt-[26px] grid grid-cols-2 gap-px sm:grid-cols-4">
         {cells.map(({ label, value, dotClassName }) => (
           <div

@@ -78,8 +78,6 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
           </p>
         )}
       </div>
-      {/* Filled brand that unfills to muted on hover — the same gesture the
-          bookmark toggle uses mid-drill, rather than a generic x. */}
       <button
         aria-label="Remove bookmark"
         className="text-brand hover:text-muted-foreground inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-[4px] transition-colors disabled:opacity-50"

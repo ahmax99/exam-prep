@@ -5,8 +5,6 @@ interface ListRowsSkeletonProps {
   delayMs?: number
 }
 
-/* The list-rows placeholder shared by the bookmarks and runs screens: both
-   are a bordered card of fixed-height rows, so both wait the same way. */
 const ListRowsSkeleton = ({
   rows = 6,
   delayMs = 120
