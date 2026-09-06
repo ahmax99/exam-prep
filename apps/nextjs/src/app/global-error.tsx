@@ -34,8 +34,6 @@ export default function GlobalError({
       <body>
         <style>{darkOverride}</style>
         <main className="bg-background text-foreground flex min-h-dvh flex-col items-center justify-center px-8 py-14 text-center">
-          {/* Set inline rather than importing Logo: nothing from the app
-              shell is available on this page. */}
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs font-medium tracking-[-0.04em]">
               exam<span className="text-muted-foreground">-</span>prep
