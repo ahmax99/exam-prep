@@ -40,6 +40,7 @@ function WeakestObjectivesPanel({
           >
             <Button
               className="mt-5"
+              nativeButton={false}
               render={
                 <Link
                   href={drillHref(certSlug, {

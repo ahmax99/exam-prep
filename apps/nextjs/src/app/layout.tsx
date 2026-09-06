@@ -1,22 +1,9 @@
-import { Martian_Mono, Space_Grotesk } from 'next/font/google'
-
 import '../styles/globals.css'
-
 import { DynamicMarker } from '@/components/layout'
+import { mono, sans } from '@/config/fonts'
 import { ThemedToaster } from '@/features/theme/client/components/ThemedToaster'
 import { ThemeProvider } from '@/features/theme/client/providers/ThemeProvider'
 import { cn } from '@/utils/mergeClass'
-
-const sans = Space_Grotesk({
-  variable: '--font-space-grotesk',
-  subsets: ['latin']
-})
-
-const mono = Martian_Mono({
-  variable: '--font-martian-mono',
-  subsets: ['latin'],
-  weight: ['300', '400', '500']
-})
 
 export { metadata } from '@/features/metadata/constants'
 

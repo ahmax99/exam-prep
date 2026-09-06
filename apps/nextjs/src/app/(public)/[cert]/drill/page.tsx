@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 
+import { ArrowLeft } from 'lucide-react'
+
+import { Button } from '@/components/atoms'
 import { PageTemplate } from '@/components/layout'
 import { logger } from '@/config/logger'
 import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
@@ -27,23 +30,37 @@ interface DrillLauncherPageProps {
 
 const failureFallback = (
   <PageTemplate>
-    <p className="text-muted-foreground">
+    {/* A single-line card with a 2px destructive left rule — the failure is
+        one sentence, not a page. */}
+    <div
+      className="border-border border-l-destructive bg-card rounded-md border border-l-2 px-5 py-4 text-sm"
+      data-slot="drill-launcher-error"
+      role="alert"
+    >
       Something went wrong starting this drill. Try again.
-    </p>
+    </div>
   </PageTemplate>
 )
 
 const emptyScope = (certSlug: string) => (
   <PageTemplate>
     <div data-slot="drill-launcher-empty">
-      <h1 className="text-2xl font-semibold">Nothing to drill</h1>
-      <p className="text-muted-foreground mt-2 max-w-prose">
+      <h1 className="text-2xl font-semibold tracking-tight">
+        Nothing to drill
+      </h1>
+      <p className="text-prose-foreground mt-3 max-w-[56ch] text-[15px] leading-[1.6]">
         No questions match this scope right now. Pick another topic or exam to
         get a queue going.
       </p>
-      <Link className="mt-6 inline-flex underline" href={`/${certSlug}`}>
+      <Button
+        className="mt-6"
+        nativeButton={false}
+        render={<Link href={`/${certSlug}`} />}
+        variant="outline"
+      >
+        <ArrowLeft />
         Back to the certification
-      </Link>
+      </Button>
     </div>
   </PageTemplate>
 )
