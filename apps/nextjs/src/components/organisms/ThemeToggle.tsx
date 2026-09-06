@@ -37,10 +37,20 @@ const ThemeToggle = () => {
     <DropdownMenu>
       <DropdownMenuTrigger
         data-slot="theme-toggle"
-        render={<Button size="icon-sm" variant="ghost" />}
+        render={
+          <Button
+            className="group/theme hover:bg-transparent"
+            size="icon"
+            variant="ghost"
+          />
+        }
       >
-        <SunIcon aria-hidden className="dark:hidden" />
-        <MoonIcon aria-hidden className="hidden dark:inline" />
+        {/* The visible control is a 32px box, but the tappable target stays
+            44px — the box is nested rather than sized down. */}
+        <span className="border-border bg-card group-hover/theme:bg-muted flex size-8 items-center justify-center rounded-[4px] transition-colors max-lg:border-none max-lg:bg-transparent lg:border">
+          <SunIcon aria-hidden className="size-[15px] dark:hidden" />
+          <MoonIcon aria-hidden className="hidden size-[15px] dark:inline" />
+        </span>
         <span className="sr-only">
           {mounted ? `Theme: ${theme}` : 'Change theme'}
         </span>
