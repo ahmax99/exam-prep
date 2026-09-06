@@ -9,11 +9,6 @@ interface GlobalErrorProps {
   reset: () => void
 }
 
-/* This page replaces the root layout, so it has no header, rail or tab bar to
-   lean on — and no theme provider, which is why the dark variant switches on
-   the OS preference rather than the .dark class. Someone who chose light mode
-   on a dark OS sees the dark variant here; acceptable for a page nobody
-   should see twice. */
 const darkOverride = `
 @media (prefers-color-scheme: dark) {
   :root {
@@ -71,9 +66,6 @@ export default function GlobalError({
             >
               Reload
             </button>
-            {/* A plain anchor on purpose: this page replaces the root
-                layout after a crash, so a full document load is the point —
-                a client-side navigation would resume the broken tree. */}
             <a
               className="border-outline inline-flex min-h-11 items-center rounded-[4px] border px-[22px] text-[15px] font-medium"
               href="/"
