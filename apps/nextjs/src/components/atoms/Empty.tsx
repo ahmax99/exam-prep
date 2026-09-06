@@ -3,7 +3,6 @@ import { cn } from '@/utils/mergeClass'
 import { MicroLabel } from './MicroLabel'
 
 interface EmptyProps {
-  /* The mono context marker above the headline — which list this is. */
   label: string
   title: string
   description: string
@@ -11,8 +10,6 @@ interface EmptyProps {
   children?: React.ReactNode
 }
 
-/* Every empty state says what fills the list, not merely that it is empty —
-   so the copy reads as a next step rather than a dead end. */
 const Empty = ({
   label,
   title,
