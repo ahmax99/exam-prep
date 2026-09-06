@@ -1,6 +1,8 @@
 import Link from 'next/link'
 
-import { CategoryDot, Empty, MasteryBar } from '@/components/atoms'
+import { ArrowRight } from 'lucide-react'
+
+import { Button, CategoryDot, Empty, MasteryBar } from '@/components/atoms'
 import { drillHref } from '@/features/drill/lib/drillHref'
 import type { WeakestObjective } from '@/features/progress/server/api'
 import { categoryColors } from '@/utils/categoryColor'
@@ -33,17 +35,24 @@ function WeakestObjectivesPanel({
         <div className="mt-4">
           <Empty
             description="Answer some questions and the objectives you keep missing will rank here, weakest first."
+            label="Topic mastery"
             title="Nothing ranked yet"
           >
-            <Link
-              className="text-foreground min-h-11 w-fit content-center underline underline-offset-4"
-              href={drillHref(certSlug, {
-                scopeKind: 'CERT',
-                scopeValue: certSlug
-              })}
+            <Button
+              className="mt-5"
+              render={
+                <Link
+                  href={drillHref(certSlug, {
+                    scopeKind: 'CERT',
+                    scopeValue: certSlug
+                  })}
+                />
+              }
+              variant="outline-brand"
             >
               Start drilling
-            </Link>
+              <ArrowRight />
+            </Button>
           </Empty>
         </div>
       ) : (

@@ -4,6 +4,10 @@ interface MasteryBarProps {
   mastered: number
   shaky: number
   total: number
+  /* Only the overall-mastery and run-score bars grow on arrival. Per-topic
+     bars stay still: a cascade on a page re-entered between every run reads
+     as friction rather than polish. */
+  animate?: boolean
   className?: string
 }
 
@@ -11,6 +15,7 @@ function MasteryBar({
   mastered,
   shaky,
   total,
+  animate = false,
   className
 }: Readonly<MasteryBarProps>) {
   const masteredPercent = total === 0 ? 0 : (mastered / total) * 100
@@ -26,14 +31,21 @@ function MasteryBar({
       data-slot="mastery-bar"
       role="img"
     >
-      <div
-        className="bg-success h-full"
-        style={{ width: `${masteredPercent}%` }}
-      />
-      <div
-        className="bg-warning h-full"
-        style={{ width: `${shakyPercent}%` }}
-      />
+      {/* One wrapper spans the whole bar so the segments keep their
+          proportions while it grows, rather than racing each other. */}
+      <span
+        className={cn('flex w-full', animate && 'animate-om-grow')}
+        data-slot="mastery-bar-fill"
+      >
+        <span
+          className="bg-success h-full"
+          style={{ width: `${masteredPercent}%` }}
+        />
+        <span
+          className="bg-warning h-full"
+          style={{ width: `${shakyPercent}%` }}
+        />
+      </span>
     </div>
   )
 }
