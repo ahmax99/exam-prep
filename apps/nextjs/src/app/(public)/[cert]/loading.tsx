@@ -1,7 +1,6 @@
 import { Skeleton, SkeletonRegion } from '@/components/atoms'
 import { PageTemplate } from '@/components/layout'
 
-/* Shapes match the real overview's geometry so nothing shifts on arrival. */
 export default function CertificationLoading() {
   return (
     <PageTemplate>
