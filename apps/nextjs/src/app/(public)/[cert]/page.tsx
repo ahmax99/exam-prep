@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
 import { PageTemplate } from '@/components/layout'
-import { DoughnutChart, type DoughnutSegment } from '@/components/molecules'
+import { RingChart, type RingSegment } from '@/components/molecules'
 import { logger } from '@/config/logger'
 import {
   certPageParamsSchema,
@@ -21,6 +21,7 @@ import {
   getTopicMastery,
   RECENT_OUTCOME_DAYS
 } from '@/features/progress/server/api'
+import { OverallMasteryCard } from '@/features/progress/server/components/OverallMasteryCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -90,7 +91,7 @@ export default async function CertificationPage({
   if (!selectedExam) {
     return (
       <PageTemplate>
-        <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance md:text-5xl">
+        <h1 className="text-[27px] leading-[1.12] font-semibold tracking-[-0.03em] text-balance lg:text-[44px] lg:leading-[1.08]">
           {certification.name}
         </h1>
         <p className="text-muted-foreground mt-4">No exams seeded yet.</p>
@@ -143,7 +144,7 @@ export default async function CertificationPage({
     ? selectedExam.title
     : `Exam ${selectedExam.code} — ${selectedExam.title}`
 
-  const mixSegments: DoughnutSegment[] = [
+  const mixSegments: RingSegment[] = [
     {
       label: 'fill in the blank',
       value: mix.fillIn,
@@ -160,7 +161,7 @@ export default async function CertificationPage({
       color: 'var(--chart-multiple)'
     }
   ]
-  const outcomeSegments: DoughnutSegment[] = [
+  const outcomeSegments: RingSegment[] = [
     {
       label: 'right first try',
       value: outcomes.rightFirstTry,
@@ -176,52 +177,40 @@ export default async function CertificationPage({
 
   return (
     <PageTemplate>
-      <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance md:text-5xl">
+      <h1 className="text-[27px] leading-[1.12] font-semibold tracking-[-0.03em] text-balance lg:text-[44px] lg:leading-[1.08]">
         {certification.name}
       </h1>
-      <div className="mt-3 flex flex-col gap-1">
-        <h2 className="text-xl leading-snug font-medium">{examHeading}</h2>
-        <p className="text-muted-foreground text-sm">
-          <span className="font-mono" data-numeric>
-            {selectedExam.questionCount}
-          </span>{' '}
-          questions across{' '}
-          <span className="font-mono" data-numeric>
-            {selectedExam.topicCount}
-          </span>{' '}
-          topics ·{' '}
-          <span className="font-mono" data-numeric>
-            {selectedExam.objectiveCount}
-          </span>{' '}
-          objectives
-        </p>
-      </div>
+      <p className="mt-3.5 text-[19px] font-medium">{examHeading}</p>
+      <p className="text-muted-foreground mt-2 font-mono text-[11px]">
+        <span data-numeric>{selectedExam.questionCount}</span> questions ·{' '}
+        <span data-numeric>{selectedExam.topicCount}</span> topics ·{' '}
+        <span data-numeric>{selectedExam.objectiveCount}</span> objectives
+      </p>
 
-      <div className="mt-8">
+      <div className="mt-10 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
         <RecommendedDrill certSlug={cert} recommendation={recommendation} />
+        <OverallMasteryCard topics={topics} />
       </div>
 
-      <div className="mt-12">
-        <h2 className="border-border border-b pb-2 text-xl leading-snug font-medium">
-          Or pick a scope
-        </h2>
-        <div className="mt-4">
-          <ExamList
-            certSlug={cert}
-            exams={certification.exams}
-            selectedCode={selectedExam.code}
-          />
-        </div>
+      <h2 className="mt-14 text-xl font-semibold tracking-tight">
+        Or pick a scope
+      </h2>
+      <div className="mt-3.5">
+        <ExamList
+          certSlug={cert}
+          exams={certification.exams}
+          selectedCode={selectedExam.code}
+        />
       </div>
 
-      <section aria-label="Charts" className="mt-12 grid gap-8 md:grid-cols-2">
-        <DoughnutChart
+      <section aria-label="Charts" className="mt-14 grid gap-5 md:grid-cols-2">
+        <RingChart
           emptyMessage="No questions imported for this exam yet."
           segments={mixSegments}
           title="Question mix"
           unit="questions"
         />
-        <DoughnutChart
+        <RingChart
           emptyMessage={`No answers in the last ${RECENT_OUTCOME_DAYS} days`}
           segments={outcomeSegments}
           title={`Last ${RECENT_OUTCOME_DAYS} days`}

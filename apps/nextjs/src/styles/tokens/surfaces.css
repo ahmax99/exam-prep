@@ -5,6 +5,7 @@
 :root {
   --row-border: #eceff1;
   --row-active: #f2f8fa;
+  --table-header: #fafbfc;
   --outline: #dfe4e7;
   --neutral: #b6c0c6;
   --prose-foreground: #3f4a52;
@@ -15,6 +16,7 @@
 .dark {
   --row-border: #1e2830;
   --row-active: #17242c;
+  --table-header: #121a20;
   --outline: #3a4650;
   --neutral: #4a5a64;
   --prose-foreground: #cfd8dd;
@@ -25,6 +27,7 @@
 @theme inline {
   --color-row-border: var(--row-border);
   --color-row-active: var(--row-active);
+  --color-table-header: var(--table-header);
   --color-outline: var(--outline);
   --color-neutral: var(--neutral);
   --color-prose-foreground: var(--prose-foreground);
