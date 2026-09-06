@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 
+import { Empty } from '@/components/atoms'
 import { PageTemplate } from '@/components/layout'
 import { logger } from '@/config/logger'
 import { BookmarkRow } from '@/features/bookmarks/client/components/BookmarkRow'
@@ -64,24 +65,35 @@ export default async function BookmarksPage({
 
   return (
     <PageTemplate>
-      <h1 className="text-2xl font-semibold">Bookmarked questions</h1>
-      <p className="text-muted-foreground mt-2 text-sm">
+      <h1 className="text-[30px] font-semibold tracking-[-0.025em]">
+        Bookmarked questions
+      </h1>
+      <p className="text-muted-foreground mt-2.5 text-sm">
         {total} {total === 1 ? 'question' : 'questions'} saved for revision ·{' '}
         {mastered} already mastered
       </p>
 
       {total === 0 ? (
-        <p className="text-muted-foreground mt-8 max-w-prose">
-          A bookmark marks the thing the app can't infer — a question you got
-          right for the wrong reason. Press <kbd className="font-mono">B</kbd>{' '}
-          or tap the bookmark glyph during a drill to save one here.
-        </p>
+        <Empty
+          className="mt-7"
+          description="A bookmark marks the thing the app can't infer — a question you got right for the wrong reason."
+          label="Bookmarks"
+          title="Nothing saved yet"
+        >
+          <p className="text-prose-foreground mt-2 max-w-[56ch] text-[15px] leading-[1.6]">
+            Press{' '}
+            <kbd className="border-border bg-muted rounded-[3px] border px-1.5 py-0.5 font-mono text-xs">
+              B
+            </kbd>{' '}
+            or tap the bookmark glyph during a drill to save one here.
+          </p>
+        </Empty>
       ) : (
         <>
-          <div className="mt-4">
+          <div className="mt-[22px]">
             <DrillBookmarksButton certSlug={cert} count={total} />
           </div>
-          <ul className="mt-6">
+          <ul className="border-border bg-card mt-[30px] overflow-hidden rounded-lg border">
             {items.map((item) => (
               <BookmarkRow key={item.questionId} item={item} />
             ))}

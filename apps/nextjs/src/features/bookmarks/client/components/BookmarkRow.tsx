@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { Bookmark } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { masteryChipVariants } from '@/features/bookmarks/client/components/BookmarkRow.variants'
@@ -48,12 +49,14 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
 
   return (
     <li
-      className="border-border flex flex-col gap-2 border-b py-4 md:flex-row md:items-start"
+      className="border-row-border flex items-start gap-5 px-6 py-5 not-first:border-t"
       data-slot="bookmark-row"
     >
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="font-mono text-sm">{item.objective}</span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="font-mono text-[11px] tracking-[-0.04em]">
+            {item.objective}
+          </span>
           <span className="text-muted-foreground text-sm">
             {QUESTION_TYPE_LABELS[item.type]}
           </span>
@@ -63,7 +66,7 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
             {item.state ?? 'unseen'}
           </span>
         </div>
-        <p className="mt-2 min-w-0 leading-relaxed break-words">
+        <p className="mt-2.5 min-w-0 text-base leading-[1.55] break-words">
           <PromptMarkdown text={item.prompt} />
         </p>
         {item.note !== null && (
@@ -75,14 +78,16 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
           </p>
         )}
       </div>
+      {/* Filled brand that unfills to muted on hover — the same gesture the
+          bookmark toggle uses mid-drill, rather than a generic x. */}
       <button
-        aria-label={`Remove bookmark for ${item.objective}`}
-        className="text-muted-foreground min-h-11 shrink-0 self-start px-2 text-sm disabled:opacity-50"
+        aria-label="Remove bookmark"
+        className="text-brand hover:text-muted-foreground inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-[4px] transition-colors disabled:opacity-50"
         disabled={isRemoving}
         type="button"
         onClick={onRemove}
       >
-        Remove
+        <Bookmark className="size-[17px] fill-current" />
       </button>
     </li>
   )

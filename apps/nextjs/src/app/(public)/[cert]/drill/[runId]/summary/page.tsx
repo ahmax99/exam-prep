@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 
+import { ChevronDown } from 'lucide-react'
+
 import { PageTemplate } from '@/components/layout'
 import { logger } from '@/config/logger'
 import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
@@ -107,12 +109,13 @@ export default async function RunSummaryPage({
 
   return (
     <PageTemplate back={{ href: `/${cert}`, label: backLabel }}>
-      <RunSummary headline={headline} outcomes={summary.outcomes} />
-      <SummaryActions
-        certSlug={cert}
-        missCount={summary.misses.length}
-        runId={runId}
-      />
+      <RunSummary headline={headline} outcomes={summary.outcomes}>
+        <SummaryActions
+          certSlug={cert}
+          missCount={summary.misses.length}
+          runId={runId}
+        />
+      </RunSummary>
       <SkippedReview
         certSlug={cert}
         runId={runId}
@@ -121,11 +124,15 @@ export default async function RunSummaryPage({
       />
       <MissReview misses={summary.misses} />
 
-      <details className="mt-6" data-slot="past-runs">
-        <summary className="text-muted-foreground min-h-11 cursor-pointer text-sm">
+      <details className="group/past-runs mt-5" data-slot="past-runs">
+        <summary className="text-muted-foreground inline-flex min-h-11 cursor-pointer list-none items-center gap-2.5 font-mono text-[10px] font-medium tracking-widest uppercase">
+          <ChevronDown
+            aria-hidden="true"
+            className="max-group-open/past-runs:-rotate-90 size-3.5 transition-transform group-open/past-runs:rotate-0"
+          />
           Past runs
         </summary>
-        <div className="mt-3">{historyContent}</div>
+        <div className="mt-2.5">{historyContent}</div>
       </details>
     </PageTemplate>
   )

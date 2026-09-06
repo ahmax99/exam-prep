@@ -12,6 +12,12 @@
   --prose-foreground: #3f4a52;
   --skeleton: #e4e9ec;
   --skeleton-muted: #eceff1;
+  /* Ink for a verdict chip sitting on its own tint — darker than the verdict
+     colour in light, lighter in dark, so the chip stays readable. */
+  --success-tint: #e7f4ee;
+  --success-ink: #0b5c41;
+  --destructive-tint: #fbeceb;
+  --destructive-ink: #8f1f18;
 }
 
 .dark {
@@ -24,6 +30,10 @@
   --prose-foreground: #cfd8dd;
   --skeleton: #222c34;
   --skeleton-muted: #1b242b;
+  --success-tint: #142a22;
+  --success-ink: #6fdaa6;
+  --destructive-tint: #2a1b1c;
+  --destructive-ink: #f9a49f;
 }
 
 @theme inline {
@@ -36,4 +46,8 @@
   --color-prose-foreground: var(--prose-foreground);
   --color-skeleton: var(--skeleton);
   --color-skeleton-muted: var(--skeleton-muted);
+  --color-success-tint: var(--success-tint);
+  --color-success-ink: var(--success-ink);
+  --color-destructive-tint: var(--destructive-tint);
+  --color-destructive-ink: var(--destructive-ink);
 }

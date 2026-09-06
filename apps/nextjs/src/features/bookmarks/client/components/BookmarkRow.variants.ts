@@ -1,10 +1,12 @@
 import { cva } from 'class-variance-authority'
 
 export const masteryChipVariants = cva(
-  'inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs',
+  'inline-flex h-5 items-center rounded-full border px-[9px] font-mono text-[9px] tracking-wider',
   {
     variants: {
       state: {
+        /* Unseen is the absence of a grade rather than one, so it takes a
+           plain outline and stays lowercase. */
         unseen: 'border-border text-muted-foreground',
         WRONG: 'border-destructive text-destructive bg-destructive/10',
         SHAKY: 'border-warning text-warning bg-warning/10',

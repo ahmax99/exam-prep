@@ -11,17 +11,15 @@ interface CertificationCardProps {
 }
 
 const cardClassName =
-  'border-border bg-card hover:border-foreground/30 focus-visible:ring-ring/50 flex min-h-11 flex-col gap-4 rounded-xl border p-5 transition-colors focus-visible:ring-[3px] focus-visible:outline-none'
+  'border-border bg-card hover:bg-muted focus-visible:ring-ring/50 flex min-h-11 flex-col gap-[18px] rounded-lg border px-7 py-6 transition-colors focus-visible:ring-[3px] focus-visible:outline-none'
 
 const CardHeading = ({
-  certification,
-  muted
+  certification
 }: Readonly<{
   certification: CertificationSummary
-  muted: boolean
 }>) => (
   <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
-    <span className={muted ? 'text-foreground font-medium' : 'font-medium'}>
+    <span className="text-[17px] font-semibold tracking-tight">
       {certification.name}
     </span>
     <span className="text-muted-foreground text-sm sm:shrink-0">
@@ -35,8 +33,8 @@ const Stat = ({
   value,
   swatch
 }: Readonly<{ label: string; value: number; swatch?: string }>) => (
-  <div className="flex flex-col gap-0.5">
-    <dt className="text-muted-foreground flex items-center gap-1.5 text-xs">
+  <div>
+    <dt className="text-muted-foreground flex items-center gap-[7px] text-xs">
       {swatch && (
         <span
           aria-hidden="true"
@@ -45,7 +43,7 @@ const Stat = ({
       )}
       {label}
     </dt>
-    <dd className="font-mono text-sm" data-numeric>
+    <dd className="mt-[5px] font-mono text-sm tracking-[-0.04em]" data-numeric>
       {value}
     </dd>
   </div>
@@ -58,10 +56,10 @@ function CertificationCard({
   if (!mastery || mastery.total === 0) {
     return (
       <div
-        className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-xl border p-5"
+        className="border-border bg-card text-muted-foreground flex flex-col gap-3 rounded-lg border px-7 py-6"
         data-slot="certification-card"
       >
-        <CardHeading certification={certification} muted />
+        <CardHeading certification={certification} />
         <p className="text-sm">No questions imported yet</p>
       </div>
     )
@@ -77,7 +75,7 @@ function CertificationCard({
         data-slot="certification-card"
         href={`/${certification.slug}`}
       >
-        <CardHeading certification={certification} muted={false} />
+        <CardHeading certification={certification} />
         <p className="text-muted-foreground text-sm">
           <span className="font-mono" data-numeric>
             {total}
@@ -94,24 +92,25 @@ function CertificationCard({
       data-slot="certification-card"
       href={`/${certification.slug}`}
     >
-      <CardHeading certification={certification} muted={false} />
+      <CardHeading certification={certification} />
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-[18px]">
         <span
-          className="font-mono text-2xl leading-none font-medium"
+          className="font-mono text-[26px] leading-none tracking-[-0.07em]"
           data-numeric
         >
           {masteryPercent}%
         </span>
         <MasteryBar
-          className="flex-1"
+          animate
+          className="bg-row-border dark:bg-secondary h-2 flex-1"
           mastered={mastered}
           shaky={shaky}
           total={total}
         />
       </div>
 
-      <dl className="border-border grid grid-cols-2 gap-4 border-t pt-3 sm:grid-cols-4">
+      <dl className="border-row-border grid grid-cols-2 gap-4 border-t pt-4 sm:grid-cols-4">
         <Stat label="Mastered" swatch="bg-success" value={mastered} />
         <Stat label="Shaky" swatch="bg-warning" value={shaky} />
         <Stat label="Missed" value={missed} />

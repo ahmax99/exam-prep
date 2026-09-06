@@ -31,7 +31,7 @@ export default async function HomePage() {
   if (certifications === null) {
     return (
       <PageTemplate>
-        <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance">
+        <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.03em] text-balance lg:text-[44px]">
           Practice recall until the exam is boring
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -46,7 +46,7 @@ export default async function HomePage() {
   if (!primaryCertification) {
     return (
       <PageTemplate>
-        <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance">
+        <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.03em] text-balance lg:text-[44px]">
           Practice recall until the exam is boring
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -92,10 +92,10 @@ export default async function HomePage() {
 
   return (
     <PageTemplate>
-      <h1 className="text-4xl leading-tight font-semibold tracking-tight text-balance md:text-5xl">
+      <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.03em] text-balance lg:text-[44px]">
         Practice recall until the exam is boring
       </h1>
-      <p className="text-muted-foreground mt-3 max-w-prose">
+      <p className="text-muted-foreground mt-4 max-w-[62ch] text-[17px]">
         Answer from memory, grade yourself honestly, and drill the objectives
         you keep missing.
       </p>
@@ -108,7 +108,7 @@ export default async function HomePage() {
       <section
         aria-label="Certifications"
         className={cn(
-          'mt-6 grid gap-4',
+          'mt-5 grid gap-5',
           certifications.length > 1 && 'sm:grid-cols-2'
         )}
       >
