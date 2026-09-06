@@ -4,6 +4,7 @@ interface MasteryBarProps {
   mastered: number
   shaky: number
   total: number
+  animate?: boolean
   className?: string
 }
 
@@ -11,6 +12,7 @@ function MasteryBar({
   mastered,
   shaky,
   total,
+  animate = false,
   className
 }: Readonly<MasteryBarProps>) {
   const masteredPercent = total === 0 ? 0 : (mastered / total) * 100
@@ -26,14 +28,19 @@ function MasteryBar({
       data-slot="mastery-bar"
       role="img"
     >
-      <div
-        className="bg-success h-full"
-        style={{ width: `${masteredPercent}%` }}
-      />
-      <div
-        className="bg-warning h-full"
-        style={{ width: `${shakyPercent}%` }}
-      />
+      <span
+        className={cn('flex w-full', animate && 'animate-om-grow')}
+        data-slot="mastery-bar-fill"
+      >
+        <span
+          className="bg-success h-full"
+          style={{ width: `${masteredPercent}%` }}
+        />
+        <span
+          className="bg-warning h-full"
+          style={{ width: `${shakyPercent}%` }}
+        />
+      </span>
     </div>
   )
 }

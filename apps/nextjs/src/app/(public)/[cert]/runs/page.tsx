@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 
+import { Empty } from '@/components/atoms'
 import { PageTemplate } from '@/components/layout'
 import { logger } from '@/config/logger'
 import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
@@ -64,13 +65,15 @@ export default async function RunsPage({ params }: Readonly<RunsPageProps>) {
       back={{ href: `/${cert}`, label: `Back to ${certification.name}` }}
     >
       <div className="pb-16 lg:pb-0">
-        <h1 className="text-2xl font-semibold">Runs</h1>
+        <h1 className="text-[30px] font-semibold tracking-[-0.025em]">Runs</h1>
 
         {runs.length === 0 ? (
-          <p className="text-muted-foreground mt-8 max-w-prose">
-            No runs recorded yet for {certification.name}. Start a drill from
-            the certification page to see it appear here.
-          </p>
+          <Empty
+            className="mt-7"
+            description={`No runs recorded yet for ${certification.name}. Start a drill from the certification page and every run you finish lands here, newest first.`}
+            label="Runs"
+            title="No runs yet"
+          />
         ) : (
           <>
             {runs.length === RUN_HISTORY_LIMIT && (
@@ -78,7 +81,7 @@ export default async function RunsPage({ params }: Readonly<RunsPageProps>) {
                 Showing only the most recent {RUN_HISTORY_LIMIT} runs.
               </p>
             )}
-            <div className="mt-6">
+            <div className="mt-[26px]">
               <RunList certSlug={cert} runs={runs} />
             </div>
           </>

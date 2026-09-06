@@ -3,8 +3,10 @@
 import { useRouter } from 'next/navigation'
 import { useRef } from 'react'
 
+import { ArrowRight } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { Button } from '@/components/atoms'
 import { startRun } from '@/features/drill/client/lib/startRun'
 
 interface DrillBookmarksButtonProps {
@@ -41,14 +43,15 @@ function DrillBookmarksButton({
   }
 
   return (
-    <button
-      className="bg-foreground text-background flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-medium lg:w-fit"
+    <Button
+      className="w-full lg:w-fit"
       data-slot="drill-all-bookmarks"
-      type="button"
+      variant="brand"
       onClick={onClick}
     >
-      Drill {count} →
-    </button>
+      Drill {count}
+      <ArrowRight aria-hidden="true" className="size-4" />
+    </Button>
   )
 }
 

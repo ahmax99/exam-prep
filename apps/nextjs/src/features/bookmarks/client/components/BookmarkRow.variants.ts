@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority'
 
 export const masteryChipVariants = cva(
-  'inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-xs',
+  'inline-flex h-5 items-center rounded-full border px-[9px] font-mono text-[9px] tracking-wider',
   {
     variants: {
       state: {

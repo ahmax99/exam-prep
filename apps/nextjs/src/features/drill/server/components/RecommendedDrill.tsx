@@ -2,17 +2,21 @@ import Link from 'next/link'
 
 import { ArrowRight } from 'lucide-react'
 
+import { MicroLabel } from '@/components/atoms'
 import { drillHref } from '@/features/drill/lib/drillHref'
 import type { DrillRecommendation } from '@/features/drill/lib/recommendation'
+import { cn } from '@/utils/mergeClass'
 
 interface RecommendedDrillProps {
   certSlug: string
   recommendation: DrillRecommendation
+  className?: string
 }
 
 const RecommendedDrill = ({
   certSlug,
-  recommendation
+  recommendation,
+  className
 }: Readonly<RecommendedDrillProps>) => {
   if (recommendation.available === 0) return null
 
@@ -24,32 +28,40 @@ const RecommendedDrill = ({
   return (
     <Link
       aria-label={`${recommendation.headline} — start a drill of ${recommendation.available} questions`}
-      className="bg-brand text-brand-foreground focus-visible:ring-ring/50 group/drill flex flex-col gap-6 rounded-xl p-6 transition-opacity hover:opacity-95 focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:outline-none md:flex-row md:items-end md:justify-between md:gap-10 md:p-8"
+      className={cn(
+        'bg-brand text-brand-foreground focus-visible:ring-ring/50 group/drill flex min-h-[208px] flex-col justify-between gap-8 rounded-md px-8 py-[30px] transition-opacity hover:opacity-95 focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:outline-none',
+        className
+      )}
       data-slot="recommended-drill"
       href={href}
     >
       <div className="min-w-0">
-        <p className="text-xl leading-snug font-medium">
+        <MicroLabel className="text-brand-foreground">
+          Recommended next
+        </MicroLabel>
+        <p className="mt-3 text-2xl font-semibold tracking-tight">
           {recommendation.headline}
         </p>
+      </div>
 
-        <p className="mt-3 flex items-baseline gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <p className="flex items-baseline gap-3">
           <span
-            className="font-mono text-6xl leading-none font-medium tracking-tighter md:text-7xl"
+            className="font-mono text-[60px] leading-[0.9] tracking-[-0.08em]"
             data-numeric
           >
             {recommendation.available}
           </span>
-          <span className="text-brand-foreground/75 text-sm">
+          <span className="text-sm">
             {recommendation.available === 1 ? 'question' : 'questions'} queued
           </span>
         </p>
-      </div>
 
-      <span className="text-brand-foreground border-brand-foreground/40 group-hover/drill:border-brand-foreground inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-lg border px-5 font-medium transition-colors md:self-auto">
-        Start drill
-        <ArrowRight aria-hidden="true" className="size-4" />
-      </span>
+        <span className="bg-brand-foreground text-accent-foreground inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[4px] px-5 text-[15px] font-semibold">
+          Start drill
+          <ArrowRight aria-hidden="true" className="size-4" />
+        </span>
+      </div>
     </Link>
   )
 }

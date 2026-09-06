@@ -1,21 +1,9 @@
-import { Geist, Geist_Mono } from 'next/font/google'
-
 import '../styles/globals.css'
-
 import { DynamicMarker } from '@/components/layout'
+import { mono, sans } from '@/config/fonts'
 import { ThemedToaster } from '@/features/theme/client/components/ThemedToaster'
 import { ThemeProvider } from '@/features/theme/client/providers/ThemeProvider'
 import { cn } from '@/utils/mergeClass'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
-})
 
 export { metadata } from '@/features/metadata/constants'
 
@@ -26,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      className={cn(geistSans.variable, geistMono.variable)}
+      className={cn(sans.variable, mono.variable)}
       data-scroll-behavior="smooth"
       lang="en"
       suppressHydrationWarning

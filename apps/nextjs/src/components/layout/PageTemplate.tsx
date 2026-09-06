@@ -12,15 +12,15 @@ interface PageTemplateProps {
 
 function PageTemplate({ back, children }: Readonly<PageTemplateProps>) {
   return (
-    <article className="mx-auto my-8 w-full max-w-3xl px-4 lg:my-12 lg:max-w-[64rem] lg:px-8">
+    <article className="mx-auto w-full max-w-3xl px-4 pt-6 pb-5 lg:max-w-[64rem] lg:px-[60px] lg:pt-[52px] lg:pb-[72px]">
       {back && (
-        <nav aria-label="back" className="mb-10">
+        <nav aria-label="back" className="mb-6">
           <Link
             aria-label={back.label}
-            className="inline-flex items-center"
+            className="text-muted-foreground hover:text-foreground -ml-1 inline-flex min-h-11 items-center gap-2 text-sm transition-colors"
             href={back.href}
           >
-            <ArrowLeft className="mr-2 size-4" />
+            <ArrowLeft className="size-4" />
             {back.label}
           </Link>
         </nav>

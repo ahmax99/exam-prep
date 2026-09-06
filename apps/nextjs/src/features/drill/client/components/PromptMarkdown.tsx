@@ -16,7 +16,7 @@ function PromptMarkdown({ text, className }: Readonly<PromptMarkdownProps>) {
         const key = `${index}-${token.value}`
         const content =
           token.kind === 'code' ? (
-            <code className="bg-muted rounded px-1 py-0.5 font-mono text-[0.9em]">
+            <code className="bg-muted rounded-[3px] px-[5px] py-0.5 font-mono text-[0.82em] tracking-[-0.04em]">
               {token.value}
             </code>
           ) : (

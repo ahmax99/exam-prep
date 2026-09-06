@@ -23,3 +23,46 @@
 .animate-accordion-up {
   animation: accordion-up 0.2s ease-out;
 }
+
+@keyframes om-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes om-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes om-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes om-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.animate-om-grow {
+  transform-origin: left;
+  animation: om-grow 450ms var(--ease-om) 100ms both;
+}
+
+.animate-om-enter {
+  animation: om-enter 220ms var(--ease-om) both;
+}
+
+.animate-om-reveal {
+  animation: om-reveal 320ms var(--ease-om) both;
+}
+
+.animate-om-pulse {
+  animation: om-pulse 1.6s ease-in-out infinite;
+}

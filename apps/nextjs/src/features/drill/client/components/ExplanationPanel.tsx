@@ -8,7 +8,7 @@ function ExplanationPanel({ explanation }: Readonly<ExplanationPanelProps>) {
   return (
     <section
       aria-label="Explanation"
-      className="bg-muted/70 mt-6 max-w-[70ch] rounded-lg p-4 text-sm leading-relaxed"
+      className="bg-muted text-prose-foreground [&_code]:bg-secondary mt-6 max-w-[70ch] rounded-md px-5 py-[18px] text-sm leading-[1.65]"
       data-slot="explanation-panel"
     >
       <PromptMarkdown text={explanation} />

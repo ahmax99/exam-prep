@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import { describeScope, runDateFormatter } from '@/features/drill/lib/summary'
 import type { CertificationRun } from '@/features/drill/server/api'
+import { cn } from '@/utils/mergeClass'
 import { toPercent } from '@/utils/toPercent'
 
 interface RunListProps {
@@ -11,55 +12,70 @@ interface RunListProps {
 
 function RunList({ certSlug, runs }: Readonly<RunListProps>) {
   return (
-    <section data-slot="run-list">
+    <section
+      className="border-border bg-card overflow-hidden rounded-lg border"
+      data-slot="run-list"
+    >
       <div className="w-full overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="text-muted-foreground text-xs">
-              <th className="py-2 font-normal">Started</th>
-              <th className="py-2 font-normal">Scope</th>
-              <th className="py-2 font-normal">Score</th>
-              <th className="py-2 font-normal">%</th>
-            </tr>
-          </thead>
-          <tbody>
-            {runs.map((run) => {
-              const formatted = runDateFormatter.format(run.startedAt)
-              const isOpen = run.finishedAt === null
+        <div className="min-w-[560px]">
+          <div className="bg-table-header text-muted-foreground border-border flex h-[38px] items-center border-b px-6 font-mono text-[9px] font-medium tracking-widest uppercase">
+            <span className="w-[190px]">Started</span>
+            <span className="flex-1">Scope</span>
+            <span className="w-[100px]">Score</span>
+            <span className="w-16 text-right">%</span>
+          </div>
 
-              const href = isOpen
-                ? `/${certSlug}/drill/${run.id}`
-                : `/${certSlug}/drill/${run.id}/summary`
-              const ariaLabel = isOpen
-                ? `Resume run started ${formatted}`
-                : `Summary for run started ${formatted}`
+          {runs.map((run, index) => {
+            const formatted = runDateFormatter.format(run.startedAt)
+            const isOpen = run.finishedAt === null
 
-              return (
-                <tr key={run.id}>
-                  <td className="py-2 font-mono text-sm">
-                    <Link aria-label={ariaLabel} href={href}>
-                      {formatted}
-                    </Link>
-                    {isOpen && (
-                      <span className="text-muted-foreground ml-2 text-xs">
-                        in progress
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2 text-sm">
-                    {describeScope(run.scopeKind, run.scopeValue)}
-                  </td>
-                  <td className="py-2 font-mono text-sm">
-                    {run.score} / {run.total}
-                  </td>
-                  <td className="py-2 font-mono text-sm">
-                    {toPercent(run.score, run.total)}%
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+            return (
+              <Link
+                key={run.id}
+                aria-label={
+                  isOpen
+                    ? `Resume run started ${formatted}`
+                    : `Summary for run started ${formatted}`
+                }
+                className={cn(
+                  'hover:bg-muted flex min-h-[50px] items-center px-6 transition-colors',
+                  index > 0 && 'border-row-border border-t',
+                  isOpen && 'bg-row-active hover:bg-row-active'
+                )}
+                href={
+                  isOpen
+                    ? `/${certSlug}/drill/${run.id}`
+                    : `/${certSlug}/drill/${run.id}/summary`
+                }
+              >
+                <span
+                  className="w-[190px] font-mono text-[11px] tracking-[-0.04em]"
+                  data-numeric
+                >
+                  {formatted}
+                </span>
+                <span className="flex-1 text-[15px]">
+                  {describeScope(run.scopeKind, run.scopeValue)}
+                </span>
+                <span
+                  className="w-[100px] font-mono text-[11px] tracking-[-0.04em]"
+                  data-numeric
+                >
+                  {run.score} / {run.total}
+                </span>
+                <span
+                  className={cn(
+                    'w-16 text-right font-mono text-[11px] tracking-[-0.04em]',
+                    isOpen && 'text-brand'
+                  )}
+                  data-numeric={isOpen ? undefined : true}
+                >
+                  {isOpen ? 'resume' : `${toPercent(run.score, run.total)}%`}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
       </div>
     </section>
   )

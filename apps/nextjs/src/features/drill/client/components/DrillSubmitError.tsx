@@ -22,12 +22,13 @@ function DrillSubmitError({
 }: Readonly<DrillSubmitErrorProps>) {
   return (
     <div
-      className="border-destructive/40 bg-destructive/10 text-destructive mt-4 flex items-center gap-3 rounded-lg border p-3 text-sm"
+      className="border-destructive bg-destructive/10 text-destructive mt-4 flex flex-wrap items-center gap-3 rounded-md border px-4 py-3 text-sm"
       data-slot="drill-submit-error"
       role="alert"
     >
-      <p className="flex-1">{SUBMIT_ERROR_MESSAGES[kind]}</p>
+      <p className="min-w-0 flex-1">{SUBMIT_ERROR_MESSAGES[kind]}</p>
       <Button
+        className="h-9 shrink-0"
         disabled={isRetrying}
         size="sm"
         variant="destructive"

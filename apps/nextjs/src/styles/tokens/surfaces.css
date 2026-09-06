@@ -1,0 +1,47 @@
+:root {
+  --row-border: #eceff1;
+  --row-active: #f2f8fa;
+  --table-header: #fafbfc;
+  --outline: #dfe4e7;
+  --neutral: #b6c0c6;
+  --warning-border: #8a6a12;
+  --prose-foreground: #3f4a52;
+  --skeleton: #e4e9ec;
+  --skeleton-muted: #eceff1;
+  --success-tint: #e7f4ee;
+  --success-ink: #0b5c41;
+  --destructive-tint: #fbeceb;
+  --destructive-ink: #8f1f18;
+}
+
+.dark {
+  --row-border: #1e2830;
+  --row-active: #17242c;
+  --table-header: #121a20;
+  --outline: #3a4650;
+  --neutral: #4a5a64;
+  --warning-border: #c9a04a;
+  --prose-foreground: #cfd8dd;
+  --skeleton: #222c34;
+  --skeleton-muted: #1b242b;
+  --success-tint: #142a22;
+  --success-ink: #6fdaa6;
+  --destructive-tint: #2a1b1c;
+  --destructive-ink: #f9a49f;
+}
+
+@theme inline {
+  --color-row-border: var(--row-border);
+  --color-row-active: var(--row-active);
+  --color-table-header: var(--table-header);
+  --color-outline: var(--outline);
+  --color-neutral: var(--neutral);
+  --color-warning-border: var(--warning-border);
+  --color-prose-foreground: var(--prose-foreground);
+  --color-skeleton: var(--skeleton);
+  --color-skeleton-muted: var(--skeleton-muted);
+  --color-success-tint: var(--success-tint);
+  --color-success-ink: var(--success-ink);
+  --color-destructive-tint: var(--destructive-tint);
+  --color-destructive-ink: var(--destructive-ink);
+}

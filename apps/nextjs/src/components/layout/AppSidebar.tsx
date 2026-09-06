@@ -1,26 +1,20 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
-import {
-  Bookmark,
-  CircleDashed,
-  GraduationCap,
-  History,
-  XCircle
-} from 'lucide-react'
-
+import { Logo } from '@/components/molecules'
 import {
   Sidebar,
+  SidebarClose,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-  SidebarTrigger
+  SidebarMenuItem
 } from '@/components/organisms/Sidebar'
 
 interface AppSidebarCertification {
@@ -40,30 +34,26 @@ interface AppSidebarProps {
   practiceItems: AppSidebarPracticeItem[]
 }
 
-const practiceIcons: Record<string, typeof Bookmark> = {
-  Missed: XCircle,
-  'Never seen': CircleDashed,
-  Bookmarked: Bookmark,
-  'Past runs': History
-}
-
 function AppSidebar({
   certifications,
   practiceItems
 }: Readonly<AppSidebarProps>) {
+  const activeCertSlug = usePathname().split('/')[1]
+
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <SidebarTrigger className="self-end group-data-[collapsible=icon]:self-center" />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
+    <Sidebar collapsible="offcanvas">
+      <div className="border-row-border h-header-nav flex shrink-0 items-center justify-between border-b px-4 lg:hidden">
+        <Logo />
+        <SidebarClose className="-mr-2.5" />
+      </div>
+      <SidebarContent className="py-5">
+        <SidebarGroup className="p-0">
           <SidebarGroupLabel>Certifications</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="px-2.5">
             <SidebarMenu>
               {certifications.length === 0 ? (
                 <SidebarMenuItem>
-                  <span className="text-muted-foreground px-2 text-sm">
+                  <span className="text-muted-foreground px-2.5 text-sm">
                     None seeded
                   </span>
                 </SidebarMenuItem>
@@ -71,10 +61,9 @@ function AppSidebar({
                 certifications.map((certification) => (
                   <SidebarMenuItem key={certification.slug}>
                     <SidebarMenuButton
+                      isActive={certification.slug === activeCertSlug}
                       render={<Link href={`/${certification.slug}`} />}
-                      tooltip={certification.name}
                     >
-                      <GraduationCap />
                       <span className="min-w-0 flex-1 truncate">
                         {certification.name}
                       </span>
@@ -89,42 +78,40 @@ function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
+        <SidebarGroup className="mt-4 p-0">
           <SidebarGroupLabel>Practice</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="px-2.5">
             <SidebarMenu>
               {practiceItems.length === 0 ? (
                 <SidebarMenuItem>
-                  <span className="text-muted-foreground px-2 text-sm">
+                  <span className="text-muted-foreground px-2.5 text-sm">
                     Seed a certification first
                   </span>
                 </SidebarMenuItem>
               ) : (
-                practiceItems.map((item) => {
-                  const Icon = practiceIcons[item.label] ?? GraduationCap
-                  return (
-                    <SidebarMenuItem key={item.label}>
-                      <SidebarMenuButton
-                        render={<Link href={item.href} />}
-                        tooltip={item.label}
+                practiceItems.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton render={<Link href={item.href} />}>
+                      <span className="min-w-0 flex-1 truncate">
+                        {item.label}
+                      </span>
+                    </SidebarMenuButton>
+                    {item.count !== null && (
+                      <SidebarMenuBadge
+                        className={
+                          item.label === 'Missed' ? 'text-destructive' : ''
+                        }
                       >
-                        <Icon />
-                        <span className="min-w-0 flex-1 truncate">
-                          {item.label}
-                        </span>
-                      </SidebarMenuButton>
-                      {item.count !== null && (
-                        <SidebarMenuBadge>{item.count}</SidebarMenuBadge>
-                      )}
-                    </SidebarMenuItem>
-                  )
-                })
+                        {item.count}
+                      </SidebarMenuBadge>
+                    )}
+                  </SidebarMenuItem>
+                ))
               )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarRail />
     </Sidebar>
   )
 }

@@ -17,13 +17,13 @@ function BottomTabBar({ savedHref, runsHref }: Readonly<BottomTabBarProps>) {
   return (
     <nav
       aria-label="Primary"
-      className="bg-background border-border h-bottom-nav pb-safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t lg:hidden"
+      className="bg-card border-border h-bottom-nav pb-safe-bottom fixed inset-x-0 bottom-0 z-40 flex items-center justify-around border-t lg:hidden"
       data-slot="bottom-tab-bar"
     >
       {tabs.map(({ label, icon: Icon, href }) => (
         <Link
           key={label}
-          className="flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-xs"
+          className="text-muted-foreground hover:text-foreground flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-[11px] transition-colors"
           href={href}
         >
           <Icon className="size-5" />

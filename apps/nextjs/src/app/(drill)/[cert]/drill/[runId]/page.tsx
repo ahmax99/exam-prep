@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic'
 
 const log = logger.child({ module: 'drill-page' })
 
-const drillMainClassName = 'px-4 py-6 lg:px-8 lg:py-14'
+const drillMainClassName = 'px-4 py-6 lg:px-10 lg:py-14'
 
 export const generateMetadata = () =>
   generatePageMetadata({
@@ -80,7 +80,7 @@ export default async function DrillRunPage({
           id="main-content"
           tabIndex={-1}
         >
-          <div className="mx-auto w-full max-w-[40rem] xl:max-w-[67rem]">
+          <div className="mx-auto w-full max-w-[1072px]">
             <DrillCard
               answeredQuestionIds={answeredQuestionIds}
               certSlug={cert}
@@ -104,7 +104,7 @@ export default async function DrillRunPage({
           id="main-content"
           tabIndex={-1}
         >
-          <div className="mx-auto w-full max-w-[40rem]">
+          <div className="mx-auto w-full max-w-[1072px]">
             <h1 className="sr-only">Drill</h1>
             <p className="text-muted-foreground">
               Something went wrong loading this run. Try refreshing.

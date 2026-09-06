@@ -16,59 +16,72 @@ const ExamList = ({
   selectedCode
 }: Readonly<ExamListProps>) => {
   return (
-    <section aria-label="Exams" className="flex flex-col" data-slot="exam-list">
-      <ul className="divide-border border-border divide-y border-y">
-        {exams.map((exam) => {
-          const selected = exam.code === selectedCode
+    <section
+      aria-label="Exams"
+      className="border-border bg-card overflow-hidden rounded-md border"
+      data-slot="exam-list"
+    >
+      {exams.map((exam, index) => {
+        const selected = exam.code === selectedCode
 
-          return (
-            <li
-              className="flex min-h-14 items-center gap-3"
-              data-selected={selected || undefined}
-              key={exam.code}
+        return (
+          <div
+            className={cn(
+              'flex min-h-[60px] flex-wrap items-center gap-x-[18px] gap-y-2 px-[22px] py-2',
+              index > 0 && 'border-row-border border-t',
+              selected && 'bg-row-active'
+            )}
+            key={exam.code}
+          >
+            <Link
+              aria-current={selected ? 'true' : undefined}
+              className="focus-visible:ring-ring/50 flex min-h-11 flex-1 items-center gap-[18px] rounded-[4px] focus-visible:ring-[3px] focus-visible:outline-none"
+              href={`/${certSlug}?exam=${exam.code}`}
             >
-              <Link
-                aria-current={selected ? 'true' : undefined}
-                className="hover:bg-muted/60 focus-visible:ring-ring/50 -mx-3 flex min-h-14 flex-1 items-center gap-3 rounded-md px-3 transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
-                href={`/${certSlug}?exam=${exam.code}`}
+              <span
+                className={cn(
+                  'font-mono text-[11px] tracking-[-0.04em]',
+                  selected ? 'text-accent-foreground' : 'text-muted-foreground'
+                )}
+                data-numeric
               >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    'h-6 w-0.5 shrink-0 rounded-full',
-                    selected ? 'bg-brand' : 'bg-transparent'
-                  )}
-                />
-                <span className="font-mono text-sm" data-numeric>
-                  {exam.code}
-                </span>
-                <span
-                  className={cn(
-                    'flex-1 truncate text-sm',
-                    selected ? 'font-medium' : 'text-muted-foreground'
-                  )}
-                >
-                  {exam.title}
-                </span>
+                {exam.code}
+              </span>
+              <span
+                className={cn(
+                  'flex-1 truncate text-[15px]',
+                  selected ? 'font-medium' : 'text-muted-foreground'
+                )}
+              >
+                {exam.title}
+              </span>
+              <span
+                className="text-muted-foreground font-mono text-[10px] tracking-[-0.04em]"
+                data-numeric
+              >
+                {exam.questionCount}
+              </span>
+            </Link>
+            {exam.questionCount > 0 && (
+              <Link
+                aria-label={`Drill exam ${exam.code}`}
+                className={cn(
+                  'focus-visible:ring-ring/50 inline-flex h-9 shrink-0 items-center rounded-[4px] border px-4 text-[13px] font-medium transition-colors focus-visible:ring-[3px] focus-visible:outline-none',
+                  selected
+                    ? 'border-brand text-accent-foreground hover:bg-accent'
+                    : 'border-outline text-muted-foreground hover:text-foreground hover:bg-muted'
+                )}
+                href={drillHref(certSlug, {
+                  scopeKind: 'EXAM',
+                  scopeValue: exam.code
+                })}
+              >
+                Drill
               </Link>
-              {exam.questionCount > 0 && (
-                <Link
-                  className="text-muted-foreground hover:border-foreground/30 hover:text-foreground border-border focus-visible:ring-ring/50 flex min-h-11 shrink-0 items-center rounded-md border px-3 text-sm transition-colors focus-visible:ring-[3px] focus-visible:outline-none"
-                  href={drillHref(certSlug, {
-                    scopeKind: 'EXAM',
-                    scopeValue: exam.code
-                  })}
-                >
-                  Drill{' '}
-                  <span className="ml-1 font-mono" data-numeric>
-                    {exam.questionCount}
-                  </span>
-                </Link>
-              )}
-            </li>
-          )
-        })}
-      </ul>
+            )}
+          </div>
+        )
+      })}
     </section>
   )
 }

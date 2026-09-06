@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority'
 
-export const historyDeltaVariants = cva('font-mono text-sm', {
+export const historyDeltaVariants = cva('', {
   variants: {
     direction: {
       up: 'text-success',

@@ -29,12 +29,11 @@ function ShortcutsHelp({
     <>
       <Button
         aria-label="Keyboard shortcuts and what mastery means"
-        className="min-h-11 min-w-11"
-        size="icon-sm"
+        size="icon"
         variant="ghost"
         onClick={() => onOpenChange(true)}
       >
-        <CircleHelp className="size-4" />
+        <CircleHelp className="size-[15px]" />
       </Button>
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
         <SheetContent data-slot="shortcuts-help" side="bottom">

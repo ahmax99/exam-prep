@@ -1,19 +1,25 @@
 :root {
-  --tracking-base: 0.01em;
+  --tracking-base: 0em;
   --leading-base: 1.5;
+
+  --tracking-mono: -0.03em;
+  --tracking-mono-display: -0.07em;
 }
 
 @theme inline {
-  --tracking-tighter: calc(var(--tracking-base) - 0.02em);
-  --tracking-tight: calc(var(--tracking-base) - 0.01em);
+  --tracking-tighter: calc(var(--tracking-base) - 0.03em);
+  --tracking-tight: calc(var(--tracking-base) - 0.02em);
   --tracking-normal: var(--tracking-base);
   --tracking-wide: calc(var(--tracking-base) + 0.01em);
   --tracking-wider: calc(var(--tracking-base) + 0.02em);
-  --tracking-widest: calc(var(--tracking-base) + 0.03em);
+  --tracking-widest: calc(var(--tracking-base) + 0.04em);
+
+  --tracking-mono: var(--tracking-mono);
+  --tracking-mono-display: var(--tracking-mono-display);
 
   --leading-none: 1;
-  --leading-tight: 1.25;
-  --leading-snug: 1.375;
+  --leading-tight: 1.15;
+  --leading-snug: 1.25;
   --leading-normal: var(--leading-base);
   --leading-relaxed: 1.625;
   --leading-loose: 2;

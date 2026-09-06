@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 
+import { MicroLabel } from '@/components/atoms'
 import type { AnswerVerdict } from '@/features/drill/schemas/answerVerdict.schema'
 import { cn } from '@/utils/mergeClass'
 
@@ -52,12 +53,14 @@ function FillInField({
     onSubmit()
   }
 
+  const revealed = verdict !== null
+
   return (
     <div data-slot="fill-in-field-container">
       {verdict && (
         <p
           className={cn(
-            'max-w-[70ch] text-base font-medium',
+            'animate-om-reveal max-w-[70ch] text-base font-medium',
             verdictToneClasses[verdict.verdict]
           )}
           data-slot="fill-in-verdict"
@@ -67,10 +70,10 @@ function FillInField({
       )}
 
       {verdict && verdict.verdict !== 'matched' && verdict.answerDisplay && (
-        <div className="border-border mt-4 border-l pl-4">
-          <p className="text-muted-foreground text-sm">Correct answer</p>
+        <div className="border-border animate-om-reveal mt-[22px] border-l-2 pl-[18px]">
+          <MicroLabel>Correct answer</MicroLabel>
           <p
-            className="mt-1 font-mono text-xl leading-snug font-medium md:text-2xl"
+            className="mt-2 font-mono text-[22px] leading-snug tracking-[-0.06em]"
             data-slot="fill-in-correct-answer"
           >
             <PromptMarkdown text={verdict.answerDisplay} />
@@ -78,10 +81,8 @@ function FillInField({
         </div>
       )}
 
-      <div className="mt-4">
-        {verdict !== null && (
-          <p className="text-muted-foreground text-sm">Your answer</p>
-        )}
+      <div className={cn(revealed ? 'animate-om-reveal mt-[22px]' : 'mt-4')}>
+        {verdict !== null && <MicroLabel>Your answer</MicroLabel>}
         <input
           ref={inputRef}
           aria-label="Your answer"
@@ -90,7 +91,7 @@ function FillInField({
           autoCorrect="off"
           autoFocus
           className={cn(
-            'mt-1',
+            revealed ? 'mt-2' : 'mt-1',
             fillInFieldVariants({ state: verdict?.verdict ?? 'idle' })
           )}
           data-slot="fill-in-field"
@@ -103,7 +104,11 @@ function FillInField({
         />
       </div>
 
-      {verdict && <ExplanationPanel explanation={verdict.explanation} />}
+      {verdict && (
+        <div className="animate-om-reveal">
+          <ExplanationPanel explanation={verdict.explanation} />
+        </div>
+      )}
     </div>
   )
 }
