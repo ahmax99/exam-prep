@@ -1,0 +1,30 @@
+/* Surface tokens the Daylight Console screens need on top of colors.css.
+   They live here rather than in colors.css so that file stays a drop-in
+   replacement for the design hand-off's own copy. */
+
+:root {
+  --row-border: #eceff1;
+  --row-active: #f2f8fa;
+  --neutral: #b6c0c6;
+  --prose-foreground: #3f4a52;
+  --skeleton: #e4e9ec;
+  --skeleton-muted: #eceff1;
+}
+
+.dark {
+  --row-border: #1e2830;
+  --row-active: #17242c;
+  --neutral: #4a5a64;
+  --prose-foreground: #cfd8dd;
+  --skeleton: #222c34;
+  --skeleton-muted: #1b242b;
+}
+
+@theme inline {
+  --color-row-border: var(--row-border);
+  --color-row-active: var(--row-active);
+  --color-neutral: var(--neutral);
+  --color-prose-foreground: var(--prose-foreground);
+  --color-skeleton: var(--skeleton);
+  --color-skeleton-muted: var(--skeleton-muted);
+}

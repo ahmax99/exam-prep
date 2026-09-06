@@ -1,13 +1,13 @@
 :root {
-  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-sans: var(--font-space-grotesk), sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-mono: var(--font-martian-mono), monospace;
 }
 
 .dark {
-  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-sans: var(--font-space-grotesk), sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: var(--font-geist-mono), monospace;
+  --font-mono: var(--font-martian-mono), monospace;
 }
 
 @theme inline {
@@ -19,5 +19,16 @@
 @layer base {
   body {
     font-family: var(--font-sans);
+  }
+
+  /* Martian Mono is drawn on a wide chassis. Without a negative default it
+     reads as loose next to Space Grotesk, and tabular figures overflow the
+     fixed-width count columns in the topic and run tables. */
+  [class*='font-mono'],
+  code,
+  kbd,
+  samp,
+  pre {
+    letter-spacing: var(--tracking-mono);
   }
 }
