@@ -30,8 +30,6 @@ interface DrillLauncherPageProps {
 
 const failureFallback = (
   <PageTemplate>
-    {/* A single-line card with a 2px destructive left rule — the failure is
-        one sentence, not a page. */}
     <div
       className="border-border border-l-destructive bg-card rounded-md border border-l-2 px-5 py-4 text-sm"
       data-slot="drill-launcher-error"
