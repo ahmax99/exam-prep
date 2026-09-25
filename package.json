@@ -30,7 +30,7 @@
     "lefthook": "^2.1.14",
     "oxfmt": "^0.70.0",
     "oxlint": "^1.83.0",
-    "turbo": "^2.10.12",
+    "turbo": "^2.11.2",
     "typescript": "^6.0.3"
   },
   "overrides": {
