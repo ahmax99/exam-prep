@@ -50,7 +50,7 @@
         "@types/ws": "^8.18.2",
         "babel-plugin-react-compiler": "1.0.0",
         "pino-pretty": "^13.2.0",
-        "postcss": "^8.5.28",
+        "postcss": "^8.5.29",
         "prisma": "^7.9.1",
         "shadcn": "^4.21.0",
         "tailwindcss": "^4.3.2",
