@@ -29,7 +29,7 @@
     "@commitlint/config-conventional": "^21.2.3",
     "lefthook": "^2.1.14",
     "oxfmt": "^0.71.0",
-    "oxlint": "^1.86.0",
+    "oxlint": "^1.87.0",
     "turbo": "^2.11.5",
     "typescript": "^6.0.3"
   },
