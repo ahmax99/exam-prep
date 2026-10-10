@@ -1,15 +1,7 @@
 const nextConfig = {
-  env: {
-    AWS_REGION: process.env.AWS_REGION,
-    BASE_URL: process.env.BASE_URL,
-    DATABASE_URL_SECRET_NAME: process.env.DATABASE_URL_SECRET_NAME,
-    S3_BUCKET_NAME: process.env.S3_BUCKET_NAME
-  },
   serverExternalPackages: ['pino', 'pino-pretty'],
   reactStrictMode: true,
-  experimental: {
-    reactCompiler: true
-  },
+  reactCompiler: true,
   headers: async () => [
     {
       source: '/(.*)',
