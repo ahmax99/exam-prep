@@ -30,7 +30,7 @@ Your invocation prompt will include:
 - **Validation at the boundary:** all external input (route handler `body` / `query` / `params`, headers, env) is validated with a Zod schema from the feature's `schemas/` at the route handler — never validated for the first time inside `server/api`.
 - **Server-only data access:** browser / `'use client'` code never touches Postgres or S3 directly. All of that goes through Server Components or route handlers, which own the Prisma client (`@/lib/prisma`) and AWS credentials server-side.
 - **Injection:** no string-interpolated raw SQL (`$queryRawUnsafe` with user input), command injection, or path traversal in S3 keys / filenames.
-- **Secrets:** none hardcoded, logged, or returned in responses. `DATABASE_URL` and other credentials come from environment/Secrets Manager, not the bundle. Env is validated in `src/config/env.ts`.
+- **Secrets:** none hardcoded, logged, or returned in responses. `DATABASE_URL` and other credentials come from server-only environment variables, not the bundle. Env is validated in `src/config/env.ts`.
 - **S3 access:** least privilege — scoped key prefixes, bounded TTL on any presigned URL, content-type/extension validated before signing or serving.
 - **PII / data exposure:** internal fields and other records are not leaked; soft-deleted (`deletedAt`) rows are not returned unconditionally.
 - **No `NEXT_PUBLIC_*` secrets:** only `NEXT_PUBLIC_*` vars may reach the browser bundle — and this codebase's convention is to avoid that entirely; see `architecture.md`.

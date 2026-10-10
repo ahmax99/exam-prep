@@ -22,7 +22,7 @@ The concrete "how to write code here" rules. `architecture.md` covers _where thi
 ## Transactions
 
 - Use `db.$transaction([...])` for any multi-step write that must be atomic.
-- `server/api` code starts with `const db = await getPrismaClient()` (from `@/lib/prisma`) — there is no separate model layer. `getPrismaClient()` resolves `DATABASE_URL` (from Secrets Manager in deployed environments) once and caches the real client; it's not a synchronous singleton, because `$transaction([...])`'s array form needs genuine `PrismaPromise`s from the real client, not a deferred wrapper. When a transaction spans helpers, thread the `tx` client (`Prisma.TransactionClient`) into each Prisma call rather than re-resolving `db`.
+- `server/api` code starts with `const db = await getPrismaClient()` (from `@/lib/prisma`) — there is no separate model layer. `getPrismaClient()` builds the client from `env.DATABASE_URL` once and caches it; it's not a synchronous singleton, because `$transaction([...])`'s array form needs genuine `PrismaPromise`s from the real client, not a deferred wrapper. When a transaction spans helpers, thread the `tx` client (`Prisma.TransactionClient`) into each Prisma call rather than re-resolving `db`.
 
 ## Exports
 
