@@ -32,20 +32,3 @@ variable "dns_account_role_arn" {
     error_message = "dns_account_role_arn must be a valid IAM role ARN or empty."
   }
 }
-
-variable "database_url" {
-  description = "Database connection URL (Neon PostgreSQL)"
-  type        = string
-  sensitive   = true
-}
-
-variable "github_org" {
-  description = "GitHub owner of the repository Amplify connects to (CI supplies github.repository_owner)"
-  type        = string
-}
-
-variable "github_access_token" {
-  description = "GitHub fine-grained personal access token, scoped to only this repo with Contents: Read-only, Metadata: Read-only, and Webhooks: Read and write — used once by Amplify to create its build webhook. AWS doesn't return this value on read (see modules/amplify's ignore_changes), so re-supplying the same token on later applies is safe and expected."
-  type        = string
-  sensitive   = true
-}

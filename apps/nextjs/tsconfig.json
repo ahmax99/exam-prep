@@ -15,7 +15,7 @@
     "strict": true,
     "target": "ES2022",
     "allowJs": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "noEmit": true,
     "paths": { "@/*": ["./src/*"] },
     "plugins": [{ "name": "next" }]
@@ -25,7 +25,8 @@
     "**/*.tsx",
     "next-env.d.ts",
     "next.config.mjs",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": ["node_modules", ".next"]
 }

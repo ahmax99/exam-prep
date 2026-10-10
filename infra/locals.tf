@@ -15,6 +15,4 @@ locals {
   dev_localhost_url = "http://localhost:3000"
 
   s3_uploads_bucket_name = "${local.name_prefix}-uploads"
-
-  branch_name = "main"
 }

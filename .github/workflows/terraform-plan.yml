@@ -32,10 +32,7 @@ jobs:
       TF_VAR_environment: prod
       TF_VAR_aws_region: ${{ vars.AWS_REGION }}
       TF_VAR_root_domain: ${{ vars.TF_VAR_root_domain }}
-      TF_VAR_database_url: ${{ secrets.TF_VAR_database_url }}
       TF_VAR_dns_account_role_arn: ${{ vars.DNS_ACCOUNT_ROLE_ARN }}
-      TF_VAR_github_org: ${{ github.repository_owner }}
-      TF_VAR_github_access_token: ${{ secrets.TF_VAR_github_access_token }}
 
     steps:
       - name: Checkout
@@ -47,7 +44,7 @@ jobs:
           terraform_version: '~> 1.14'
 
       - name: Configure AWS credentials (plan role)
-        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ vars.TF_PLAN_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -57,7 +54,7 @@ jobs:
         run: terraform -chdir=infra fmt -check -recursive
 
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6.3.0
+        uses: terraform-linters/setup-tflint@6ffdbaa3be476b3431f7275c26966ef32ff60337 # v6.3.2
         with:
           tflint_version: v0.63.1
 

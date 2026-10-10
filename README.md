@@ -23,7 +23,7 @@ wrong answer sends it back. Nothing resets between sessions.
 ### Package Manager & Build Tools
 
 - **[Bun](https://bun.sh/)** - Package manager and build/script runner (not the server runtime)
-- **[Node.js](https://nodejs.org/)** - The runtime the app actually runs on, locally and on Amplify's SSR compute
+- **[Node.js](https://nodejs.org/)** - The runtime the app actually runs on, locally and on Vercel's serverless functions
 - **[Turborepo](https://turbo.build/repo)** - High-performance build system for monorepos
 - **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
 
@@ -90,13 +90,12 @@ bun install
 
 Copy `apps/nextjs/.env.example` to `apps/nextjs/.env` and fill it in:
 
-| Variable                   | Required | Notes                                                                          |
-| -------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `DATABASE_URL`             | locally  | Neon connection string. Deployed environments resolve it from a secret instead |
-| `DATABASE_URL_SECRET_NAME` | deployed | Secrets Manager secret holding the connection string                           |
-| `S3_BUCKET_NAME`           | yes      | Bucket holding question images                                                 |
-| `AWS_REGION`               | no       | Defaults to `ap-northeast-1`                                                   |
-| `BASE_URL`                 | no       | Defaults to `http://localhost:3000`                                            |
+| Variable         | Required | Notes                                                         |
+| ---------------- | -------- | ------------------------------------------------------------- |
+| `DATABASE_URL`   | yes      | Neon connection string                                        |
+| `AWS_ROLE_ARN`   | deployed | IAM role the S3 client assumes via Vercel OIDC; unset locally |
+| `S3_BUCKET_NAME` | yes      | Bucket holding question images                                |
+| `AWS_REGION`     | no       | Defaults to `ap-northeast-1`                                  |
 
 Every variable is **server-only** — there is deliberately no `NEXT_PUBLIC_*` variable
 anywhere, so one build can run in any environment rather than baking one environment's values
@@ -168,10 +167,12 @@ by far the largest), **progress**, **catalog**, **bookmarks**, **media**, **erro
 
 ## Deployment
 
-The app deploys to AWS on **Amplify Hosting**, which owns its own CDN, build, and SSR compute
-in a single `prod` member account. Amplify's own GitHub build webhook deploys the app directly
-on push — there is no blue/green canary and **no automatic rollback**, so recovering from a bad
-release means redeploying a previous build (the procedure is in the runbook).
+The app deploys to **Vercel** (Hobby plan), which owns its own CDN, build, and serverless
+compute. Vercel's GitHub App deploys `main` to production on push; the build runs
+`prisma migrate deploy` before `next build` (`apps/nextjs/vercel.json`). There is no canary and
+**no automatic rollback** — recovering from a bad release means Vercel's Instant Rollback to a
+previous deployment. Terraform manages the AWS side (the S3 image bucket and DNS); the Vercel
+project itself is added to Terraform in a follow-up.
 
 To bring up the environment from scratch — prerequisites, GitHub variables/secrets,
 state-bucket bootstrap, and the first apply — follow [**docs/runbook.md**](docs/runbook.md).

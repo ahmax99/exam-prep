@@ -8,8 +8,7 @@ export const env = createEnv({
       .string()
       .regex(/^arn:aws:iam::\d{12}:role\/.+$/)
       .optional(),
-    DATABASE_URL: z.url().optional(),
-    DATABASE_URL_SECRET_NAME: z.string().min(1).optional(),
+    DATABASE_URL: z.url(),
     NODE_ENV: z.enum(['development', 'production']).default('production'),
     S3_BUCKET_NAME: z.string().min(1)
   },
@@ -17,7 +16,6 @@ export const env = createEnv({
     AWS_REGION: process.env.AWS_REGION,
     AWS_ROLE_ARN: process.env.AWS_ROLE_ARN,
     DATABASE_URL: process.env.DATABASE_URL,
-    DATABASE_URL_SECRET_NAME: process.env.DATABASE_URL_SECRET_NAME,
     NODE_ENV: process.env.NODE_ENV,
     S3_BUCKET_NAME: process.env.S3_BUCKET_NAME
   },

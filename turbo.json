@@ -15,14 +15,7 @@
         "!**/.turbo/**"
       ],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": [
-        "DATABASE_URL",
-        "S3_BUCKET_NAME",
-        "AWS_REGION",
-        "AWS_ROLE_ARN",
-        "BASE_URL",
-        "DATABASE_URL_SECRET_NAME"
-      ],
+      "env": ["DATABASE_URL", "S3_BUCKET_NAME", "AWS_REGION", "AWS_ROLE_ARN"],
       "cache": true
     },
     "lint": {

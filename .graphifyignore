@@ -16,7 +16,6 @@
 **/*.tfstate.*
 **/Dockerfile
 **/Dockerfile.*
-**/bootstrap
 node_modules/
 .turbo/
 .next/

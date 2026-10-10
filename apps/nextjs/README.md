@@ -10,7 +10,7 @@ and S3 (via the AWS SDK) directly — there is no separate backend service to fo
 2. Fill it in:
 
 ```env
-# Database (Neon PostgreSQL) — required locally
+# Database (Neon PostgreSQL) — required
 DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
 # Object storage for question images — required
@@ -18,11 +18,11 @@ S3_BUCKET_NAME=""
 
 # Optional; shown with their defaults
 AWS_REGION="ap-northeast-1"
-BASE_URL="http://localhost:3000"
 ```
 
-`DATABASE_URL_SECRET_NAME` replaces `DATABASE_URL` in deployed environments, where the
-connection string is resolved from AWS Secrets Manager at runtime instead of the environment.
+Deployed on Vercel, the same variables are Vercel project environment variables, plus
+`AWS_ROLE_ARN`: the IAM role the S3 client assumes via Vercel OIDC (leave it unset locally to
+use your own AWS credentials).
 
 > **Build once, run anywhere.** Every variable here is **server-only**, read from
 > `process.env` at runtime. There is deliberately no `NEXT_PUBLIC_*` variable in this app —

@@ -56,6 +56,7 @@ CREATE EXTENSION IF NOT EXISTS lakebase_text;
 The columns, the generated `tsvector`, and the `lakebase_ann` index all go in `schema.ts`. `tsvector` has no built-in Drizzle type, so define it using the `customType`:
 
 ```typescript
+import { sql } from 'drizzle-orm'
 // src/schema.ts
 import {
   pgTable,
@@ -65,7 +66,6 @@ import {
   index,
   customType
 } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
 
 const tsvector = customType<{ data: string }>({
   dataType() {
@@ -121,6 +121,7 @@ Use the query builder with Drizzle's `cosineDistance` helper for vector search. 
 
 ```typescript
 import { cosineDistance } from 'drizzle-orm'
+
 import { documents } from './schema'
 
 // queryEmbedding: number[] from the same model used for stored documents
@@ -158,6 +159,7 @@ Per-query GUCs (`lakebase_ann.probes`, `lakebase_ann.epsilon`, `lakebase_bm25.de
 
 ```typescript
 import { cosineDistance, sql } from 'drizzle-orm'
+
 import { documents } from './schema'
 
 const distance = cosineDistance(documents.embedding, queryEmbedding)
