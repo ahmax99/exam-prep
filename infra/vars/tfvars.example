@@ -5,7 +5,3 @@ root_domain  = "ahmax99.online"
 
 dns_account_role_arn = ""
 
-github_org           = "ahmax99"
-github_access_token  = ""
-
-database_url = "postgresql://user:password@host/database"

@@ -18,7 +18,6 @@ env:
   TF_VAR_environment: prod
   TF_VAR_aws_region: ${{ vars.AWS_REGION }}
   TF_VAR_root_domain: ${{ vars.TF_VAR_root_domain }}
-  TF_VAR_github_org: ${{ github.repository_owner }}
   TF_VAR_dns_account_role_arn: ${{ vars.DNS_ACCOUNT_ROLE_ARN }}
 
 permissions:
@@ -82,10 +81,6 @@ jobs:
     concurrency:
       group: terraform-state-prod
       cancel-in-progress: false
-    env:
-      TF_VAR_database_url: ${{ secrets.TF_VAR_database_url }}
-      TF_VAR_github_access_token: ${{ secrets.TF_VAR_github_access_token }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7

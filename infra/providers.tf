@@ -7,15 +7,6 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "waf"
-  region = "us-east-1"
-
-  default_tags {
-    tags = local.common_tags
-  }
-}
-
-provider "aws" {
   alias  = "dns"
   region = var.aws_region
 
