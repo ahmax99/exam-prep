@@ -4,6 +4,10 @@ import { z } from 'zod'
 export const env = createEnv({
   server: {
     AWS_REGION: z.string().min(1).default('ap-northeast-1'),
+    AWS_ROLE_ARN: z
+      .string()
+      .regex(/^arn:aws:iam::\d{12}:role\/.+$/)
+      .optional(),
     DATABASE_URL: z.url().optional(),
     DATABASE_URL_SECRET_NAME: z.string().min(1).optional(),
     NODE_ENV: z.enum(['development', 'production']).default('production'),
@@ -11,6 +15,7 @@ export const env = createEnv({
   },
   runtimeEnv: {
     AWS_REGION: process.env.AWS_REGION,
+    AWS_ROLE_ARN: process.env.AWS_ROLE_ARN,
     DATABASE_URL: process.env.DATABASE_URL,
     DATABASE_URL_SECRET_NAME: process.env.DATABASE_URL_SECRET_NAME,
     NODE_ENV: process.env.NODE_ENV,
