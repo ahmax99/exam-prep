@@ -129,7 +129,7 @@ jobs:
       - name: Ensure psql is available
         run: command -v psql >/dev/null || { sudo apt-get update -qq && sudo apt-get install -y -qq postgresql-client; }
 
-      - name: Drop every table
+      - name: Empty the public schema
         env:
           DATABASE_URL: ${{ secrets.TF_VAR_database_url }}
         run: |
