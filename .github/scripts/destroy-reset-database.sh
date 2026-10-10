@@ -12,9 +12,6 @@ base_url="${DATABASE_URL%%\?*}"
 export PGSSLMODE="${PGSSLMODE:-require}"
 export PGCONNECT_TIMEOUT="${PGCONNECT_TIMEOUT:-30}"
 
-# Empties public object by object rather than DROP SCHEMA, so the schema's
-# owner and default grants survive. Prisma enums are types, not tables, and
-# would otherwise make the next `migrate deploy` fail with 42710.
 psql "$base_url" --no-psqlrc --quiet -v ON_ERROR_STOP=1 <<'SQL'
 DO $$
 DECLARE
