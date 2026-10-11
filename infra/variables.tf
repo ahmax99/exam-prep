@@ -53,4 +53,10 @@ variable "database_url" {
   type        = string
   sensitive   = true
   ephemeral   = true
+
+  # An unset secret arrives as "", which would ship a blank DATABASE_URL to Vercel.
+  validation {
+    condition     = can(regex("^postgres(ql)?://", var.database_url))
+    error_message = "database_url must be a postgres:// or postgresql:// connection string; check the TF_VAR_database_url secret."
+  }
 }
