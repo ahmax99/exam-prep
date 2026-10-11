@@ -21,3 +21,8 @@ provider "aws" {
     tags = local.common_tags
   }
 }
+
+# Reads VERCEL_API_TOKEN from the environment, keeping the token out of the variable graph.
+provider "vercel" {
+  team = var.vercel_team
+}

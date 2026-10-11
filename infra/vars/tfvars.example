@@ -5,3 +5,8 @@ root_domain  = "ahmax99.online"
 
 dns_account_role_arn = ""
 
+github_owner = "ahmax99"
+vercel_team  = "ahmax99-projects"
+
+# database_url is a secret: pass it as TF_VAR_database_url, never in this file.
+

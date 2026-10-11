@@ -18,10 +18,9 @@ org repo"): the S3 bucket for question images and the Route 53 records for the
 app's domain (`<project>.<root_domain>`), written into a zone that can live in
 a different account through an org-provided role.
 
-> **Status:** the Vercel project (env vars, custom domain) and the IAM role its
-> functions assume to read S3 are not in Terraform yet — they land with the
-> Vercel module. Until then, create and configure the Vercel project by hand
-> (step P4 below).
+Terraform also manages the **Vercel project** itself (Git connection,
+environment variables, custom domain) and the IAM role its functions assume
+via Vercel OIDC to read S3.
 
 ## Prerequisites
 
@@ -40,13 +39,21 @@ The org repo's `accounts` stack must be applied and providing (check its
   App deploys the app, not a GitHub Actions job.
 - A cross-account role for apex-zone DNS writes, if the root Route 53 zone
   lives outside the prod account.
+- The **Vercel OIDC provider** in the prod account: URL
+  `https://oidc.vercel.com/<vercel_team>`, audience
+  `https://vercel.com/<vercel_team>`. Terraform looks it up by URL, so the
+  plan fails until it exists.
 - Apex zone NS records set at the registrar.
 
 ### 2. External SaaS accounts
 
 - **Neon**: a Postgres connection string.
 - **Vercel**: an account (Hobby plan) with the **Vercel GitHub App** installed
-  on this repo, so a push to `main` can trigger a production deployment.
+  on this repo (Vercel → Add New… → Project → Import Git Repository → Adjust
+  GitHub App Permissions → Only select repositories → this repo). Check it under
+  GitHub **Settings → Applications → Installed GitHub Apps**. Terraform creates
+  the project; don't import it by hand. Also create an API token
+  (Account Settings → Tokens) for the `VERCEL_API_TOKEN` secret.
 
 ### 3. Local tooling (for the one manual step)
 
@@ -93,12 +100,14 @@ block, so it can't drift from the repo it's running in.
 | `TF_APPLY_ROLE_ARN`    | org output `prod_deploy_role_arn`                                                         |
 | `DNS_ACCOUNT_ROLE_ARN` | the org-provided cross-account DNS role ARN (empty string if the zone is in this account) |
 | `TF_VAR_root_domain`   | e.g. `ahmax99.online`                                                                     |
+| `VERCEL_TEAM`          | Vercel team slug, the `<slug>` in `vercel.com/<slug>` (e.g. `ahmax99-projects`)           |
 
 ### Repo-level secrets
 
-| Name                  | Value                                                                                              |
-| --------------------- | -------------------------------------------------------------------------------------------------- |
-| `TF_VAR_database_url` | Neon connection string. Despite the legacy name, only `destroy.yml`'s `db-reset` job reads it now. |
+| Name                  | Value                                                                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `TF_VAR_database_url` | Neon production connection string. Terraform writes it to Vercel as `DATABASE_URL`; `destroy.yml`'s `db-reset` also uses it. |
+| `VERCEL_API_TOKEN`    | Vercel API token; the Terraform `vercel` provider reads it from the environment.                                             |
 
 > **Two roles, two privilege tiers** (all variables — an IAM role ARN isn't a
 > secret). Each pipeline step assumes the least-privileged role that still
@@ -138,14 +147,12 @@ tables above.
 
 **P3 — First apply**: run `Deploy` (`deploy.yml`) via **workflow_dispatch**
 and approve the reviewer gate. This applies the root module: the S3 images
-bucket and the (currently empty) DNS record set.
+bucket, the Vercel runtime IAM role, the Vercel project (environment
+variables, custom domain) and the app's CNAME.
 
-**P4 — Vercel project** (manual until the Vercel module lands): import this
-repo in Vercel with **Root Directory** `apps/nextjs` (the build command comes
-from `apps/nextjs/vercel.json`). Set the production environment variables
-`DATABASE_URL` (sensitive), `S3_BUCKET_NAME`, and `AWS_REGION`. Add the custom
-domain `<project>.<root_domain>` and create the CNAME Vercel asks for in the
-Route 53 zone.
+**P4 — First Vercel deployment**: creating the project doesn't build it. In
+Vercel open the project → **Deployments** → **Create Deployment**, enter
+`main`, and create it. Later pushes to `main` deploy on their own.
 
 **P5 — Verify**: push to `main` (or redeploy from the Vercel dashboard) —
 Vercel builds, runs `prisma migrate deploy`, and deploys. The app is live at
@@ -192,9 +199,9 @@ migration; never edit or delete one that has already been applied.
 `destroy.yml` (**Actions → Destroy Infrastructure → Run workflow**) destroys
 the Terraform-managed prod infra completely — including S3 object versions,
 which a plain `terraform destroy` cannot touch. Afterwards a fresh
-`terraform apply` succeeds with no manual cleanup. The Vercel project is not
-managed by Terraform yet, so remove it (or pause it) from the Vercel
-dashboard if you want the app fully offline.
+`terraform apply` succeeds with no manual cleanup. The Vercel project is
+Terraform-managed too, so it is deleted with its deployments and the app goes
+offline. After a re-apply, start its first deployment by hand (P4).
 
 **The database is reset, not deleted.** The Neon branch and its compute
 endpoint survive — the `public` schema is emptied, including
@@ -233,6 +240,6 @@ to recover it later.
 ### What survives
 
 The Route 53 **hosted zone** (org-owned — only the records go),
-`infra/bootstrap/`, the state bucket, and the Vercel project. The state
+`infra/bootstrap/`, and the state bucket. The state
 object is left present and holding an empty state, which is exactly what
 makes the next `terraform apply` clean.

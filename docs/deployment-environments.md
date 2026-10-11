@@ -28,7 +28,7 @@ PRs touching `infra/**` get an automatic `terraform plan` comment via `terraform
 
 ## DNS
 
-The apex zone (`<root_domain>`) can live in a different AWS account. Prod's records (`<project>.<root_domain>` → Vercel, added with the Vercel module) are written into that zone through the org-provided cross-account role, which Terraform assumes via the `aws.dns` provider alias (`vars.DNS_ACCOUNT_ROLE_ARN` → `TF_VAR_dns_account_role_arn`).
+The apex zone (`<root_domain>`) can live in a different AWS account. Prod's record (`<project>.<root_domain>` CNAME → Vercel) is written into that zone through the org-provided cross-account role, which Terraform assumes via the `aws.dns` provider alias (`vars.DNS_ACCOUNT_ROLE_ARN` → `TF_VAR_dns_account_role_arn`).
 
 ## Pipeline flow
 

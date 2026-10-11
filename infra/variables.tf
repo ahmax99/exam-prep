@@ -32,3 +32,31 @@ variable "dns_account_role_arn" {
     error_message = "dns_account_role_arn must be a valid IAM role ARN or empty."
   }
 }
+
+variable "github_owner" {
+  description = "GitHub owner of this repository — the Vercel project deploys from <github_owner>/<project_name>"
+  type        = string
+}
+
+variable "vercel_team" {
+  description = "Vercel team slug (the path segment in vercel.com/<slug>) — provider scope and the Vercel OIDC issuer/audience"
+  type        = string
+
+  validation {
+    condition     = can(regex("^[a-z0-9][a-z0-9-]*$", var.vercel_team))
+    error_message = "vercel_team must be a Vercel team slug (lowercase letters, digits, hyphens)."
+  }
+}
+
+variable "database_url" {
+  description = "Neon production connection string, sent to Vercel as a write-only value so it never lands in state"
+  type        = string
+  sensitive   = true
+  ephemeral   = true
+
+  # An unset secret arrives as "", which would ship a blank DATABASE_URL to Vercel.
+  validation {
+    condition     = can(regex("^postgres(ql)?://", var.database_url))
+    error_message = "database_url must be a postgres:// or postgresql:// connection string; check the TF_VAR_database_url secret."
+  }
+}
