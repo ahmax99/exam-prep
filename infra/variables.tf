@@ -33,11 +33,6 @@ variable "dns_account_role_arn" {
   }
 }
 
-variable "github_owner" {
-  description = "GitHub owner of this repository — the Vercel project deploys from <github_owner>/<project_name>"
-  type        = string
-}
-
 variable "vercel_team" {
   description = "Vercel team slug (the path segment in vercel.com/<slug>) — provider scope and the Vercel OIDC issuer/audience"
   type        = string

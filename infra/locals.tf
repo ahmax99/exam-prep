@@ -18,7 +18,6 @@ locals {
 
   vercel_project_name = var.project_name
   app_root_directory  = "apps/nextjs"
-  production_branch   = "main"
   vercel_cname_target = "cname.vercel-dns.com"
 
   # Functions run next to the S3 bucket and Neon so each query stays in-region.

@@ -168,11 +168,11 @@ by far the largest), **progress**, **catalog**, **bookmarks**, **media**, **erro
 ## Deployment
 
 The app deploys to **Vercel** (Hobby plan), which owns its own CDN, build, and serverless
-compute. Vercel's GitHub App deploys `main` to production on push; the build runs
-`prisma migrate deploy` before `next build` (`apps/nextjs/vercel.json`). There is no canary and
-**no automatic rollback** — recovering from a bad release means Vercel's Instant Rollback to a
-previous deployment. Terraform manages the AWS side (the S3 image bucket and DNS); the Vercel
-project itself is added to Terraform in a follow-up.
+compute. GitHub Actions (`deploy.yml`) deploys `main` to production: it runs
+`prisma migrate deploy`, then `vercel deploy --prod`, behind the `prod` reviewer. There is no
+canary and **no automatic rollback** — recovering from a bad release means Vercel's Instant
+Rollback to a previous deployment. Terraform manages the AWS side (the S3 image bucket, DNS, the
+role Vercel functions assume) and the Vercel project itself.
 
 To bring up the environment from scratch — prerequisites, GitHub variables/secrets,
 state-bucket bootstrap, and the first apply — follow [**docs/runbook.md**](docs/runbook.md).

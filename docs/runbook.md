@@ -18,9 +18,9 @@ org repo"): the S3 bucket for question images and the Route 53 records for the
 app's domain (`<project>.<root_domain>`), written into a zone that can live in
 a different account through an org-provided role.
 
-Terraform also manages the **Vercel project** itself (Git connection,
-environment variables, custom domain) and the IAM role its functions assume
-via Vercel OIDC to read S3.
+Terraform also manages the **Vercel project** itself
+(environment variables, custom domain) and the IAM role its functions assume
+via Vercel OIDC to read S3. GitHub Actions deploys the app to it.
 
 ## Prerequisites
 
@@ -35,8 +35,8 @@ The org repo's `accounts` stack must be applied and providing (check its
 - `plan_role_arn` — a read-only `gha-plan` role, used by PR
   **Terraform plan** (`ReadOnlyAccess`; can't apply or write state).
 - The GitHub **OIDC provider** in the prod account (created by the accounts
-  stack). This repo creates no role of its own against it — Vercel's GitHub
-  App deploys the app, not a GitHub Actions job.
+  stack). This repo creates no role of its own against it — the app deploy
+  job talks to Vercel and Neon, not AWS.
 - A cross-account role for apex-zone DNS writes, if the root Route 53 zone
   lives outside the prod account.
 - The **Vercel OIDC provider** in the prod account: URL
@@ -48,18 +48,16 @@ The org repo's `accounts` stack must be applied and providing (check its
 ### 2. External SaaS accounts
 
 - **Neon**: a Postgres connection string.
-- **Vercel**: an account (Hobby plan) with the **Vercel GitHub App** installed
-  on this repo (Vercel → Add New… → Project → Import Git Repository → Adjust
-  GitHub App Permissions → Only select repositories → this repo). Check it under
-  GitHub **Settings → Applications → Installed GitHub Apps**. Terraform creates
-  the project; don't import it by hand. Also create an API token
-  (Account Settings → Tokens) for the `VERCEL_API_TOKEN` secret.
+- **Vercel**: an account (Hobby plan) and an API token scoped to the team
+  (Account Settings → Tokens) for the `VERCEL_API_TOKEN` secret. Terraform
+  creates the project; don't create or import it by hand. The Vercel GitHub
+  App isn't needed: GitHub Actions deploys with the Vercel CLI.
 
 ### 3. Local tooling (for the one manual step)
 
 Terraform ≥ 1.14 and CLI credentials for the prod member account — used only
 to create the state bucket. Everything after that runs through GitHub
-Actions or Vercel's GitHub App.
+Actions.
 
 Authenticate via the org's IAM Identity Center (SSO), not long-lived keys. The
 org repo's [CLI access (Identity Center SSO)](https://github.com/ahmax99/ahmax99-aws-org#cli-access-identity-center-sso)
@@ -104,10 +102,10 @@ block, so it can't drift from the repo it's running in.
 
 ### Repo-level secrets
 
-| Name                  | Value                                                                                                                        |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `TF_VAR_database_url` | Neon production connection string. Terraform writes it to Vercel as `DATABASE_URL`; `destroy.yml`'s `db-reset` also uses it. |
-| `VERCEL_API_TOKEN`    | Vercel API token; the Terraform `vercel` provider reads it from the environment.                                             |
+| Name                  | Value                                                                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TF_VAR_database_url` | Neon production connection string. Terraform writes it to Vercel as `DATABASE_URL`; `deploy-app` migrates with it; `destroy.yml`'s `db-reset` also uses it. |
+| `VERCEL_API_TOKEN`    | Vercel API token; the Terraform `vercel` provider and `deploy-app`'s Vercel CLI both use it.                                                                |
 
 > **Two roles, two privilege tiers** (all variables — an IAM role ARN isn't a
 > secret). Each pipeline step assumes the least-privileged role that still
@@ -119,8 +117,8 @@ block, so it can't drift from the repo it's running in.
 > - **`TF_APPLY_ROLE_ARN`** (admin `gha-deploy`) — `terraform apply`. Broad
 >   by necessity: Terraform manages the whole account's app infra.
 >
-> There is no third, app-deploy tier — Vercel's GitHub App deploys the app,
-> so GitHub Actions never assumes a role to do it.
+> There is no third, app-deploy tier: `deploy-app` deploys to Vercel with the
+> `VERCEL_API_TOKEN` secret and never assumes an AWS role.
 
 > **`DNS_ACCOUNT_ROLE_ARN`** is set whenever prod writes into an apex zone
 > hosted in a different account — Terraform assumes it via the `aws.dns`
@@ -145,17 +143,15 @@ terraform apply -var="project_name=exam-prep" -var="environment=prod" -auto-appr
 applies run unattended). Set the repo-level variables and secrets per the
 tables above.
 
-**P3 — First apply**: run `Deploy` (`deploy.yml`) via **workflow_dispatch**
-and approve the reviewer gate. This applies the root module: the S3 images
-bucket, the Vercel runtime IAM role, the Vercel project (environment
-variables, custom domain) and the app's CNAME.
+**P3 — First apply and deploy**: run `Deploy` (`deploy.yml`) via
+**workflow_dispatch** with scope `infra-and-app`, and approve the reviewer
+gate for each job. `apply` applies the root module: the S3 images bucket, the
+Vercel runtime IAM role, the Vercel project (environment variables, custom
+domain) and the app's CNAME. `deploy-app` then migrates the database and
+deploys the app to Vercel.
 
-**P4 — First Vercel deployment**: creating the project doesn't build it. In
-Vercel open the project → **Deployments** → **Create Deployment**, enter
-`main`, and create it. Later pushes to `main` deploy on their own.
-
-**P5 — Verify**: push to `main` (or redeploy from the Vercel dashboard) —
-Vercel builds, runs `prisma migrate deploy`, and deploys. The app is live at
+**P4 — Verify**: the `deploy-app` job links its Vercel deployment under the
+repo's **Deployments → prod**. The app is live at
 `https://<project>.<root_domain>` once DNS has propagated and Vercel has
 issued the certificate.
 
@@ -163,13 +159,14 @@ issued the certificate.
 
 ```
 push to main, infra/** changed  → [prod reviewer: terraform apply]
-push to main, app changed       → Vercel GitHub App → live
+push to main, app changed       → [prod reviewer: migrate → vercel deploy] → live
 ```
 
 Steady-state Terraform changes flow through PRs: a PR touching `infra/**`
 gets a plan comment (not reviewer-gated — see `deployment-environments.md`);
-merging to `main` applies prod behind the reviewer gate. App deploys need no
-PR-time gate at all — they go straight through Vercel on push.
+merging to `main` applies prod behind the reviewer gate, then deploys the app
+behind the same gate. To redeploy `main` without a new commit, dispatch
+`Deploy` with scope `app-only`.
 
 ## Rolling back a bad release
 
@@ -201,12 +198,12 @@ the Terraform-managed prod infra completely — including S3 object versions,
 which a plain `terraform destroy` cannot touch. Afterwards a fresh
 `terraform apply` succeeds with no manual cleanup. The Vercel project is
 Terraform-managed too, so it is deleted with its deployments and the app goes
-offline. After a re-apply, start its first deployment by hand (P4).
+offline. A `Deploy` dispatch with scope `infra-and-app` brings it back.
 
 **The database is reset, not deleted.** The Neon branch and its compute
 endpoint survive — the `public` schema is emptied, including
 `_prisma_migrations`, so the connection string stays valid but the schema
-itself is gone. The next Vercel build's `prisma migrate deploy` rebuilds it
+itself is gone. The next `deploy-app` run's `prisma migrate deploy` rebuilds it
 from `prisma/migrations` — there is no manual migration step to remember.
 Nothing here touches the `preview/pr-*` branches `neon-workflow.yml` manages.
 
