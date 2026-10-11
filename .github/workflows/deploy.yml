@@ -150,7 +150,6 @@ jobs:
       group: vercel-deploy-prod
       cancel-in-progress: false
     env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
       VERCEL_TELEMETRY_DISABLED: '1'
     steps:
       - name: Checkout repository
@@ -172,6 +171,7 @@ jobs:
 
       - name: Link Vercel project
         env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_TEAM: ${{ vars.VERCEL_TEAM }}
           VERCEL_PROJECT: ${{ github.event.repository.name }}
         run: bunx vercel@60.1.3 link --yes --team "$VERCEL_TEAM" --project "$VERCEL_PROJECT"
@@ -179,7 +179,13 @@ jobs:
       # Vercel builds remotely: the sensitive DATABASE_URL can't be pulled for a local build.
       - name: Deploy to Vercel (production)
         id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
         run: |
           set -euo pipefail
-          url="$(bunx vercel@60.1.3 deploy --prod --yes)"
+          url="$(bunx vercel@60.1.3 deploy --prod --yes | tail -n 1)"
+          if [[ ! "$url" =~ ^https://[^[:space:]]+$ ]]; then
+            echo "::error::vercel deploy printed no deployment URL (got '${url}')."
+            exit 1
+          fi
           echo "url=${url}" >> "$GITHUB_OUTPUT"
