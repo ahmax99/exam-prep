@@ -3,14 +3,8 @@ resource "vercel_project" "this" {
   framework      = "nextjs"
   root_directory = var.root_directory
 
-  git_repository = {
-    type              = "github"
-    repo              = var.git_repository
-    production_branch = var.production_branch
-  }
-
-  # Production-only: every build runs `prisma migrate deploy`, so a preview would migrate the prod database.
-  ignore_command = "[ \"$VERCEL_GIT_COMMIT_REF\" != \"${var.production_branch}\" ]"
+  # No git_repository: deploy.yml migrates the database, then deploys with the Vercel CLI,
+  # so a push must never start a Vercel build of its own.
 
   oidc_token_config = {
     issuer_mode = "team"

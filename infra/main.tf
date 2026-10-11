@@ -63,12 +63,10 @@ module "iam" {
 module "vercel" {
   source = "./modules/vercel"
 
-  project_name      = local.vercel_project_name
-  git_repository    = "${var.github_owner}/${var.project_name}"
-  production_branch = local.production_branch
-  root_directory    = local.app_root_directory
-  domain_name       = local.domain_name
-  function_region   = local.vercel_function_region
+  project_name    = local.vercel_project_name
+  root_directory  = local.app_root_directory
+  domain_name     = local.domain_name
+  function_region = local.vercel_function_region
 
   environment_variables = {
     S3_BUCKET_NAME = module.s3_uploads.bucket_name

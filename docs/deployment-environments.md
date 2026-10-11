@@ -4,27 +4,30 @@ This repo manages a single GitHub Actions environment, `prod` — its trigger, t
 
 ## Overview
 
-Two independent things happen on a push to `main`, and neither waits on the other:
+`deploy.yml` runs both halves of a push to `main`, in order:
 
-| Trigger                            | What runs                                                   | Approval                                       |
-| ---------------------------------- | ----------------------------------------------------------- | ---------------------------------------------- |
-| Push to `main` touching `infra/**` | `deploy.yml`'s `apply` job — `terraform apply` against prod | Required reviewer (see "Prod approvals" below) |
-| Push to `main` touching the app    | **Vercel's GitHub App** — outside GitHub Actions entirely   | None — Vercel deploys on push directly         |
+| Trigger                            | What runs                                                                                  | Approval                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| Push to `main` touching `infra/**` | `apply` job — `terraform apply` against prod                                               | Required reviewer (see "Prod approvals" below) |
+| Push to `main` touching the app    | `deploy-app` job — `prisma migrate deploy`, then `vercel deploy --prod` (Vercel builds it) | Required reviewer                              |
+
+The Vercel project has no Git connection, so a push never starts a Vercel build on its own. Each app deploy shows up in GitHub under **Deployments → prod**, linked to its run and its Vercel URL.
 
 **Prod is a dedicated AWS account** (a member account under a shared AWS Organization, managed by the [org repo](https://github.com/ahmax99/ahmax99-aws-org)) — the account boundary, not just the resource-name prefix, is the isolation mechanism. Account-level plumbing — the GitHub OIDC provider, the `gha-plan`/`gha-deploy` roles, and the cross-account DNS role for the apex zone — is owned by the org repo, not this one; this repo's Terraform manages only the app infrastructure inside the prod account.
 
 PRs touching `infra/**` get an automatic `terraform plan` comment via `terraform-plan.yml`. That job deliberately carries **no** `environment:` — a read-only, PR-time plan must not be gated behind prod's required-reviewer rule — so its `TF_VAR_*` inputs are repo-level secrets/variables rather than environment-scoped ones (see the runbook's GitHub configuration reference).
 
-**Prod approvals.** `deploy.yml`'s `apply` job runs under `environment: prod`, so a push to `main` touching `infra/**` prompts the required reviewer before Terraform applies. **App deploys carry no such gate** — Vercel's GitHub App builds directly off the push, independent of GitHub's environment protection rules. This is a deliberate trade for simplicity: there is no reviewer step, no CI job, and no AWS role assumption between a push and the app going live.
+**Prod approvals.** Both `apply` and `deploy-app` run under `environment: prod`, so each prompts the required reviewer. A push that changes both infra and the app asks twice: once for the apply, once for the deploy.
 
 ## Ordering invariants
 
-| Invariant                                                                                                                                                                                                                                      | Mechanism                                                                                                                                              |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| One `terraform apply` at a time per state file                                                                                                                                                                                                 | Job-level `concurrency: terraform-state-prod` on `deploy.yml`'s `apply` job (also used by `destroy.yml`, so a teardown can never race a regular apply) |
-| A Terraform apply is never interrupted                                                                                                                                                                                                         | `cancel-in-progress: false` — cancelling the run wouldn't stop the AWS-side apply, it would just orphan it and block the next one                      |
-| The database schema always lands before the app that expects it `apps/nextjs/vercel.json`'s build command runs `prisma migrate deploy && next build` — a failed migration fails the deployment, enforced by Vercel's build, not GitHub Actions |
-| Infra changes and app deploys never block each other                                                                                                                                                                                           | They are two independent triggers (Terraform via GitHub Actions, the app via Vercel's GitHub App) with no `needs:` edge between them                   |
+| Invariant                                                       | Mechanism                                                                                                                                              |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| One `terraform apply` at a time per state file                  | Job-level `concurrency: terraform-state-prod` on `deploy.yml`'s `apply` job (also used by `destroy.yml`, so a teardown can never race a regular apply) |
+| A Terraform apply is never interrupted                          | `cancel-in-progress: false` — cancelling the run wouldn't stop the AWS-side apply, it would just orphan it and block the next one                      |
+| Infra lands before the app that needs it                        | `deploy-app` `needs: apply`, and runs only when `apply` succeeded or was skipped                                                                       |
+| The database schema always lands before the app that expects it | `deploy-app` runs `prisma migrate deploy` before `vercel deploy`; a failed migration fails the job before anything ships                               |
+| One app deploy at a time                                        | Job-level `concurrency: vercel-deploy-prod`, `cancel-in-progress: false`                                                                               |
 
 ## DNS
 
@@ -33,15 +36,16 @@ The apex zone (`<root_domain>`) can live in a different AWS account. Prod's reco
 ## Pipeline flow
 
 ```
-push to main, infra/** changed
-  └── deploy.yml: detect → apply                                          [prod reviewer gate]
-
-push to main, app changed
-  └── Vercel GitHub App (outside GitHub Actions):
-        bun install → prisma migrate deploy → next build → deploy
+push to main
+  └── deploy.yml: detect
+        ├── apply       (infra/** changed)                                [prod reviewer gate]
+        └── deploy-app  (app changed; after apply)                        [prod reviewer gate]
+              bun install → prisma migrate deploy → vercel deploy --prod (remote build)
 ```
 
-`detect` is a single inline step in `deploy.yml` — it diffs the push range for `infra/**` and the pipeline's own definition (`.github/workflows/deploy.yml`, `.github/actions/**`, `.github/scripts/**`), and a `workflow_dispatch` always applies. On a first push or force-push, where no usable base commit exists, it fails safe by applying.
+`detect` is a single inline step in `deploy.yml`. It diffs the push range for `infra/**` and for the app (`apps/nextjs/**`, `package.json`, `bun.lock`, `turbo.json`); a change to the pipeline's own definition (`.github/workflows/deploy.yml`, `.github/actions/**`, `.github/scripts/**`) runs both. A `workflow_dispatch` runs what its `scope` input picks (`infra-and-app`, `infra-only` or `app-only`). On a first push or force-push, where no usable base commit exists, it fails safe by running both.
+
+Vercel builds the app remotely, not in the runner: `vercel pull` can't download the sensitive `DATABASE_URL`, so a local `vercel build` would lack it.
 
 ## Release automation
 
@@ -60,7 +64,7 @@ protection. Adding Vercel's configurable WAF rules is a deliberate follow-on dec
 
 ## OIDC roles
 
-GitHub→AWS authentication uses the OIDC **provider** the org repo creates in the prod account. Both roles below are org-owned; this repo creates no GitHub-OIDC-trusted role of its own — Vercel's GitHub App is what deploys the app, not a GitHub Actions job assuming an AWS role.
+GitHub→AWS authentication uses the OIDC **provider** the org repo creates in the prod account. Both roles below are org-owned; this repo creates no GitHub-OIDC-trusted role of its own. `deploy-app` assumes no AWS role: it authenticates to Vercel with the `VERCEL_API_TOKEN` secret and to Neon with the connection string.
 
 - **`gha-plan`** (prod, read-only): assumed by the PR `terraform plan` job (`vars.TF_PLAN_ROLE_ARN`). `ReadOnlyAccess` — no write/apply, so a tampered PR can't mutate state or resources; the plan runs `-lock=false` because the role can't write the S3-native lock.
 - **`gha-deploy`** (prod, admin): assumed by `deploy.yml`'s `apply` job (`vars.TF_APPLY_ROLE_ARN`). Broad by necessity — Terraform manages the whole account's app infra. Its trust requires the `environment:prod` OIDC subject claim, so only the reviewer-gated `prod` environment can assume it.
@@ -95,7 +99,7 @@ keyed on `var.environment`, rather than a new `variable`.
 
 - **Terraform (`apply`).** A `terraform apply` is never reverted if a later step fails — the applied infra stays applied. This is ordinary Terraform behavior: an automatic revert-apply can itself fail, or destroy something with live data. Recovery is a forward fix (a new PR/commit correcting the config), not an automatic revert.
 - **The Vercel deploy.** Once a production build goes live, it owns 100% of traffic. Nothing watches it afterwards, so nothing moves it back automatically. Vercel keeps every previous deployment, which is why recovery is cheap — but it is a human action.
-- **Database migrations.** `prisma migrate deploy` (run in the Vercel build) applies pending migrations and has no automatic "down." If it succeeds and the app is later rolled back to a previous deployment, the schema stays on the new version while the _old_ code is what's actually running. This is why every migration in this repo must be **expand/contract**: additive and backward-compatible (new nullable columns, new tables, dual-write) for at least one full release, with any drop/rename of the old shape deferred to a follow-up migration once nothing references it. A migration that isn't safe for the previous release's code to run against — not the absence of a schema-rollback step — is what actually causes an incident here.
+- **Database migrations.** `prisma migrate deploy` (run by `deploy-app` before the Vercel deploy) applies pending migrations and has no automatic "down." If it succeeds and the app is later rolled back to a previous deployment, the schema stays on the new version while the _old_ code is what's actually running. This is why every migration in this repo must be **expand/contract**: additive and backward-compatible (new nullable columns, new tables, dual-write) for at least one full release, with any drop/rename of the old shape deferred to a follow-up migration once nothing references it. A migration that isn't safe for the previous release's code to run against — not the absence of a schema-rollback step — is what actually causes an incident here.
 
 **Recovering from a bad release** — roll back to the last-known-good deployment:
 

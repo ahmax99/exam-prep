@@ -23,7 +23,8 @@ flowchart TD
 
     subgraph "Build & Deploy"
         GitHub["GitHub (main branch)"]
-        VercelBuild["Vercel build<br/>(bun install → prisma migrate deploy → next build)"]
+        Actions["GitHub Actions deploy.yml<br/>(prisma migrate deploy → vercel deploy)"]
+        VercelBuild["Vercel build<br/>(next build)"]
     end
 
     Users --> Route53
@@ -31,7 +32,9 @@ flowchart TD
     Vercel --> S3Uploads
     Vercel --> NeonDB
 
-    GitHub -->|Vercel GitHub App| VercelBuild
+    GitHub --> Actions
+    Actions --> NeonDB
+    Actions -->|Vercel CLI| VercelBuild
     VercelBuild --> Vercel
 ```
 
@@ -81,22 +84,20 @@ account, it writes it cross-account via the `aws.dns` provider alias.
 
 ## Vercel project
 
-`infra/modules/vercel` manages the Vercel project: its Git connection (deploy
-on push to `main`), root directory, function region, the custom domain, and
-the production environment variables in the table above. `DATABASE_URL` is a
-write-only value (`value_wo`) fed from the `TF_VAR_database_url` secret, so
-the connection string never lands in Terraform state. Preview builds are
-skipped by the project's ignore command: every build runs
-`prisma migrate deploy`, and previews have no database of their own.
+`infra/modules/vercel` manages the Vercel project: root directory, function
+region, the custom domain, and the production environment variables in the
+table above. `DATABASE_URL` is a write-only value (`value_wo`) fed from the
+`TF_VAR_database_url` secret, so the connection string never lands in
+Terraform state. The project has no Git connection: GitHub Actions is the
+only thing that deploys it, so there are no preview deployments.
 
 ## Deployment
 
-Vercel deploys the app itself, independent of GitHub Actions: pushing to
-`main` triggers a production build through Vercel's GitHub App. The build spec
-is `apps/nextjs/vercel.json`: `prisma migrate deploy` runs strictly before
-`next build` (joined by `&&`, so a failed migration fails the deployment).
-GitHub Actions' `deploy.yml` only ever applies this repo's Terraform for infra
-changes; it has no app-deploy job.
+GitHub Actions deploys the app. On a push to `main` that touches it,
+`deploy.yml`'s `deploy-app` job (behind the `prod` reviewer, after any
+Terraform apply) runs `prisma migrate deploy`, then `vercel deploy --prod`.
+Vercel builds remotely with `apps/nextjs/vercel.json`'s build command and
+promotes the result. A failed migration fails the job before anything ships.
 
 A production build reaches 100% of traffic once it goes live, and there is no
 alarm-gated automatic rollback. Recovery is Vercel's Instant Rollback to a

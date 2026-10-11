@@ -3,21 +3,6 @@ variable "project_name" {
   type        = string
 }
 
-variable "git_repository" {
-  description = "GitHub repository the project deploys from, as owner/repo"
-  type        = string
-
-  validation {
-    condition     = can(regex("^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$", var.git_repository))
-    error_message = "git_repository must be in owner/repo form."
-  }
-}
-
-variable "production_branch" {
-  description = "Git branch whose pushes deploy to production"
-  type        = string
-}
-
 variable "root_directory" {
   description = "Path of the app inside the repository"
   type        = string
