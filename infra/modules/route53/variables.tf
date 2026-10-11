@@ -4,8 +4,8 @@ variable "zone_id" {
 }
 
 variable "cname_records" {
-  description = "CNAME records to create in the zone, e.g. domain-verification and subdomain records"
-  type = list(object({
+  description = "CNAME records to create in the zone, keyed by a stable logical name so retargeting one is an in-place update"
+  type = map(object({
     name   = string
     target = string
   }))

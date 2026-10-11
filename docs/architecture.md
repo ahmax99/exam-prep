@@ -35,11 +35,6 @@ flowchart TD
     VercelBuild --> Vercel
 ```
 
-> **Status:** the Vercel project, its environment variables, the custom domain,
-> and the IAM role its functions assume are not in Terraform yet. They land
-> with the Vercel module. Until then, `infra/` manages only the S3 bucket and
-> the (empty) DNS record set.
->
 > **History:** the app previously ran on AWS Amplify Hosting, with a WAFv2 Web
 > ACL and a Secrets Manager secret for `DATABASE_URL`. All three were removed
 > to cut cost for a single-user app.
@@ -71,19 +66,28 @@ The S3 client (`src/lib/s3.ts`) gets short-lived credentials through **Vercel
 OIDC federation**: when `AWS_ROLE_ARN` is set, it exchanges the function's
 Vercel OIDC token for that role's credentials. There are no static AWS access
 keys anywhere. That role is trusted only by this Vercel project's production
-environment and allows `s3:GetObject` on the images bucket. It is added with
-the Vercel module, alongside the account-level Vercel OIDC identity provider
-in the org repo.
+environment and allows `s3:GetObject` on the images bucket. Terraform creates
+it in `infra/modules/iam`, trusting the account-level Vercel OIDC identity
+provider that the org repo owns.
 
 Locally `AWS_ROLE_ARN` stays unset and the SDK uses the developer's own AWS
 credential chain.
 
 ## DNS
 
-The root `route53` module writes CNAME records into the app's Route 53 zone.
-When the zone lives outside this AWS account, it writes them cross-account via
-the `aws.dns` provider alias. It currently writes no records; the Vercel
-module adds the app's CNAME to Vercel.
+The root `route53` module writes the app's CNAME (`<project>.<root_domain>` →
+Vercel) into the app's Route 53 zone. When the zone lives outside this AWS
+account, it writes it cross-account via the `aws.dns` provider alias.
+
+## Vercel project
+
+`infra/modules/vercel` manages the Vercel project: its Git connection (deploy
+on push to `main`), root directory, function region, the custom domain, and
+the production environment variables in the table above. `DATABASE_URL` is a
+write-only value (`value_wo`) fed from the `TF_VAR_database_url` secret, so
+the connection string never lands in Terraform state. Preview builds are
+skipped by the project's ignore command: every build runs
+`prisma migrate deploy`, and previews have no database of their own.
 
 ## Deployment
 

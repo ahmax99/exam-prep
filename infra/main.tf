@@ -42,6 +42,38 @@ module "route53" {
   }
 
   zone_id = local.dns_zone_id
-  # Empty until the Vercel project lands; its CNAME is wired in here then.
-  cname_records = []
+  cname_records = {
+    app = {
+      name   = local.domain_name
+      target = local.vercel_cname_target
+    }
+  }
+}
+
+module "iam" {
+  source = "./modules/iam"
+
+  role_name                = "${local.name_prefix}-vercel-runtime"
+  vercel_oidc_provider_arn = data.aws_iam_openid_connect_provider.vercel.arn
+  vercel_team              = var.vercel_team
+  vercel_project_name      = local.vercel_project_name
+  s3_uploads_bucket_arn    = module.s3_uploads.bucket_arn
+}
+
+module "vercel" {
+  source = "./modules/vercel"
+
+  project_name      = local.vercel_project_name
+  git_repository    = "${var.github_owner}/${var.project_name}"
+  production_branch = local.production_branch
+  root_directory    = local.app_root_directory
+  domain_name       = local.domain_name
+  function_region   = local.vercel_function_region
+
+  environment_variables = {
+    S3_BUCKET_NAME = module.s3_uploads.bucket_name
+    AWS_REGION     = var.aws_region
+    AWS_ROLE_ARN   = module.iam.vercel_runtime_role_arn
+  }
+  database_url = var.database_url
 }
