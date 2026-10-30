@@ -24,7 +24,7 @@
     "@prisma/adapter-neon": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "@t3-oss/env-core": "^0.13.11",
-    "@vercel/oidc-aws-credentials-provider": "^3.3.13",
+    "@vercel/oidc-aws-credentials-provider": "^3.3.16",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "ky": "^2.2.0",
