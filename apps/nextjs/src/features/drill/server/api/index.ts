@@ -484,7 +484,8 @@ const runGetRunSummary = async ({
       options: {
         select: { letter: true, text: true },
         orderBy: { letter: 'asc' }
-      }
+      },
+      exam: { select: { code: true } }
     }
   })
   const missedById = new Map(

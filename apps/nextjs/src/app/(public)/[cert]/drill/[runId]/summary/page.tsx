@@ -10,7 +10,8 @@ import { SummaryActions } from '@/features/drill/client/components/SummaryAction
 import {
   buildHeadline,
   describeScope,
-  toHistoryRows
+  toHistoryRows,
+  weakSpotsExamCode
 } from '@/features/drill/lib/summary'
 import { idSchema } from '@/features/drill/schemas/run.schema'
 import { getRunHistory, getRunSummary } from '@/features/drill/server/api'
@@ -104,7 +105,7 @@ export default async function RunSummaryPage({
 
   const headline = buildHeadline(
     summary.outcomes,
-    describeScope(summary.run.scopeKind, summary.run.scopeValue)
+    describeScope(summary.run.scopeKind, summary.run.scopeValue, cert)
   )
 
   return (
@@ -112,8 +113,8 @@ export default async function RunSummaryPage({
       <RunSummary headline={headline} outcomes={summary.outcomes}>
         <SummaryActions
           certSlug={cert}
-          missCount={summary.misses.length}
           runId={runId}
+          weakSpotsExamCode={weakSpotsExamCode(summary.misses)}
         />
       </RunSummary>
       <SkippedReview

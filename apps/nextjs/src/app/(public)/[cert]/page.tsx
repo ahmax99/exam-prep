@@ -130,14 +130,20 @@ export default async function CertificationPage({
     )
   ])
 
-  const mastery = dashboard.find((entry) => entry.slug === cert)
+  const examMastery = dashboard
+    .find((entry) => entry.slug === cert)
+    ?.exams.find((entry) => entry.code === selectedExam.code)
   const recommendation = recommendDrill({
     certSlug: cert,
-    missed: mastery?.missed ?? 0,
-    unseen: mastery?.unseen ?? 0,
     questionCount: selectedExam.questionCount,
-    examCode: selectedExam.code,
-    examQuestionCount: selectedExam.questionCount
+    exams: [
+      examMastery ?? {
+        code: selectedExam.code,
+        missed: 0,
+        unseen: 0,
+        total: selectedExam.questionCount
+      }
+    ]
   })
 
   const examHeading = selectedExam.title.startsWith(`Exam ${selectedExam.code}`)

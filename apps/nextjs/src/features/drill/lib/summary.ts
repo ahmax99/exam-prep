@@ -40,16 +40,22 @@ export const summarizeOutcomes = (
   return { rightFirstTry, selfGraded, missed, skipped, score, total, percent }
 }
 
+// Runs from before MISSED/UNSEEN were per exam stored the cert slug instead.
+const examSuffix = (scopeValue: string, certSlug: string) =>
+  scopeValue && scopeValue !== certSlug ? ` in exam ${scopeValue}` : ''
+
 const SCOPE_DESCRIPTIONS: Record<
   StartRunInput['scopeKind'],
-  (scopeValue: string) => string
+  (scopeValue: string, certSlug: string) => string
 > = {
   CERT: () => 'across the full certification',
   EXAM: (scopeValue) => `in exam ${scopeValue}`,
   TOPIC: (scopeValue) => `in ${scopeValue}`,
   OBJECTIVE: (scopeValue) => `in objective ${scopeValue}`,
-  MISSED: () => 'from your weak spots',
-  UNSEEN: () => 'that were new to you',
+  MISSED: (scopeValue, certSlug) =>
+    `from your weak spots${examSuffix(scopeValue, certSlug)}`,
+  UNSEEN: (scopeValue, certSlug) =>
+    `that were new to you${examSuffix(scopeValue, certSlug)}`,
   BOOKMARKS: (scopeValue) =>
     scopeValue
       ? `from your exam ${scopeValue} bookmarks`
@@ -58,8 +64,23 @@ const SCOPE_DESCRIPTIONS: Record<
 
 export const describeScope = (
   scopeKind: StartRunInput['scopeKind'],
-  scopeValue: string
-): string => SCOPE_DESCRIPTIONS[scopeKind](scopeValue)
+  scopeValue: string,
+  certSlug: string
+): string => SCOPE_DESCRIPTIONS[scopeKind](scopeValue, certSlug)
+
+// "Drill weak spots" stays inside one exam: the one this run missed most in.
+export const weakSpotsExamCode = (
+  misses: { exam: { code: string } }[]
+): string | null => {
+  const counts = new Map<string, number>()
+  for (const { exam } of misses)
+    counts.set(exam.code, (counts.get(exam.code) ?? 0) + 1)
+
+  let best: string | null = null
+  for (const [code, count] of counts)
+    if (best === null || count > (counts.get(best) ?? 0)) best = code
+  return best
+}
 
 export const buildHeadline = (
   outcomes: RunOutcomes,
