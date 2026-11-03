@@ -12,11 +12,14 @@ import { startRun } from '@/features/drill/client/lib/startRun'
 interface DrillBookmarksButtonProps {
   certSlug: string
   count: number
+  /** Limits the drill to one exam's bookmarks; omit for every exam. */
+  examCode?: string
 }
 
 function DrillBookmarksButton({
   certSlug,
-  count
+  count,
+  examCode = ''
 }: Readonly<DrillBookmarksButtonProps>) {
   const router = useRouter()
   const isPendingRef = useRef(false)
@@ -29,7 +32,7 @@ function DrillBookmarksButton({
 
     startRun({
       scopeKind: 'BOOKMARKS',
-      scopeValue: '',
+      scopeValue: examCode,
       certSlug,
       limit: count
     })

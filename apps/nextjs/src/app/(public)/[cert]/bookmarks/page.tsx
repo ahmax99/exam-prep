@@ -6,7 +6,11 @@ import { logger } from '@/config/logger'
 import { BookmarkRow } from '@/features/bookmarks/client/components/BookmarkRow'
 import { DrillBookmarksButton } from '@/features/bookmarks/client/components/DrillBookmarksButton'
 import { listBookmarks } from '@/features/bookmarks/server/api'
-import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
+import { BookmarkExamFilter } from '@/features/bookmarks/server/components/BookmarkExamFilter'
+import {
+  certPageParamsSchema,
+  certSlugSchema
+} from '@/features/catalog/schemas/certPageParams.schema'
 import { getCertification } from '@/features/catalog/server/api'
 import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
@@ -23,6 +27,7 @@ export const generateMetadata = () =>
 
 interface BookmarksPageProps {
   params: Promise<{ cert: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 const failureFallback = (
@@ -34,7 +39,8 @@ const failureFallback = (
 )
 
 export default async function BookmarksPage({
-  params
+  params,
+  searchParams
 }: Readonly<BookmarksPageProps>) {
   const parsedCert = certSlugSchema.safeParse((await params).cert)
   if (!parsedCert.success) notFound()
@@ -59,7 +65,23 @@ export default async function BookmarksPage({
     return failureFallback
   }
 
-  const items = bookmarksResult.value
+  const allItems = bookmarksResult.value
+  const { exam } = certPageParamsSchema.parse(await searchParams)
+  // An unknown exam code falls back to "All" rather than an empty list.
+  const examCode = certResult.value.exams.some(
+    (candidate) => candidate.code === exam
+  )
+    ? exam
+    : undefined
+  const examOptions = certResult.value.exams.map(({ code }) => ({
+    code,
+    count: allItems.filter((item) => item.examCode === code).length
+  }))
+
+  const items =
+    examCode === undefined
+      ? allItems
+      : allItems.filter((item) => item.examCode === examCode)
   const total = items.length
   const mastered = items.filter((item) => item.state === 'MASTERED').length
 
@@ -73,7 +95,18 @@ export default async function BookmarksPage({
         {mastered} already mastered
       </p>
 
-      {total === 0 ? (
+      {allItems.length > 0 && examOptions.length > 1 && (
+        <div className="mt-[22px]">
+          <BookmarkExamFilter
+            certSlug={cert}
+            exams={examOptions}
+            selectedCode={examCode}
+            total={allItems.length}
+          />
+        </div>
+      )}
+
+      {allItems.length === 0 && (
         <Empty
           className="mt-7"
           description="A bookmark marks the thing the app can't infer — a question you got right for the wrong reason."
@@ -88,10 +121,20 @@ export default async function BookmarksPage({
             or tap the bookmark glyph during a drill to save one here.
           </p>
         </Empty>
-      ) : (
+      )}
+      {allItems.length > 0 && total === 0 && (
+        <p className="text-muted-foreground mt-7 text-sm">
+          No bookmarks from exam {examCode} yet.
+        </p>
+      )}
+      {total > 0 && (
         <>
           <div className="mt-[22px]">
-            <DrillBookmarksButton certSlug={cert} count={total} />
+            <DrillBookmarksButton
+              certSlug={cert}
+              count={total}
+              examCode={examCode}
+            />
           </div>
           <ul className="border-border bg-card mt-[30px] overflow-hidden rounded-lg border">
             {items.map((item) => (
