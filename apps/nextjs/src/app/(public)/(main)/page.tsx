@@ -85,9 +85,8 @@ export default async function HomePage() {
   const hasAttempts = (primaryMastery?.attempted ?? 0) > 0
   const recommendation = recommendDrill({
     certSlug: primaryCertSlug,
-    missed: primaryMastery?.missed ?? 0,
-    unseen: primaryMastery?.unseen ?? 0,
-    questionCount: primaryCertification.questionCount
+    questionCount: primaryCertification.questionCount,
+    exams: primaryMastery?.exams ?? []
   })
 
   return (

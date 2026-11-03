@@ -12,44 +12,45 @@ export interface DrillRecommendation {
   headline: string
 }
 
-const HEADLINES: Record<
-  Exclude<RecommendedScopeKind, 'EXAM' | 'CERT'>,
-  string
-> = {
-  MISSED: 'Start with what you missed',
-  UNSEEN: 'Cover new ground'
-}
-
-export const recommendDrill = (input: {
-  certSlug: string
+interface ExamCounts {
+  code: string
   missed: number
   unseen: number
+  total: number
+}
+
+// Misses and new questions are recommended one exam at a time, in the order
+// given, so a recommended drill never mixes two exams.
+export const recommendDrill = (input: {
+  certSlug: string
   questionCount: number
-  examCode?: string
-  examQuestionCount?: number
+  exams: ExamCounts[]
 }): DrillRecommendation => {
-  if (input.missed > 0)
+  const withMisses = input.exams.find((exam) => exam.missed > 0)
+  if (withMisses)
     return {
       scopeKind: 'MISSED',
-      scopeValue: input.certSlug,
-      available: input.missed,
-      headline: HEADLINES.MISSED
+      scopeValue: withMisses.code,
+      available: withMisses.missed,
+      headline: `Start with what you missed in exam ${withMisses.code}`
     }
 
-  if (input.unseen > 0)
+  const withUnseen = input.exams.find((exam) => exam.unseen > 0)
+  if (withUnseen)
     return {
       scopeKind: 'UNSEEN',
-      scopeValue: input.certSlug,
-      available: input.unseen,
-      headline: HEADLINES.UNSEEN
+      scopeValue: withUnseen.code,
+      available: withUnseen.unseen,
+      headline: `Cover new ground in exam ${withUnseen.code}`
     }
 
-  if (input.examCode !== undefined && input.examQuestionCount !== undefined)
+  const [onlyExam] = input.exams
+  if (onlyExam && input.exams.length === 1)
     return {
       scopeKind: 'EXAM',
-      scopeValue: input.examCode,
-      available: input.examQuestionCount,
-      headline: `Work through exam ${input.examCode}`
+      scopeValue: onlyExam.code,
+      available: onlyExam.total,
+      headline: `Work through exam ${onlyExam.code}`
     }
 
   return {

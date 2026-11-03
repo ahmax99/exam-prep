@@ -27,6 +27,7 @@ interface AppSidebarPracticeItem {
   label: string
   count: number | null
   href: string
+  tone?: 'destructive'
 }
 
 interface AppSidebarProps {
@@ -99,7 +100,7 @@ function AppSidebar({
                     {item.count !== null && (
                       <SidebarMenuBadge
                         className={
-                          item.label === 'Missed' ? 'text-destructive' : ''
+                          item.tone === 'destructive' ? 'text-destructive' : ''
                         }
                       >
                         {item.count}

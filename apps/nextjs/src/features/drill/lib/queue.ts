@@ -34,13 +34,20 @@ const SCOPE_WHERE_BUILDERS: Record<
     objective: requireScopeValue('OBJECTIVE', scopeValue),
     exam: { certification: { slug: certSlug } }
   }),
-  MISSED: (_scopeValue, certSlug) => ({
+  // MISSED and UNSEEN are per exam so a drill never mixes two exams.
+  MISSED: (scopeValue, certSlug) => ({
     progress: { state: 'WRONG' },
-    exam: { certification: { slug: certSlug } }
+    exam: {
+      code: requireScopeValue('MISSED', scopeValue),
+      certification: { slug: certSlug }
+    }
   }),
-  UNSEEN: (_scopeValue, certSlug) => ({
+  UNSEEN: (scopeValue, certSlug) => ({
     progress: { is: null },
-    exam: { certification: { slug: certSlug } }
+    exam: {
+      code: requireScopeValue('UNSEEN', scopeValue),
+      certification: { slug: certSlug }
+    }
   }),
   // An empty scopeValue means bookmarks across every exam in the cert.
   BOOKMARKS: (scopeValue, certSlug) => ({
