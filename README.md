@@ -61,7 +61,7 @@ wrong answer sends it back. Nothing resets between sessions.
 
 ### Prerequisites
 
-- **Bun** >= 1.3.11
+- **Bun** >= 1.4.4
 - **Node.js** >= 24
 
 This repo also uses [graphify](https://github.com/safishamsi/graphify) to maintain a

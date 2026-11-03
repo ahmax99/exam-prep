@@ -42,9 +42,13 @@ const SCOPE_WHERE_BUILDERS: Record<
     progress: { is: null },
     exam: { certification: { slug: certSlug } }
   }),
-  BOOKMARKS: (_scopeValue, certSlug) => ({
+  // An empty scopeValue means bookmarks across every exam in the cert.
+  BOOKMARKS: (scopeValue, certSlug) => ({
     bookmark: { isNot: null },
-    exam: { certification: { slug: certSlug } }
+    exam: {
+      ...(scopeValue.length > 0 && { code: scopeValue }),
+      certification: { slug: certSlug }
+    }
   })
 }
 

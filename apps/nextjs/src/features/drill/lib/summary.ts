@@ -50,7 +50,10 @@ const SCOPE_DESCRIPTIONS: Record<
   OBJECTIVE: (scopeValue) => `in objective ${scopeValue}`,
   MISSED: () => 'from your weak spots',
   UNSEEN: () => 'that were new to you',
-  BOOKMARKS: () => 'from your bookmarks'
+  BOOKMARKS: (scopeValue) =>
+    scopeValue
+      ? `from your exam ${scopeValue} bookmarks`
+      : 'from your bookmarks'
 }
 
 export const describeScope = (
