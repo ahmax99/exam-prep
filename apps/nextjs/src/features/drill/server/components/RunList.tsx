@@ -55,7 +55,7 @@ function RunList({ certSlug, runs }: Readonly<RunListProps>) {
                   {formatted}
                 </span>
                 <span className="flex-1 text-[15px]">
-                  {describeScope(run.scopeKind, run.scopeValue)}
+                  {describeScope(run.scopeKind, run.scopeValue, certSlug)}
                 </span>
                 <span
                   className="w-[100px] font-mono text-[11px] tracking-[-0.04em]"

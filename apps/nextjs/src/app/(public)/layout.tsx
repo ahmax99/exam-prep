@@ -12,7 +12,7 @@ import { countBookmarks } from '@/features/bookmarks/server/api'
 import { getCertifications } from '@/features/catalog/server/api'
 import { drillHref } from '@/features/drill/lib/drillHref'
 import { catchAsyncError } from '@/features/error/utils/catchError'
-import { getDashboard } from '@/features/progress/server/api'
+import { getDashboard, type ExamMastery } from '@/features/progress/server/api'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,25 +60,30 @@ export default async function PublicLayout({
   const runsHref = primaryCertSlug ? `/${primaryCertSlug}/runs` : null
   const sidebarOpen = cookieStore.get('sidebar_state')?.value !== 'false'
 
+  // One row per exam, so a Missed or Never seen drill never mixes exams.
+  const examItems = (
+    label: string,
+    scopeKind: 'MISSED' | 'UNSEEN',
+    countOf: (exam: ExamMastery) => number
+  ): AppSidebarPracticeItem[] => {
+    const exams = primaryMastery?.exams ?? []
+    return primaryCertSlug
+      ? exams.map((exam) => ({
+          label: exams.length > 1 ? `${label} · ${exam.code}` : label,
+          count: countOf(exam),
+          href: drillHref(primaryCertSlug, {
+            scopeKind,
+            scopeValue: exam.code
+          }),
+          tone: scopeKind === 'MISSED' ? 'destructive' : undefined
+        }))
+      : []
+  }
+
   const practiceItems: AppSidebarPracticeItem[] = primaryCertSlug
     ? [
-        {
-          label: 'Missed',
-          count: primaryMastery?.missed ?? null,
-          href: drillHref(primaryCertSlug, {
-            scopeKind: 'MISSED',
-            scopeValue: primaryCertSlug
-          })
-        },
-        {
-          label: 'Never seen',
-          count: primaryMastery?.unseen ?? null,
-          href: drillHref(primaryCertSlug, {
-            scopeKind: 'UNSEEN',
-            scopeValue: primaryCertSlug
-          })
-        },
-
+        ...examItems('Missed', 'MISSED', (exam) => exam.missed),
+        ...examItems('Never seen', 'UNSEEN', (exam) => exam.unseen),
         { label: 'Bookmarked', count: bookmarkCount, href: savedHref! },
         { label: 'Past runs', count: null, href: runsHref! }
       ]
