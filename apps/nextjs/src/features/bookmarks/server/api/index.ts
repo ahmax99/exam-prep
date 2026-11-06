@@ -15,6 +15,10 @@ export interface BookmarkListItem {
   type: QuestionType
   examCode: string
   prompt: string
+  options: { letter: string; text: string }[]
+  correctLetters: string[]
+  answerDisplay: string | null
+  explanation: string
   state: MasteryState | null
 }
 
@@ -75,6 +79,13 @@ const runListBookmarks = async (certSlug: string) => {
           objective: true,
           type: true,
           prompt: true,
+          options: {
+            select: { letter: true, text: true },
+            orderBy: { letter: 'asc' }
+          },
+          correctLetters: true,
+          answerDisplay: true,
+          explanation: true,
           exam: { select: { code: true } },
           progress: { select: { state: true } }
         }
@@ -90,6 +101,10 @@ const runListBookmarks = async (certSlug: string) => {
     type: row.question.type,
     examCode: row.question.exam.code,
     prompt: row.question.prompt,
+    options: row.question.options,
+    correctLetters: row.question.correctLetters,
+    answerDisplay: row.question.answerDisplay,
+    explanation: row.question.explanation,
     state: row.question.progress?.state ?? null
   }))
 }

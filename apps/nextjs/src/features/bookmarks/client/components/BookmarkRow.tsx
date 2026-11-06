@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { Bookmark } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { BookmarkAnswer } from '@/features/bookmarks/client/components/BookmarkAnswer'
 import { masteryChipVariants } from '@/features/bookmarks/client/components/BookmarkRow.variants'
 import { removeBookmark } from '@/features/bookmarks/client/lib/removeBookmark'
 import { setBookmark } from '@/features/bookmarks/client/lib/setBookmark'
@@ -69,6 +70,7 @@ function BookmarkRow({ item }: Readonly<BookmarkRowProps>) {
         <p className="mt-2.5 min-w-0 text-base leading-[1.55] break-words">
           <PromptMarkdown text={item.prompt} />
         </p>
+        <BookmarkAnswer item={item} />
         {item.note !== null && (
           <p
             className="text-muted-foreground mt-2 min-w-0 text-sm break-words"
