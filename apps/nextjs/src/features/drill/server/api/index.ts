@@ -564,3 +564,12 @@ const runRetryRun = async (id: string) => {
 }
 
 export const retryRun = (id: string) => catchAsyncError(runRetryRun(id))
+
+// Answers and mastery outlive the run: Attempt.runId is SetNull on delete.
+const runDeleteRun = async (id: string) => {
+  const db = await getPrismaClient()
+  const { count } = await db.drillRun.deleteMany({ where: { id } })
+  if (count === 0) throw new AppError('NOT_FOUND', 'Run not found')
+}
+
+export const deleteRun = (id: string) => catchAsyncError(runDeleteRun(id))
