@@ -3,9 +3,7 @@ import { notFound } from 'next/navigation'
 import { ChevronDown } from 'lucide-react'
 
 import { PageTemplate } from '@/components/layout'
-import { logger } from '@/config/logger'
-import { certSlugSchema } from '@/features/catalog/schemas/certPageParams.schema'
-import { getCertification } from '@/features/catalog/server/api'
+import { requireCertification } from '@/features/catalog/server/api'
 import { SummaryActions } from '@/features/drill/client/components/SummaryActions'
 import {
   buildHeadline,
@@ -19,12 +17,10 @@ import { MissReview } from '@/features/drill/server/components/MissReview'
 import { RunHistoryTable } from '@/features/drill/server/components/RunHistoryTable'
 import { RunSummary } from '@/features/drill/server/components/RunSummary'
 import { SkippedReview } from '@/features/drill/server/components/SkippedReview'
-import { catchAsyncError } from '@/features/error/utils/catchError'
+import { orNotFound } from '@/features/error/utils/orNotFound'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 
 export const dynamic = 'force-dynamic'
-
-const log = logger.child({ module: 'run-summary-page' })
 
 export const generateMetadata = () =>
   generatePageMetadata({
@@ -40,68 +36,22 @@ interface RunSummaryPageProps {
 export default async function RunSummaryPage({
   params
 }: Readonly<RunSummaryPageProps>) {
-  const { cert, runId } = await params
+  const route = await params
+  const certification = await requireCertification(route.cert)
+  const cert = certification.slug
 
-  const parsedCert = certSlugSchema.safeParse(cert)
-  const parsedRunId = idSchema.safeParse(runId)
-  if (!parsedCert.success || !parsedRunId.success) notFound()
+  const parsedRunId = idSchema.safeParse(route.runId)
+  if (!parsedRunId.success) notFound()
+  const runId = parsedRunId.data
 
-  const [summaryResult, certResult] = await Promise.all([
-    getRunSummary({
-      runId: parsedRunId.data,
-      certSlug: parsedCert.data
-    }),
-    catchAsyncError(getCertification(parsedCert.data))
-  ])
-
-  if (summaryResult.isErr()) {
-    if (summaryResult.error.code === 'NOT_FOUND') notFound()
-
-    log.error(
-      { error: summaryResult.error, runId },
-      'Failed to load run summary'
-    )
-    return (
-      <PageTemplate>
-        <p className="text-muted-foreground">
-          Something went wrong loading this summary. Try refreshing.
-        </p>
-      </PageTemplate>
-    )
-  }
-
-  const summary = summaryResult.value
-
-  const historyResult = await getRunHistory({
-    scopeKind: summary.run.scopeKind,
-    scopeValue: summary.run.scopeValue,
-    certSlug: parsedCert.data
+  const summary = await orNotFound(getRunSummary({ runId, certSlug: cert }))
+  const history = await getRunHistory({
+    certSlug: cert,
+    scope: {
+      scopeKind: summary.run.scopeKind,
+      scopeValue: summary.run.scopeValue
+    }
   })
-
-  const historyContent = historyResult.match(
-    (historyRuns) => (
-      <RunHistoryTable rows={toHistoryRows(historyRuns, summary.run.id)} />
-    ),
-    (error) => {
-      log.error({ error, runId }, 'Failed to load run history')
-      return (
-        <p className="text-muted-foreground">
-          History is unavailable right now.
-        </p>
-      )
-    }
-  )
-
-  const backLabel = certResult.match(
-    (certification) => `Back to ${certification.name}`,
-    (error) => {
-      log.error(
-        { error, certSlug: parsedCert.data },
-        'Failed to load certification name for back link'
-      )
-      return `Back to ${cert}`
-    }
-  )
 
   const headline = buildHeadline(
     summary.outcomes,
@@ -109,7 +59,9 @@ export default async function RunSummaryPage({
   )
 
   return (
-    <PageTemplate back={{ href: `/${cert}`, label: backLabel }}>
+    <PageTemplate
+      back={{ href: `/${cert}`, label: `Back to ${certification.name}` }}
+    >
       <RunSummary headline={headline} outcomes={summary.outcomes}>
         <SummaryActions
           certSlug={cert}
@@ -133,7 +85,9 @@ export default async function RunSummaryPage({
           />
           Past runs
         </summary>
-        <div className="mt-2.5">{historyContent}</div>
+        <div className="mt-2.5">
+          <RunHistoryTable rows={toHistoryRows(history, summary.run.id)} />
+        </div>
       </details>
     </PageTemplate>
   )

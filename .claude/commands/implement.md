@@ -42,7 +42,7 @@ After implementing each step, self-check:
 1. Does it type-check? Run `bun run check-types` (Turbo runs `tsc --noEmit` across packages; deps build first).
 2. Does it pass the linter/formatter? Run `bun run check-format` (lint + format check). `typescript/no-explicit-any` is an **error** here.
 3. Is all external input validated with a Zod schema (from the feature's `schemas/`) at the route handler boundary?
-4. Are `server/api` functions returning `ResultAsync` (not throwing), and are multi-step writes wrapped in `prisma.$transaction([...])`?
+4. Do `server/api` functions throw `AppError` (no per-function `catchAsyncError` wrapping, no per-page fallback UI), and are multi-step writes wrapped in `prisma.$transaction([...])`?
 5. If the Prisma schema changed, run `/db-check` before applying the migration.
 6. If the step touched React code (`apps/nextjs`), run `bunx react-doctor@latest --verbose --scope changed` and fix any new **errors** before moving on (warnings are advisory). CI enforces the same gate on the PR, so regressions caught here are regressions the reviewer never sees.
 7. If the step changed what a page or component actually _looks_ like, run `/design-review` — react-doctor covers framework correctness and a11y rules, not visual hierarchy, spacing, or UX. Skip it for logic-only changes behind an unchanged UI.

@@ -27,8 +27,8 @@ A module's value is its functionality divided by its interface. Maximize the fir
 ## Define errors out of existence
 
 - Prefer designs where exceptional cases simply can't arise over designs that detect-and-handle them everywhere.
-- In this app, that means the neverthrow `Result` flow: `catchAsyncError`/`catchSyncError` turn a throw into a `ResultAsync<T, AppError>`, and the error path is a value, not a thrown exception scattered across layers. Don't reintroduce `try/catch` ladders that the pipeline already removes.
-- Aggregate handling at a boundary (`withRequestLogging` wrapping each route handler) instead of repeating it per call site.
+- In this app, that means `server/api` throws `AppError` and nothing between it and the boundary catches it. Don't reintroduce `try/catch` ladders, per-call `Result` wrapping, or per-page error fallbacks that the boundary already covers.
+- Aggregate handling at a boundary (`withRequestLogging` for each route handler, `app/error.tsx` + `instrumentation.ts` for pages) instead of repeating it per call site.
 
 ## Comments and naming carry the design
 

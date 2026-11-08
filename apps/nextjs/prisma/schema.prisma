@@ -8,11 +8,12 @@ datasource db {
 }
 
 model Certification {
-  id     String @id @default(cuid())
-  slug   String @unique
+  id     String     @id @default(cuid())
+  slug   String     @unique
   name   String
   vendor String
   exams  Exam[]
+  runs   DrillRun[]
 }
 
 model Exam {
@@ -83,15 +84,19 @@ enum MasteryState {
 }
 
 model DrillRun {
-  id          String    @id @default(cuid())
-  scopeKind   ScopeKind
-  scopeValue  String
-  questionIds String[]
-  startedAt   DateTime  @default(now())
-  finishedAt  DateTime?
-  attempts    Attempt[]
+  id              String         @id @default(cuid())
+  // Nullable only for legacy runs whose first question no longer exists.
+  certificationId String?
+  certification   Certification? @relation(fields: [certificationId], references: [id], onDelete: Cascade)
+  scopeKind       ScopeKind
+  scopeValue      String
+  questionIds     String[]
+  startedAt       DateTime       @default(now())
+  finishedAt      DateTime?
+  attempts        Attempt[]
 
-  @@index([scopeKind, scopeValue, startedAt])
+  @@index([certificationId, scopeKind, scopeValue, startedAt])
+  @@index([certificationId, startedAt])
 }
 
 enum ScopeKind {

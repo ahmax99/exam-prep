@@ -2,13 +2,13 @@ import Link from 'next/link'
 
 import { DeleteRunButton } from '@/features/drill/client/components/DeleteRunButton'
 import { describeScope, runDateFormatter } from '@/features/drill/lib/summary'
-import type { CertificationRun } from '@/features/drill/server/api'
+import type { RunHistoryEntry } from '@/features/drill/server/api'
 import { cn } from '@/utils/mergeClass'
 import { toPercent } from '@/utils/toPercent'
 
 interface RunListProps {
   certSlug: string
-  runs: CertificationRun[]
+  runs: RunHistoryEntry[]
 }
 
 function RunList({ certSlug, runs }: Readonly<RunListProps>) {

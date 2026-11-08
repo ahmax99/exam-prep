@@ -1,11 +1,6 @@
 import 'server-only'
 import { AppError } from '@/features/error/lib/AppError'
-import { catchAsyncError } from '@/features/error/utils/catchError'
-import {
-  type MasteryState,
-  type QuestionType,
-  getPrismaClient
-} from '@/lib/prisma'
+import { type MasteryState, prisma, type QuestionType } from '@/lib/prisma'
 
 export interface BookmarkListItem {
   questionId: string
@@ -22,25 +17,21 @@ export interface BookmarkListItem {
   state: MasteryState | null
 }
 
-const requireQuestion = async (
-  db: Awaited<ReturnType<typeof getPrismaClient>>,
-  questionId: string
-) => {
-  const question = await db.question.findUnique({
+const requireQuestion = async (questionId: string) => {
+  const question = await prisma.question.findUnique({
     where: { id: questionId },
     select: { id: true }
   })
   if (!question) throw new AppError('NOT_FOUND', 'Question not found')
 }
 
-const runSetBookmark = async (input: {
+export const setBookmark = async (input: {
   questionId: string
   note?: string | null
 }) => {
-  const db = await getPrismaClient()
-  await requireQuestion(db, input.questionId)
+  await requireQuestion(input.questionId)
 
-  return db.bookmark.upsert({
+  return prisma.bookmark.upsert({
     where: { questionId: input.questionId },
 
     create: { questionId: input.questionId, note: input.note ?? null },
@@ -49,25 +40,14 @@ const runSetBookmark = async (input: {
   })
 }
 
-export const setBookmark = (input: {
-  questionId: string
-  note?: string | null
-}) => catchAsyncError(runSetBookmark(input))
+export const removeBookmark = async (questionId: string) => {
+  await requireQuestion(questionId)
 
-const runRemoveBookmark = async (questionId: string) => {
-  const db = await getPrismaClient()
-  await requireQuestion(db, questionId)
-
-  await db.bookmark.deleteMany({ where: { questionId } })
+  await prisma.bookmark.deleteMany({ where: { questionId } })
 }
 
-export const removeBookmark = (questionId: string) =>
-  catchAsyncError(runRemoveBookmark(questionId))
-
-const runListBookmarks = async (certSlug: string) => {
-  const db = await getPrismaClient()
-
-  const rows = await db.bookmark.findMany({
+export const listBookmarks = async (certSlug: string) => {
+  const rows = await prisma.bookmark.findMany({
     where: { question: { exam: { certification: { slug: certSlug } } } },
     orderBy: { createdAt: 'desc' },
     select: {
@@ -109,15 +89,8 @@ const runListBookmarks = async (certSlug: string) => {
   }))
 }
 
-export const listBookmarks = (certSlug: string) =>
-  catchAsyncError(runListBookmarks(certSlug))
-
-const runCountBookmarks = async (certSlug: string) => {
-  const db = await getPrismaClient()
-  return db.bookmark.count({
+export const countBookmarks = async (certSlug: string) => {
+  return prisma.bookmark.count({
     where: { question: { exam: { certification: { slug: certSlug } } } }
   })
 }
-
-export const countBookmarks = (certSlug: string) =>
-  catchAsyncError(runCountBookmarks(certSlug))

@@ -6,7 +6,7 @@ description: Code conventions, patterns, and style requirements
 
 The concrete "how to write code here" rules. `architecture.md` covers _where things live_; `principles.md` covers _why_. `oxfmt` owns pure style (single quotes, no semicolons, 2-space, 80 cols, no trailing commas) — these are the conventions it can't enforce.
 
-- Prefer the neverthrow `Result` pattern (`catchAsyncError`/`catchSyncError`) over throwing across layers; only throw `AppError` inside the wrapped body — see Error Handling below.
+- `server/api` functions throw `AppError` and let the boundary (`withRequestLogging`, `app/error.tsx`) handle it; the neverthrow `Result` pattern is for boundaries and client code — see Error Handling below.
 - Put shared types/schemas next to the feature that owns them, under `features/<name>/schemas/`. There's one app, so there's no cross-app sync problem a shared package would solve.
 
 ## Code Style
@@ -21,8 +21,8 @@ The concrete "how to write code here" rules. `architecture.md` covers _where thi
 
 ## Transactions
 
-- Use `db.$transaction([...])` for any multi-step write that must be atomic.
-- `server/api` code starts with `const db = await getPrismaClient()` (from `@/lib/prisma`) — there is no separate model layer. `getPrismaClient()` builds the client from `env.DATABASE_URL` once and caches it; it's not a synchronous singleton, because `$transaction([...])`'s array form needs genuine `PrismaPromise`s from the real client, not a deferred wrapper. When a transaction spans helpers, thread the `tx` client (`Prisma.TransactionClient`) into each Prisma call rather than re-resolving `db`.
+- Use `prisma.$transaction([...])` for any multi-step write that must be atomic.
+- `server/api` code imports `prisma` from `@/lib/prisma` and queries it directly — there is no separate model layer. When an interactive transaction spans helpers, thread the `tx` client (`Prisma.TransactionClient`) into each Prisma call rather than using `prisma`.
 
 ## Exports
 
@@ -49,7 +49,9 @@ Cache Components is **not** enabled — there is no `cacheComponents` flag in `n
 
 ## Error Handling
 
-The pipeline itself (`catchAsyncError` → `ResultAsync<T, AppError>` → `withRequestLogging`, error codes from `features/error/constants/errorDefinition.ts`) is described in `architecture.md`. Conventions on top of it:
+The pipeline itself (`server/api` throws `AppError` → `withRequestLogging` for routes, `app/error.tsx` + `instrumentation.ts` for pages; codes in `features/error/constants/errorDefinition.ts`) is described in `architecture.md`. Conventions on top of it:
 
-- Prefer the shared `catchError` utils (`src/features/error/utils/catchError.ts`) over hand-written `try/catch`. Choose by intent: `catchAsyncError(promise)` — use it when a throw is genuinely exceptional; `catchSyncError(() => …)` — use it for expected, recoverable failures (input validation, parsing untrusted data, `new URL(...)`, `JSON.parse`).
-- Handle Results as values (`.match(...)`, `.unwrapOr(...)`); reserve raw `try/catch` for cases the helpers can't express. Never leak internal stack traces in responses.
+- Don't wrap `server/api` functions in `catchAsyncError` or return `ResultAsync` from them, and don't add per-page `log.error` + fallback UI: the boundary already logs and renders the failure. Use `orNotFound(...)` in a page when a `NOT_FOUND` should render the 404 page.
+- A page catches an error itself only when it renders something specific for it (e.g. the drill launcher's "Nothing to drill" for `NOT_FOUND`); it does that with `catchAsyncError(...)` and rethrows anything else.
+- Prefer the shared `catchError` utils (`src/features/error/utils/catchError.ts`) over hand-written `try/catch`: `catchAsyncError(promise)` for async work at a boundary or in client code; `catchSyncError(() => …)` for expected, recoverable failures (parsing untrusted data, `new URL(...)`, `JSON.parse`).
+- Client code handles Results as values (`.match(...)`, `.unwrapOr(...)`). Never leak internal stack traces in responses.

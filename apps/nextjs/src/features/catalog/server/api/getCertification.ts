@@ -1,6 +1,6 @@
 import 'server-only'
 import { AppError } from '@/features/error/lib/AppError'
-import { getPrismaClient } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 
 export interface CertificationExam {
   code: string
@@ -21,9 +21,7 @@ export interface CertificationDetail {
 export const getCertification = async (
   slug: string
 ): Promise<CertificationDetail> => {
-  const db = await getPrismaClient()
-
-  const certification = await db.certification.findUnique({
+  const certification = await prisma.certification.findUnique({
     where: { slug },
     select: { id: true, slug: true, name: true, vendor: true }
   })
@@ -31,7 +29,7 @@ export const getCertification = async (
   if (!certification)
     throw new AppError('NOT_FOUND', `Certification "${slug}" not found`)
 
-  const exams = await db.exam.findMany({
+  const exams = await prisma.exam.findMany({
     where: { certificationId: certification.id },
     select: {
       code: true,

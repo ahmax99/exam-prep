@@ -11,27 +11,15 @@ export * from '../../prisma/generated/client'
 neonConfig.webSocketConstructor = WebSocket
 neonConfig.poolQueryViaFetch = true
 
-declare global {
-  var prismaPromise: Promise<PrismaClient> | undefined
-}
-
+// Reused across dev hot reloads so each reload doesn't open a new pool.
 const globalForPrisma = globalThis as unknown as {
-  prismaPromise: Promise<PrismaClient> | undefined
+  prisma: PrismaClient | undefined
 }
 
-const createPrismaClient = async () =>
+export const prisma =
+  globalForPrisma.prisma ??
   new PrismaClient({
     adapter: new PrismaNeon({ connectionString: env.DATABASE_URL })
   })
 
-export const getPrismaClient = (): Promise<PrismaClient> => {
-  if (!globalForPrisma.prismaPromise)
-    globalForPrisma.prismaPromise = createPrismaClient().catch(
-      (error: unknown) => {
-        globalForPrisma.prismaPromise = undefined
-        throw error
-      }
-    )
-
-  return globalForPrisma.prismaPromise
-}
+globalForPrisma.prisma = prisma

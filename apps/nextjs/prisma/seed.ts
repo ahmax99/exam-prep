@@ -130,7 +130,7 @@ const loadBank = (file: string): ResultAsync<Bank, AppError> =>
     })
 
 const loadPrismaClient = () =>
-  import('@/lib/prisma').then((prismaModule) => prismaModule.getPrismaClient())
+  import('@/lib/prisma').then((prismaModule) => prismaModule.prisma)
 
 type Db = Awaited<ReturnType<typeof loadPrismaClient>>
 

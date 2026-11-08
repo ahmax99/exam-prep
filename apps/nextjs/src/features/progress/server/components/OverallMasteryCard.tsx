@@ -1,4 +1,5 @@
 import { MasteryBar, MicroLabel } from '@/components/atoms'
+import { sumMastery } from '@/features/progress/lib/mastery'
 import type { TopicMastery } from '@/features/progress/server/api'
 import { cn } from '@/utils/mergeClass'
 
@@ -7,21 +8,11 @@ interface OverallMasteryCardProps {
   className?: string
 }
 
-const rollUp = (topics: TopicMastery[]) =>
-  topics.reduce(
-    (totals, topic) => ({
-      mastered: totals.mastered + topic.mastered,
-      shaky: totals.shaky + topic.shaky,
-      total: totals.total + topic.total
-    }),
-    { mastered: 0, shaky: 0, total: 0 }
-  )
-
 const OverallMasteryCard = ({
   topics,
   className
 }: Readonly<OverallMasteryCardProps>) => {
-  const { mastered, shaky, total } = rollUp(topics)
+  const { mastered, shaky, total } = sumMastery(topics)
 
   return (
     <section
