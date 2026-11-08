@@ -1,23 +1,14 @@
-import { notFound } from 'next/navigation'
-
 import { Empty } from '@/components/atoms'
 import { PageTemplate } from '@/components/layout'
-import { logger } from '@/config/logger'
 import { BookmarkRow } from '@/features/bookmarks/client/components/BookmarkRow'
 import { DrillBookmarksButton } from '@/features/bookmarks/client/components/DrillBookmarksButton'
 import { listBookmarks } from '@/features/bookmarks/server/api'
 import { BookmarkExamFilter } from '@/features/bookmarks/server/components/BookmarkExamFilter'
-import {
-  certPageParamsSchema,
-  certSlugSchema
-} from '@/features/catalog/schemas/certPageParams.schema'
-import { getCertification } from '@/features/catalog/server/api'
-import { catchAsyncError } from '@/features/error/utils/catchError'
+import { certPageParamsSchema } from '@/features/catalog/schemas/certPageParams.schema'
+import { requireCertification } from '@/features/catalog/server/api'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 
 export const dynamic = 'force-dynamic'
-
-const log = logger.child({ module: 'bookmarks-page' })
 
 export const generateMetadata = () =>
   generatePageMetadata({
@@ -30,50 +21,21 @@ interface BookmarksPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
-const failureFallback = (
-  <PageTemplate>
-    <p className="text-muted-foreground">
-      Something went wrong loading this page. Try refreshing.
-    </p>
-  </PageTemplate>
-)
-
 export default async function BookmarksPage({
   params,
   searchParams
 }: Readonly<BookmarksPageProps>) {
-  const parsedCert = certSlugSchema.safeParse((await params).cert)
-  if (!parsedCert.success) notFound()
-  const cert = parsedCert.data
-
-  const certResult = await catchAsyncError(getCertification(cert))
-  if (certResult.isErr()) {
-    if (certResult.error.code === 'NOT_FOUND') notFound()
-    log.error(
-      { error: certResult.error, certSlug: cert },
-      'Failed to load certification for bookmarks page'
-    )
-    return failureFallback
-  }
-
-  const bookmarksResult = await listBookmarks(cert)
-  if (bookmarksResult.isErr()) {
-    log.error(
-      { error: bookmarksResult.error, certSlug: cert },
-      'Failed to load bookmarks'
-    )
-    return failureFallback
-  }
-
-  const allItems = bookmarksResult.value
+  const certification = await requireCertification((await params).cert)
+  const cert = certification.slug
+  const allItems = await listBookmarks(cert)
   const { exam } = certPageParamsSchema.parse(await searchParams)
   // An unknown exam code falls back to "All" rather than an empty list.
-  const examCode = certResult.value.exams.some(
+  const examCode = certification.exams.some(
     (candidate) => candidate.code === exam
   )
     ? exam
     : undefined
-  const examOptions = certResult.value.exams.map(({ code }) => ({
+  const examOptions = certification.exams.map(({ code }) => ({
     code,
     count: allItems.filter((item) => item.examCode === code).length
   }))

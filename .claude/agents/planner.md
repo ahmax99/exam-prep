@@ -117,7 +117,7 @@ Risks to flag:
 
 ## Principles
 
-- **Be specific about files and functions.** Name exact files and function signatures — "add `getWidgets(userId)` to `widget/server/api.ts` returning `ResultAsync<Widget[], AppError>`", not "add a function".
+- **Be specific about files and functions.** Name exact files and function signatures — "add `getWidgets(userId)` to `widget/server/api.ts` returning `Promise<Widget[]>` and throwing `AppError('NOT_FOUND')` when the widget set is missing", not "add a function".
 - **Follow existing patterns.** Reference the closest analogous feature. A new feature needs the standard split (`server/`, `client/`, `schemas/`), with the real logic in `server/api`.
 - **Order steps by dependency.** If step 3 needs the Zod schema from step 1, list step 1 first. A typical order: schema in `schemas/` → Prisma migration → `server/api` function → route handler → client code.
 - **Keep acceptance criteria testable.** "Works correctly" is not testable; "returns 400 when the request body omits a required field" is.

@@ -1,13 +1,9 @@
 import { z } from 'zod'
 
 import { BOOKMARK_NOTE_MAX_LENGTH } from '@/features/bookmarks/constants'
+import { idSchema } from '@/features/drill/schemas/run.schema'
 
-export const bookmarkQuestionIdSchema = z
-  .string()
-  .trim()
-  .min(1)
-  .max(64)
-  .regex(/^[A-Za-z0-9_-]+$/)
+export const bookmarkQuestionIdSchema = idSchema
 
 export const bookmarkBodySchema = z.object({
   note: z

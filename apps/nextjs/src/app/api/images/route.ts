@@ -1,19 +1,19 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-import { AppError } from '@/features/error/lib/AppError'
 import { IMAGE_CACHE_MAX_AGE } from '@/features/media/constants'
 import { imagePathSchema } from '@/features/media/schemas/image.schema'
 import { fetchImage } from '@/features/media/server/api'
+import { parseInput } from '@/lib/requestInput'
 import { withRequestLogging } from '@/lib/requestLogging'
 
 export const GET = withRequestLogging(async (request: NextRequest) => {
-  const parsedPath = imagePathSchema.safeParse(
-    request.nextUrl.searchParams.get('path')
+  const image = await fetchImage(
+    parseInput(
+      imagePathSchema,
+      request.nextUrl.searchParams.get('path'),
+      'Invalid or missing image path'
+    )
   )
-  if (!parsedPath.success)
-    throw new AppError('BAD_REQUEST', 'Invalid or missing image path')
-
-  const image = await fetchImage(parsedPath.data)
 
   const headers = new Headers({
     'Content-Type': image.contentType,

@@ -1,5 +1,5 @@
 import 'server-only'
-import { getPrismaClient, type QuestionType } from '@/lib/prisma'
+import { prisma, type QuestionType } from '@/lib/prisma'
 
 export interface QuestionMix {
   fillIn: number
@@ -11,9 +11,7 @@ export const getQuestionMix = async (
   certSlug: string,
   examCode: string
 ): Promise<QuestionMix> => {
-  const db = await getPrismaClient()
-
-  const groups = await db.question.groupBy({
+  const groups = await prisma.question.groupBy({
     by: ['type'],
     where: { exam: { code: examCode, certification: { slug: certSlug } } },
     _count: { _all: true }

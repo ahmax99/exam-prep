@@ -41,7 +41,13 @@ Atoms never import from molecules or organisms. Molecules import atoms only. Fea
 
 This app has no authentication — there is no `features/auth/`, no session cookie, and no middleware gating routes. If a feature needs a signed-in user, that's new design work: pick an auth provider and flow, decide where session state lives, and re-derive an authorization model before assuming a caller identity anywhere in `server/`.
 
-**Error handling:** `features/error/utils/catchError.ts` provides `catchAsyncError` (neverthrow `ResultAsync`, for genuinely exceptional failures) and `catchSyncError` (for expected, recoverable failures — input validation, parsing untrusted data). `features/error/lib/AppError.ts` + `constants/errorDefinition.ts` define the app's error codes (this used to be shared with the backend via `@shared/config`; now that there's only one app, it's inlined here). Route handlers wrap their logic in `withRequestLogging` (`src/lib/requestLogging.ts`), which itself calls `catchAsyncError` and converts a thrown `AppError` into a JSON error response — so a route handler can just `throw new AppError(...)` and let that wrapper handle the response.
+**Error handling:** `server/api` functions are plain async functions that `throw new AppError(code, message)` (`features/error/lib/AppError.ts` + `constants/errorDefinition.ts` define the codes). Errors are caught once, at a boundary, never per call site:
+
+- **Route handlers** wrap their logic in `withRequestLogging` (`src/lib/requestLogging.ts`), which calls `catchAsyncError` and turns any thrown `AppError` into a JSON error response with the right status. Input is parsed with `parseInput` / `parseJsonBody` (`src/lib/requestInput.ts`), which throw a 400 `AppError`.
+- **Pages** let errors propagate to `app/error.tsx`. A `NOT_FOUND` that should render the 404 page goes through `orNotFound(promise)` (`features/error/utils/orNotFound.ts`); `[cert]` pages load their certification with `requireCertification(cert)` (catalog `server/api`), which 404s a bad or unknown slug.
+- **Logging** of server render errors happens once, in `src/instrumentation.ts` (`onRequestError` → pino); route-handler errors are logged by `withRequestLogging`.
+
+`features/error/utils/catchError.ts` (`catchAsyncError` / `catchSyncError`, neverthrow) is for boundaries and for the client, whose `client/lib` API callers return `ResultAsync<T, AppError>`.
 
 **Environment variables.** `src/config/env.ts` uses `@t3-oss/env-core` (not `env-nextjs`) — every variable is a **server-only** runtime value read from `process.env`. **Never add a `NEXT_PUBLIC_*` variable**: Next.js inlines those into the JS bundle at build time, which permanently bakes one environment's values into that build. If the browser genuinely needs a config value at runtime, expose it through a thin, `connection()`-gated route handler instead and fetch it client-side rather than baking it into the bundle. Client code needing the app's own origin uses same-origin relative paths (`/api/...`), never an absolute base URL from env.
 
@@ -49,7 +55,7 @@ UI is shadcn/ui + Tailwind CSS 4. Import alias is `@/*` → `src/*`.
 
 ## Database
 
-`src/lib/prisma.ts` exports `getPrismaClient()`, an async accessor that builds the client from `env.DATABASE_URL` (a plain environment variable everywhere — `.env` locally, a Vercel env var when deployed) once and caches the real client using the Neon serverless adapter (WebSocket via `ws`) — `server/api` code awaits it, it isn't a synchronous singleton. Schema is `apps/nextjs/prisma/schema.prisma`; generated client is git-ignored and produced by `db:generate` (the app's own `prebuild`, so building regenerates it).
+`src/lib/prisma.ts` exports `prisma`, a single `PrismaClient` built from `env.DATABASE_URL` (a plain environment variable everywhere — `.env` locally, a Vercel env var when deployed) using the Neon serverless adapter (WebSocket via `ws`), cached on `globalThis` so dev hot reloads reuse it. Schema is `apps/nextjs/prisma/schema.prisma`; generated client is git-ignored and produced by `db:generate` (the app's own `prebuild`, so building regenerates it).
 
 `schema.prisma` holds eight models and three enums. `Certification` → `Exam` → `Question` → `QuestionOption` is the catalog; `QuestionProgress` carries the per-question `MasteryState` (`WRONG` → `SHAKY` → `MASTERED`, two consecutive corrects to promote); `DrillRun` → `Attempt` is the history; `Bookmark` is the starred set. The catalog side is deliberately cert-agnostic — more certifications are planned, so don't let assumptions about the one currently seeded leak into shared code.
 

@@ -1,7 +1,7 @@
 import 'server-only'
 import { cache } from 'react'
 
-import { getPrismaClient } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 
 export interface CertificationSummary {
   id: string
@@ -14,9 +14,7 @@ export interface CertificationSummary {
 
 export const getCertifications = cache(
   async (): Promise<CertificationSummary[]> => {
-    const db = await getPrismaClient()
-
-    const certifications = await db.certification.findMany({
+    const certifications = await prisma.certification.findMany({
       select: {
         id: true,
         slug: true,

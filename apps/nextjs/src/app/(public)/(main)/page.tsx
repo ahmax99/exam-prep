@@ -1,9 +1,7 @@
 import { PageTemplate } from '@/components/layout'
-import { logger } from '@/config/logger'
 import { getCertifications } from '@/features/catalog/server/api'
 import { recommendDrill } from '@/features/drill/lib/recommendation'
 import { RecommendedDrill } from '@/features/drill/server/components/RecommendedDrill'
-import { catchAsyncError } from '@/features/error/utils/catchError'
 import { generatePageMetadata } from '@/features/metadata/utils/generatePageMetadata'
 import {
   getDashboard,
@@ -15,8 +13,6 @@ import { cn } from '@/utils/mergeClass'
 
 export const dynamic = 'force-dynamic'
 
-const log = logger.child({ module: 'dashboard-page' })
-
 export const generateMetadata = () =>
   generatePageMetadata({
     title: 'Dashboard',
@@ -24,23 +20,7 @@ export const generateMetadata = () =>
   })
 
 export default async function HomePage() {
-  const certifications = (await catchAsyncError(getCertifications())).unwrapOr(
-    null
-  )
-
-  if (certifications === null) {
-    return (
-      <PageTemplate>
-        <h1 className="max-w-[24ch] text-[30px] leading-[1.08] font-semibold tracking-[-0.03em] text-balance lg:text-[44px]">
-          Practice recall until the exam is boring
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Something went wrong loading the catalog. Try refreshing.
-        </p>
-      </PageTemplate>
-    )
-  }
-
+  const certifications = await getCertifications()
   const [primaryCertification] = certifications
 
   if (!primaryCertification) {
@@ -60,28 +40,13 @@ export default async function HomePage() {
     )
   }
 
-  const dashboard = (await catchAsyncError(getDashboard())).match(
-    (value) => value,
-    (error) => {
-      log.error({ error }, 'Failed to load dashboard mastery')
-      return []
-    }
-  )
   const primaryCertSlug = primaryCertification.slug
+  const [dashboard, weakestObjectives] = await Promise.all([
+    getDashboard(),
+    getWeakestObjectives(primaryCertSlug)
+  ])
   const primaryMastery =
     dashboard.find((entry) => entry.slug === primaryCertSlug) ?? null
-  const weakestObjectives = (
-    await catchAsyncError(getWeakestObjectives(primaryCertSlug))
-  ).match(
-    (value) => value,
-    (error) => {
-      log.error(
-        { error, certSlug: primaryCertSlug },
-        'Failed to load weakest objectives'
-      )
-      return []
-    }
-  )
   const hasAttempts = (primaryMastery?.attempted ?? 0) > 0
   const recommendation = recommendDrill({
     certSlug: primaryCertSlug,

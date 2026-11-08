@@ -21,7 +21,7 @@ Same as `security-reviewer`: `DIFF_BASE`, optional `SCOPE`, optional `PLAN_PATH`
 
 ## Correctness checklist
 
-- `server/api` logic that can genuinely fail wraps its async work in `catchAsyncError(...)` and returns a `ResultAsync<T, AppError>`, or throws `AppError('NOT_FOUND' | 'FORBIDDEN' | ..., msg)` for a route handler's `withRequestLogging` wrapper to catch — never a raw `try/catch` that swallows the error or leaks an internal stack trace.
+- `server/api` logic throws `AppError('NOT_FOUND' | 'BAD_REQUEST' | ..., msg)` for the boundary to catch (`withRequestLogging` in route handlers, `app/error.tsx` / `orNotFound` in pages) — never a raw `try/catch` that swallows the error or leaks an internal stack trace, and no per-function `catchAsyncError` wrapping.
 - Browser code never talks to Postgres or S3 directly — it goes through Next.js route handlers / Server Components, which call `server/api` functions holding the Prisma client (`@/lib/prisma`) or the AWS SDK.
 - Route handlers stay thin: call a feature's `server/api` function and `NextResponse.json` the result.
 - Server-only code (DB access, AWS credentials, signing logic) is never imported into a `'use client'` module.
@@ -77,7 +77,7 @@ If no issues, write `No correctness/architecture/code-quality issues found.` aft
 
 ## Calibration
 
-- `server/api` logic that leaks a thrown error uncaught to the browser instead of going through `catchAsyncError`/`withRequestLogging` is **High** Correctness — it breaks the error pipeline.
+- A route handler not wrapped in `withRequestLogging`, or a page that swallows an error into fallback UI instead of letting it reach `app/error.tsx`, is **High** Correctness — it breaks the error pipeline.
 - A route handler doing its own Postgres/S3 access inline instead of delegating to `server/api` is **Medium** Architecture.
 - Business/data logic in a route handler is **Medium** Architecture.
 - An `any` with no justification is **Medium** Code quality (it fails oxlint).

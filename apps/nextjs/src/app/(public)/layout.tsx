@@ -7,54 +7,28 @@ import {
   type AppSidebarPracticeItem
 } from '@/components/layout'
 import { SidebarProvider } from '@/components/organisms/Sidebar'
-import { logger } from '@/config/logger'
 import { countBookmarks } from '@/features/bookmarks/server/api'
 import { getCertifications } from '@/features/catalog/server/api'
 import { drillHref } from '@/features/drill/lib/drillHref'
-import { catchAsyncError } from '@/features/error/utils/catchError'
 import { getDashboard, type ExamMastery } from '@/features/progress/server/api'
 
 export const dynamic = 'force-dynamic'
 
-const log = logger.child({ module: 'public-layout' })
-
 export default async function PublicLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
-  const [certificationsResult, dashboardResult, cookieStore] =
-    await Promise.all([
-      catchAsyncError(getCertifications()),
-      catchAsyncError(getDashboard()),
-      cookies()
-    ])
-
-  const certifications = certificationsResult.match(
-    (value) => value,
-    (error) => {
-      log.error({ error }, 'Failed to load certifications for app rail')
-      return []
-    }
-  )
-  const dashboard = dashboardResult.match(
-    (value) => value,
-    (error) => {
-      log.error({ error }, 'Failed to load dashboard mastery for app rail')
-      return []
-    }
-  )
+  const [certifications, dashboard, cookieStore] = await Promise.all([
+    getCertifications(),
+    getDashboard(),
+    cookies()
+  ])
 
   const primaryCertSlug = certifications[0]?.slug
   const primaryMastery = dashboard.find(
     (entry) => entry.slug === primaryCertSlug
   )
   const bookmarkCount = primaryCertSlug
-    ? (await countBookmarks(primaryCertSlug)).match(
-        (value) => value,
-        (error) => {
-          log.error({ error }, 'Failed to load bookmark count for app rail')
-          return null
-        }
-      )
+    ? await countBookmarks(primaryCertSlug)
     : null
   const savedHref = primaryCertSlug ? `/${primaryCertSlug}/bookmarks` : null
   const runsHref = primaryCertSlug ? `/${primaryCertSlug}/runs` : null

@@ -33,7 +33,7 @@ For each schema change, evaluate:
 **Application compatibility:**
 
 - [ ] Is the Prisma client regenerated? (`turbo db:generate --filter=nextjs`, which is also the app's `prebuild`)
-- [ ] Are the affected `server/api` functions updated to match the schema change? (they call `await getPrismaClient()` from `@/lib/prisma`)
+- [ ] Are the affected `server/api` functions updated to match the schema change? (they query `prisma` from `@/lib/prisma`)
 - [ ] Are the feature's Zod `schemas/` updated for new/changed fields?
 - [ ] Does any code still reference removed columns?
 

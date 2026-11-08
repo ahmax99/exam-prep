@@ -2,6 +2,7 @@ import 'server-only'
 import { RUN_HISTORY_LIMIT } from '@/features/drill/constants'
 import { grade, type Verdict } from '@/features/drill/lib/grade'
 import { nextMastery } from '@/features/drill/lib/mastery'
+import { orderByIds } from '@/features/drill/lib/orderByIds'
 import { buildScopeWhere, orderQueue } from '@/features/drill/lib/queue'
 import {
   type AttemptOutcome,
@@ -11,19 +12,19 @@ import type { SelfGradeInput } from '@/features/drill/schemas/selfGrade.schema'
 import type { StartRunInput } from '@/features/drill/schemas/startRun.schema'
 import type { SubmitAnswerInput } from '@/features/drill/schemas/submitAnswer.schema'
 import { AppError } from '@/features/error/lib/AppError'
-import { catchAsyncError } from '@/features/error/utils/catchError'
-import {
-  type PrismaClient,
-  type ScopeKind,
-  getPrismaClient
-} from '@/lib/prisma'
+import { prisma, type ScopeKind } from '@/lib/prisma'
 
-const runStartRun = async (input: StartRunInput) => {
-  const db = await getPrismaClient()
-  const where = buildScopeWhere(input)
+const runHeaderSelect = {
+  id: true,
+  scopeKind: true,
+  scopeValue: true,
+  startedAt: true,
+  finishedAt: true
+} as const
 
-  const candidates = await db.question.findMany({
-    where,
+export const startRun = async (input: StartRunInput) => {
+  const candidates = await prisma.question.findMany({
+    where: buildScopeWhere(input),
     select: { id: true, progress: { select: { state: true } } },
     orderBy: [{ exam: { code: 'asc' } }, { number: 'asc' }]
   })
@@ -33,55 +34,44 @@ const runStartRun = async (input: StartRunInput) => {
   if (questionIds.length === 0)
     throw new AppError('NOT_FOUND', 'No questions match this scope')
 
-  return db.drillRun.create({
+  return prisma.drillRun.create({
     data: {
       scopeKind: input.scopeKind,
       scopeValue: input.scopeValue,
-      questionIds
+      questionIds,
+      certification: { connect: { slug: input.certSlug } }
     },
-    select: {
-      id: true,
-      scopeKind: true,
-      scopeValue: true,
-      questionIds: true,
-      startedAt: true
-    }
+    select: { id: true }
   })
 }
 
-export const startRun = (input: StartRunInput) =>
-  catchAsyncError(runStartRun(input))
-
-const runStartOrResumeRun = async (
+export const startOrResumeRun = async (
   input: StartRunInput
 ): Promise<{ id: string }> => {
-  const db = await getPrismaClient()
-
-  const resumable = await db.drillRun.findFirst({
+  const resumable = await prisma.drillRun.findFirst({
     where: {
       scopeKind: input.scopeKind,
       scopeValue: input.scopeValue,
+      certification: { slug: input.certSlug },
       finishedAt: null,
       attempts: { some: {} }
     },
-
     orderBy: [{ attempts: { _count: 'desc' } }, { startedAt: 'desc' }],
     select: { id: true }
   })
 
-  return resumable ?? runStartRun(input)
+  return resumable ?? startRun(input)
 }
 
-export const startOrResumeRun = (input: StartRunInput) =>
-  catchAsyncError(runStartOrResumeRun(input))
-
-const runGetRun = async (id: string) => {
-  const db = await getPrismaClient()
-  const run = await db.drillRun.findUnique({ where: { id } })
+export const getRun = async (id: string) => {
+  const run = await prisma.drillRun.findUnique({
+    where: { id },
+    select: { ...runHeaderSelect, questionIds: true }
+  })
   if (!run) throw new AppError('NOT_FOUND', 'Run not found')
 
   const [questions, answered] = await Promise.all([
-    db.question.findMany({
+    prisma.question.findMany({
       where: { id: { in: run.questionIds } },
       select: {
         id: true,
@@ -99,34 +89,19 @@ const runGetRun = async (id: string) => {
         bookmark: { select: { questionId: true } }
       }
     }),
-    db.attempt.findMany({
+    prisma.attempt.findMany({
       where: { runId: id },
       select: { questionId: true }
     })
   ])
 
-  const byId = new Map(questions.map((question) => [question.id, question]))
-  const ordered = run.questionIds
-    .map((questionId) => byId.get(questionId))
-    .filter((question) => question !== undefined)
-
+  const { questionIds, ...header } = run
   return {
-    run: {
-      id: run.id,
-      scopeKind: run.scopeKind,
-      scopeValue: run.scopeValue,
-      startedAt: run.startedAt,
-      finishedAt: run.finishedAt
-    },
-    questions: ordered,
+    run: header,
+    questions: orderByIds(questionIds, questions),
     answeredQuestionIds: answered.map((attempt) => attempt.questionId)
   }
 }
-
-export const getRun = (id: string) => catchAsyncError(runGetRun(id))
-
-const attemptIdFor = (runId: string, questionId: string) =>
-  `${runId}:${questionId}`
 
 const isUniqueViolation = (error: unknown) =>
   error instanceof Error && 'code' in error && error.code === 'P2002'
@@ -134,28 +109,25 @@ const isUniqueViolation = (error: unknown) =>
 const toResponseText = (response: string | string[]) =>
   Array.isArray(response) ? response.join(',') : response
 
-const writeAttempt = async (
-  db: PrismaClient,
-  params: {
-    runId: string
-    questionId: string
-    isCorrect: boolean
-    response: string | null
-    selfGraded: boolean
-  }
-) => {
-  const progress = await db.questionProgress.findUnique({
+const writeAttempt = async (params: {
+  runId: string
+  questionId: string
+  isCorrect: boolean
+  response: string | null
+  selfGraded: boolean
+}) => {
+  const progress = await prisma.questionProgress.findUnique({
     where: { questionId: params.questionId },
     select: { state: true, correctStreak: true }
   })
   const next = nextMastery(progress, params.isCorrect)
   const lastSeenAt = new Date()
 
-  await db
+  await prisma
     .$transaction([
-      db.attempt.create({
+      prisma.attempt.create({
         data: {
-          id: attemptIdFor(params.runId, params.questionId),
+          id: `${params.runId}:${params.questionId}`,
           runId: params.runId,
           questionId: params.questionId,
           isCorrect: params.isCorrect,
@@ -163,7 +135,7 @@ const writeAttempt = async (
           selfGraded: params.selfGraded
         }
       }),
-      db.questionProgress.upsert({
+      prisma.questionProgress.upsert({
         where: { questionId: params.questionId },
         create: {
           questionId: params.questionId,
@@ -192,12 +164,8 @@ const writeAttempt = async (
     })
 }
 
-const requireRunQuestion = async (
-  db: PrismaClient,
-  runId: string,
-  questionId: string
-) => {
-  const run = await db.drillRun.findUnique({
+const requireRunQuestion = async (runId: string, questionId: string) => {
+  const run = await prisma.drillRun.findUnique({
     where: { id: runId },
     select: { questionIds: true }
   })
@@ -206,15 +174,14 @@ const requireRunQuestion = async (
     throw new AppError('BAD_REQUEST', 'Question is not part of this run')
 }
 
-const runSubmitAnswer = async ({
+export const submitAnswer = async ({
   runId,
   questionId,
   response
 }: SubmitAnswerInput & { runId: string }) => {
-  const db = await getPrismaClient()
-  await requireRunQuestion(db, runId, questionId)
+  await requireRunQuestion(runId, questionId)
 
-  const question = await db.question.findUnique({
+  const question = await prisma.question.findUnique({
     where: { id: questionId },
     select: {
       type: true,
@@ -236,7 +203,7 @@ const runSubmitAnswer = async ({
 
   if (verdict === 'no-match') return reveal
 
-  await writeAttempt(db, {
+  await writeAttempt({
     runId,
     questionId,
     isCorrect: verdict === 'matched',
@@ -247,18 +214,14 @@ const runSubmitAnswer = async ({
   return reveal
 }
 
-export const submitAnswer = (input: SubmitAnswerInput & { runId: string }) =>
-  catchAsyncError(runSubmitAnswer(input))
-
-const runSelfGrade = async ({
+export const selfGrade = async ({
   runId,
   questionId,
   hadIt
 }: SelfGradeInput & { runId: string }) => {
-  const db = await getPrismaClient()
-  await requireRunQuestion(db, runId, questionId)
+  await requireRunQuestion(runId, questionId)
 
-  const question = await db.question.findUnique({
+  const question = await prisma.question.findUnique({
     where: { id: questionId },
     select: { type: true }
   })
@@ -270,7 +233,7 @@ const runSelfGrade = async ({
       'Only a fill-in answer can be self-graded'
     )
 
-  await writeAttempt(db, {
+  await writeAttempt({
     runId,
     questionId,
     isCorrect: hadIt,
@@ -281,85 +244,7 @@ const runSelfGrade = async ({
   return { verdict: (hadIt ? 'matched' : 'wrong') as Verdict, selfGraded: true }
 }
 
-export const selfGrade = (input: SelfGradeInput & { runId: string }) =>
-  catchAsyncError(runSelfGrade(input))
-
-const closeRunIfOpen = (db: PrismaClient, id: string) =>
-  db.drillRun.updateMany({
-    where: { id, finishedAt: null },
-    data: { finishedAt: new Date() }
-  })
-
-type RunHistoryScope = Pick<
-  StartRunInput,
-  'scopeKind' | 'scopeValue' | 'certSlug'
->
-
-const correctCountByRun = async (db: PrismaClient, runIds: string[]) => {
-  const counts = await db.attempt.groupBy({
-    by: ['runId'],
-    where: { runId: { in: runIds }, isCorrect: true },
-    _count: { _all: true }
-  })
-
-  return new Map<string | null, number>(
-    counts.map((row) => [row.runId, row._count._all])
-  )
-}
-
-const runGetRunHistory = async ({
-  scopeKind,
-  scopeValue,
-  certSlug
-}: RunHistoryScope) => {
-  const db = await getPrismaClient()
-
-  const runs = await db.drillRun.findMany({
-    where: { scopeKind, scopeValue },
-    orderBy: { startedAt: 'desc' },
-    take: RUN_HISTORY_LIMIT,
-    select: { id: true, startedAt: true, finishedAt: true, questionIds: true }
-  })
-
-  const witnessIds = runs
-    .map((run) => run.questionIds[0])
-    .filter((questionId) => questionId !== undefined)
-
-  const inCert = new Set(
-    (
-      await db.question.findMany({
-        where: {
-          id: { in: witnessIds },
-          exam: { certification: { slug: certSlug } }
-        },
-        select: { id: true }
-      })
-    ).map((question) => question.id)
-  )
-
-  const scoped = runs.filter((run) => {
-    const witness = run.questionIds[0]
-    return witness !== undefined && inCert.has(witness)
-  })
-
-  const scoreByRun = await correctCountByRun(
-    db,
-    scoped.map((run) => run.id)
-  )
-
-  return scoped.map((run) => ({
-    id: run.id,
-    startedAt: run.startedAt,
-    finishedAt: run.finishedAt,
-    score: scoreByRun.get(run.id) ?? 0,
-    total: run.questionIds.length
-  }))
-}
-
-export const getRunHistory = (scope: RunHistoryScope) =>
-  catchAsyncError(runGetRunHistory(scope))
-
-export interface CertificationRun {
+export interface RunHistoryEntry {
   id: string
   scopeKind: ScopeKind
   scopeValue: string
@@ -369,86 +254,56 @@ export interface CertificationRun {
   total: number
 }
 
-const runGetCertificationRunHistory = async (
+// Without a scope, lists every run in the certification.
+export const getRunHistory = async ({
+  certSlug,
+  scope
+}: {
   certSlug: string
-): Promise<CertificationRun[]> => {
-  const db = await getPrismaClient()
-
-  const certQuestions = await db.question.findMany({
-    where: { exam: { certification: { slug: certSlug } } },
-    select: { id: true }
-  })
-  const certQuestionIds = certQuestions.map((question) => question.id)
-
-  if (certQuestionIds.length === 0) return []
-
-  const runs = await db.drillRun.findMany({
-    where: { questionIds: { hasSome: certQuestionIds } },
+  scope?: Pick<StartRunInput, 'scopeKind' | 'scopeValue'>
+}): Promise<RunHistoryEntry[]> => {
+  const runs = await prisma.drillRun.findMany({
+    where: { certification: { slug: certSlug }, ...scope },
     orderBy: { startedAt: 'desc' },
     take: RUN_HISTORY_LIMIT,
-    select: {
-      id: true,
-      scopeKind: true,
-      scopeValue: true,
-      startedAt: true,
-      finishedAt: true,
-      questionIds: true
-    }
+    select: { ...runHeaderSelect, questionIds: true }
   })
 
-  const scoreByRun = await correctCountByRun(
-    db,
-    runs.map((run) => run.id)
-  )
+  const counts = await prisma.attempt.groupBy({
+    by: ['runId'],
+    where: { runId: { in: runs.map((run) => run.id) }, isCorrect: true },
+    _count: { _all: true }
+  })
+  const scoreByRun = new Map(counts.map((row) => [row.runId, row._count._all]))
 
-  return runs.map((run) => ({
-    id: run.id,
-    scopeKind: run.scopeKind,
-    scopeValue: run.scopeValue,
-    startedAt: run.startedAt,
-    finishedAt: run.finishedAt,
+  return runs.map(({ questionIds, ...run }) => ({
+    ...run,
     score: scoreByRun.get(run.id) ?? 0,
-    total: run.questionIds.length
+    total: questionIds.length
   }))
 }
 
-export const getCertificationRunHistory = (certSlug: string) =>
-  catchAsyncError(runGetCertificationRunHistory(certSlug))
-
-const runGetRunSummary = async ({
+export const getRunSummary = async ({
   runId,
   certSlug
 }: {
   runId: string
   certSlug: string
 }) => {
-  const db = await getPrismaClient()
+  const inCert = { id: runId, certification: { slug: certSlug } }
 
-  await closeRunIfOpen(db, runId)
+  await prisma.drillRun.updateMany({
+    where: { ...inCert, finishedAt: null },
+    data: { finishedAt: new Date() }
+  })
 
-  const run = await db.drillRun.findUnique({
-    where: { id: runId },
-    select: {
-      id: true,
-      scopeKind: true,
-      scopeValue: true,
-      questionIds: true,
-      startedAt: true,
-      finishedAt: true
-    }
+  const run = await prisma.drillRun.findFirst({
+    where: inCert,
+    select: { ...runHeaderSelect, questionIds: true }
   })
   if (!run) throw new AppError('NOT_FOUND', 'Run not found')
 
-  const witnessId = run.questionIds[0]
-  const witness = witnessId
-    ? await db.question.findFirst({
-        where: { id: witnessId, exam: { certification: { slug: certSlug } } },
-        select: { id: true }
-      })
-    : null
-  if (!witness) throw new AppError('NOT_FOUND', 'Run not found')
-
-  const attempts = await db.attempt.findMany({
+  const attempts = await prisma.attempt.findMany({
     where: { runId },
     select: {
       questionId: true,
@@ -458,118 +313,76 @@ const runGetRunSummary = async ({
     }
   })
 
-  const outcomes = summarizeOutcomes(
-    run.questionIds,
-    attempts satisfies AttemptOutcome[]
-  )
-
-  const missedIds = attempts
-    .filter((attempt) => !attempt.isCorrect)
-    .map((attempt) => attempt.questionId)
   const responseByQuestionId = new Map(
     attempts.map((attempt) => [attempt.questionId, attempt.response])
   )
-
-  const missedQuestions = await db.question.findMany({
-    where: { id: { in: missedIds } },
-    select: {
-      id: true,
-      number: true,
-      objective: true,
-      prompt: true,
-      type: true,
-      correctLetters: true,
-      answerDisplay: true,
-      explanation: true,
-      options: {
-        select: { letter: true, text: true },
-        orderBy: { letter: 'asc' }
-      },
-      exam: { select: { code: true } }
-    }
-  })
-  const missedById = new Map(
-    missedQuestions.map((question) => [question.id, question])
-  )
-  const misses = missedIds
-    .map((questionId) => {
-      const question = missedById.get(questionId)
-      if (!question) return null
-      return {
-        ...question,
-        response: responseByQuestionId.get(questionId) ?? null
-      }
-    })
-    .filter((miss) => miss !== null)
-
-    .sort(
-      (a, b) => run.questionIds.indexOf(a.id) - run.questionIds.indexOf(b.id)
-    )
-
-  const answeredIds = new Set(attempts.map((attempt) => attempt.questionId))
+  const missedIds = attempts
+    .filter((attempt) => !attempt.isCorrect)
+    .map((attempt) => attempt.questionId)
   const skippedIds = run.questionIds.filter(
-    (questionId) => !answeredIds.has(questionId)
+    (questionId) => !responseByQuestionId.has(questionId)
   )
 
-  const skippedQuestions = await db.question.findMany({
-    where: { id: { in: skippedIds } },
-    select: { id: true, objective: true, prompt: true }
-  })
-  const skippedById = new Map(
-    skippedQuestions.map((question) => [question.id, question])
-  )
-  const positionOf = new Map(
-    run.questionIds.map((questionId, index) => [questionId, index + 1])
-  )
-  const skipped = skippedIds.flatMap((questionId) => {
-    const question = skippedById.get(questionId)
-    return question
-      ? [{ ...question, position: positionOf.get(questionId) ?? 0 }]
-      : []
-  })
+  const [missedQuestions, skippedQuestions] = await Promise.all([
+    prisma.question.findMany({
+      where: { id: { in: missedIds } },
+      select: {
+        id: true,
+        number: true,
+        objective: true,
+        prompt: true,
+        type: true,
+        correctLetters: true,
+        answerDisplay: true,
+        explanation: true,
+        options: {
+          select: { letter: true, text: true },
+          orderBy: { letter: 'asc' }
+        },
+        exam: { select: { code: true } }
+      }
+    }),
+    prisma.question.findMany({
+      where: { id: { in: skippedIds } },
+      select: { id: true, objective: true, prompt: true }
+    })
+  ])
 
+  const { questionIds, ...header } = run
   return {
-    run: {
-      id: run.id,
-      scopeKind: run.scopeKind,
-      scopeValue: run.scopeValue,
-      startedAt: run.startedAt,
-      finishedAt: run.finishedAt
-    },
-    outcomes,
-    misses,
-    skipped
+    run: header,
+    outcomes: summarizeOutcomes(
+      questionIds,
+      attempts satisfies AttemptOutcome[]
+    ),
+    misses: orderByIds(questionIds, missedQuestions).map((question) => ({
+      ...question,
+      response: responseByQuestionId.get(question.id) ?? null
+    })),
+    skipped: orderByIds(questionIds, skippedQuestions).map((question) => ({
+      ...question,
+      position: questionIds.indexOf(question.id) + 1
+    }))
   }
 }
 
-export const getRunSummary = (input: { runId: string; certSlug: string }) =>
-  catchAsyncError(runGetRunSummary(input))
-
-const runRetryRun = async (id: string) => {
-  const db = await getPrismaClient()
-  const source = await db.drillRun.findUnique({
+export const retryRun = async (id: string) => {
+  const source = await prisma.drillRun.findUnique({
     where: { id },
-    select: { scopeKind: true, scopeValue: true, questionIds: true }
+    select: {
+      scopeKind: true,
+      scopeValue: true,
+      questionIds: true,
+      certificationId: true
+    }
   })
   if (!source) throw new AppError('NOT_FOUND', 'Run not found')
 
-  return db.drillRun.create({
-    data: {
-      scopeKind: source.scopeKind,
-      scopeValue: source.scopeValue,
-      questionIds: source.questionIds
-    },
-    select: { id: true, questionIds: true, startedAt: true }
-  })
+  return prisma.drillRun.create({ data: source, select: { id: true } })
 }
-
-export const retryRun = (id: string) => catchAsyncError(runRetryRun(id))
 
 // Answers and mastery outlive the run: Attempt.runId is SetNull on delete.
-const runDeleteRun = async (id: string) => {
-  const db = await getPrismaClient()
-  const { count } = await db.drillRun.deleteMany({ where: { id } })
+export const deleteRun = async (id: string) => {
+  const { count } = await prisma.drillRun.deleteMany({ where: { id } })
   if (count === 0) throw new AppError('NOT_FOUND', 'Run not found')
 }
-
-export const deleteRun = (id: string) => catchAsyncError(runDeleteRun(id))

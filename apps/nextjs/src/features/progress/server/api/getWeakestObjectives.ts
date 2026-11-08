@@ -1,6 +1,7 @@
 import 'server-only'
 import { WEAKEST_OBJECTIVES_LIMIT } from '@/features/progress/constants'
-import { getPrismaClient } from '@/lib/prisma'
+import { groupBy, tallyMastery } from '@/features/progress/lib/mastery'
+import { prisma } from '@/lib/prisma'
 import { toPercent } from '@/utils/toPercent'
 
 export interface WeakestObjective {
@@ -11,20 +12,11 @@ export interface WeakestObjective {
   masteryPercent: number
 }
 
-interface ObjectiveRow {
-  objective: string
-  topic: string
-  mastered: number
-  total: number
-}
-
 export const getWeakestObjectives = async (
   certSlug: string,
   limit: number = WEAKEST_OBJECTIVES_LIMIT
 ): Promise<WeakestObjective[]> => {
-  const db = await getPrismaClient()
-
-  const questions = await db.question.findMany({
+  const questions = await prisma.question.findMany({
     where: { exam: { certification: { slug: certSlug } } },
     select: {
       objective: true,
@@ -33,28 +25,19 @@ export const getWeakestObjectives = async (
     }
   })
 
-  const byObjective = new Map<string, ObjectiveRow>()
-
-  for (const { objective, topic, progress } of questions) {
-    const key = JSON.stringify([topic, objective])
-    const row = byObjective.get(key) ?? {
-      objective,
-      topic,
-      mastered: 0,
-      total: 0
-    }
-
-    row.total += 1
-    if (progress?.state === 'MASTERED') row.mastered += 1
-
-    byObjective.set(key, row)
-  }
-
-  return [...byObjective.values()]
-    .map((row) => ({
-      ...row,
-      masteryPercent: toPercent(row.mastered, row.total)
-    }))
+  return groupBy(questions, ({ topic, objective }) =>
+    JSON.stringify([topic, objective])
+  )
+    .map((group) => {
+      const { mastered, total } = tallyMastery(group)
+      return {
+        objective: group[0]?.objective ?? '',
+        topic: group[0]?.topic ?? '',
+        mastered,
+        total,
+        masteryPercent: toPercent(mastered, total)
+      }
+    })
     .sort(
       (a, b) =>
         a.masteryPercent - b.masteryPercent ||
